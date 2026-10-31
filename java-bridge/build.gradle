@@ -1,0 +1,15 @@
+plugins { id 'java'; id 'application' }
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+dependencies {
+    implementation files('../vendor/logisim-generic-2.7.1.jar', '../vendor/gson-2.11.0.jar')
+}
+application { mainClass = 'bridge.Main' }
+tasks.register('poc', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'bridge.Poc'
+    workingDir = rootProject.projectDir.parentFile
+    jvmArgs '-Djava.awt.headless=true'
+}

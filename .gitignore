@@ -1,0 +1,7 @@
+node_modules/
+dist/
+java-bridge/build/
+.gradle/
+vendor/src/
+vendor/META-INF/
+test-results/

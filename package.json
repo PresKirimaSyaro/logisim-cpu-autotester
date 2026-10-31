@@ -1,0 +1,46 @@
+{
+  "name": "logisim-cpu-autotester",
+  "private": true,
+  "type": "module",
+  "main": "dist/electron/apps/desktop/main.js",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build:java": "node scripts/build-java.mjs",
+    "build:ts": "tsc -p tsconfig.json",
+    "build:electron": "tsc -p apps/desktop/tsconfig.json",
+    "build:renderer": "vite build --config apps/renderer/vite.config.ts",
+    "build:gui": "npm run build && npm run build:electron && npm run build:renderer",
+    "build": "npm run build:java && npm run build:ts",
+    "generate:cpu": "node scripts/generate-cpu-fixture.mjs",
+    "generate:course": "node scripts/generate-course-cpu-fixture.mjs",
+    "gui": "npm run build:gui && node scripts/launch-gui.mjs",
+    "gui:smoke": "npm run build:gui && node scripts/launch-gui.mjs --smoke",
+    "typecheck:gui": "tsc -p apps/renderer/tsconfig.json && tsc -p apps/desktop/tsconfig.json --noEmit",
+    "poc": "npm run build:java && node scripts/poc.mjs",
+    "test:asm": "npm run build && node --test \"dist/tests/assembler/**/*.test.js\"",
+    "test:isa": "npm run build && node --test \"dist/tests/interpreter/**/*.test.js\"",
+    "test:unit": "npm run build && node --test \"dist/tests/assembler/**/*.test.js\" \"dist/tests/interpreter/**/*.test.js\" \"dist/tests/config/**/*.test.js\" \"dist/tests/generator/**/*.test.js\"",
+    "test:bridge": "npm run build && node --test \"dist/tests/bridge.test.js\" \"dist/tests/bridge/**/*.test.js\"",
+    "test:e2e": "npm run build && node --test \"dist/tests/e2e/**/*.test.js\"",
+    "test:cpu": "npm run build && node dist/packages/cli/src/main.js",
+    "test": "npm run build && node scripts/poc.mjs && node --test \"dist/tests/**/*.test.js\""
+  },
+  "devDependencies": {
+    "@types/node": "24.10.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "electron": "^45.2.1",
+    "typescript": "5.9.3",
+    "vite": "^8.3.5"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
+}

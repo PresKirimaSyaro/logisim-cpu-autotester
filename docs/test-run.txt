@@ -1,0 +1,35 @@
+
+> test
+> npm run build && node scripts/poc.mjs && node --test dist/tests/*.test.js
+
+
+> build
+> npm run build:java && tsc -p tsconfig.json
+
+
+> build:java
+> node scripts/build-java.mjs
+
+PASS CombinationalAdder inputs=1,2 expected=3 actual={unknownMask=0x00, status=known, value=0x03, width=8, errorMask=0x00}
+PASS CombinationalAdder inputs=255,1 expected=0 actual={unknownMask=0x00, status=known, value=0x00, width=8, errorMask=0x00}
+PASS CombinationalAdder inputs=127,128 expected=255 actual={unknownMask=0x00, status=known, value=0xFF, width=8, errorMask=0x00}
+PASS HierarchicalCircuit inputs=1,2 expected=3 actual={unknownMask=0x00, status=known, value=0x03, width=8, errorMask=0x00}
+PASS HierarchicalCircuit inputs=255,1 expected=0 actual={unknownMask=0x00, status=known, value=0x00, width=8, errorMask=0x00}
+PASS HierarchicalCircuit inputs=127,128 expected=255 actual={unknownMask=0x00, status=known, value=0xFF, width=8, errorMask=0x00}
+PASS Register rising edge, disabled hold, consecutive writes, fresh-state reset
+✔ real original Logisim adder + hierarchy, inspect, sequential cases and batch (1269.4506ms)
+✔ register: specified edges, enable hold, multiple writes, reset (1270.1814ms)
+✔ RPC failures preserve process and previous circuit; batch stops on error (1279.2101ms)
+✔ unknown and error bits remain distinguishable from numeric zero (1265.1883ms)
+✔ 32-bit unsigned values and ambiguous labels use stable coordinate IDs (1275.5173ms)
+✔ oscillation is reported and reset recovers (1290.9757ms)
+✔ unexpected exit, startup error, timeout and independent restart (1546.8061ms)
+✔ raw JSON Lines: malformed request, duplicate ID, invalid edge, shutdown (1273.6274ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10533.894

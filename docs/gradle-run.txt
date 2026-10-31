@@ -1,0 +1,36 @@
+WARNING: A restricted method in java.lang.System has been called
+WARNING: java.lang.System::load has been called by net.rubygrapefruit.platform.internal.NativeLibraryLoader in an unnamed module (file:/C:/Users/Chaiz/.gradle/wrapper/dists/gradle-9.1.0-bin/9agqghryom9wkf8r80qlhnts3/gradle-9.1.0/lib/native-platform-0.22-milestone-28.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module
+WARNING: Restricted methods will be blocked in a future release unless native access is enabled
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.1.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :compileJava
+> Task :processResources NO-SOURCE
+> Task :classes
+> Task :jar
+> Task :startScripts
+> Task :distTar
+> Task :distZip
+> Task :assemble
+> Task :compileTestJava NO-SOURCE
+> Task :processTestResources NO-SOURCE
+> Task :testClasses UP-TO-DATE
+> Task :test NO-SOURCE
+> Task :check UP-TO-DATE
+> Task :build
+
+> Task :poc
+PASS CombinationalAdder inputs=1,2 expected=3 actual={value=0x03, status=known, unknownMask=0x00, errorMask=0x00, width=8}
+PASS CombinationalAdder inputs=255,1 expected=0 actual={value=0x00, status=known, unknownMask=0x00, errorMask=0x00, width=8}
+PASS CombinationalAdder inputs=127,128 expected=255 actual={value=0xFF, status=known, unknownMask=0x00, errorMask=0x00, width=8}
+PASS HierarchicalCircuit inputs=1,2 expected=3 actual={value=0x03, status=known, unknownMask=0x00, errorMask=0x00, width=8}
+PASS HierarchicalCircuit inputs=255,1 expected=0 actual={value=0x00, status=known, unknownMask=0x00, errorMask=0x00, width=8}
+PASS HierarchicalCircuit inputs=127,128 expected=255 actual={value=0xFF, status=known, unknownMask=0x00, errorMask=0x00, width=8}
+PASS Register rising edge, disabled hold, consecutive writes, fresh-state reset
+
+> Task :installDist
+
+BUILD SUCCESSFUL in 6s
+7 actionable tasks: 7 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.1.0/userguide/configuration_cache_enabling.html

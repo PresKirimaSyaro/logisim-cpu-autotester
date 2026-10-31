@@ -1,0 +1,3 @@
+{"ok":true,"result":null,"id":"1"}
+{"ok":true,"result":{"completed":true,"results":[{"ok":true,"result":null},{"ok":true,"result":null},{"ok":true,"result":null},{"ok":true,"result":{"value":"0x03","status":"known","unknownMask":"0x00","errorMask":"0x00","width":8}}]},"id":"2"}
+{"ok":true,"result":null,"id":"3"}

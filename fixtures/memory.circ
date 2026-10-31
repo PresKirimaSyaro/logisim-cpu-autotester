@@ -1,0 +1,45 @@
+<project source="2.7.1" version="1.0">
+ <lib desc="#Wiring" name="0"/><lib desc="#Memory" name="2"/>
+ <main name="MemoryHarness"/>
+ <circuit name="MemoryHarness">
+  <comp lib="0" loc="(100,100)" name="Pin"><a name="width" val="8"/><a name="label" val="ADDR"/></comp>
+  <comp lib="0" loc="(100,100)" name="Tunnel"><a name="width" val="8"/><a name="label" val="ADDR"/></comp>
+  <comp lib="0" loc="(100,200)" name="Pin"><a name="label" val="CLK"/></comp>
+  <comp lib="0" loc="(100,200)" name="Tunnel"><a name="label" val="CLK"/></comp>
+  <comp lib="0" loc="(100,300)" name="Pin"><a name="label" val="RST"/></comp>
+  <comp lib="0" loc="(100,300)" name="Tunnel"><a name="label" val="RST"/></comp>
+  <comp lib="0" loc="(100,400)" name="Pin"><a name="label" val="WE"/></comp>
+  <comp lib="0" loc="(100,400)" name="Tunnel"><a name="label" val="WE"/></comp>
+  <comp lib="0" loc="(100,500)" name="Pin"><a name="label" val="OE"/></comp>
+  <comp lib="0" loc="(100,500)" name="Tunnel"><a name="label" val="OE"/></comp>
+  <comp lib="0" loc="(100,600)" name="Pin"><a name="width" val="32"/><a name="label" val="DIN"/></comp>
+  <comp lib="0" loc="(100,600)" name="Tunnel"><a name="width" val="32"/><a name="label" val="DIN"/></comp>
+  <comp lib="0" loc="(1000,100)" name="Pin"><a name="width" val="32"/><a name="output" val="true"/><a name="facing" val="west"/><a name="label" val="DOUT"/></comp>
+  <comp lib="0" loc="(1000,100)" name="Tunnel"><a name="width" val="32"/><a name="label" val="DOUT"/></comp>
+  <comp lib="0" loc="(1000,200)" name="Pin"><a name="width" val="32"/><a name="output" val="true"/><a name="facing" val="west"/><a name="label" val="ROMOUT"/></comp>
+  <comp lib="0" loc="(1000,200)" name="Tunnel"><a name="width" val="32"/><a name="label" val="ROMOUT"/></comp>
+  <comp lib="0" loc="(1000,300)" name="Pin"><a name="width" val="32"/><a name="output" val="true"/><a name="facing" val="west"/><a name="label" val="Q"/></comp>
+  <comp lib="0" loc="(1000,300)" name="Tunnel"><a name="width" val="32"/><a name="label" val="Q"/></comp>
+  <comp lib="0" loc="(400,500)" name="Constant"><a name="width" val="1"/><a name="value" val="1"/></comp>
+  <comp lib="0" loc="(400,500)" name="Tunnel"><a name="label" val="ONE"/></comp>
+  <comp lib="2" loc="(600,100)" name="ROM"><a name="addrWidth" val="8"/><a name="dataWidth" val="32"/><a name="contents" val="addr/data: 8 32"/></comp>
+  <comp lib="0" loc="(600,100)" name="Tunnel"><a name="width" val="32"/><a name="label" val="ROMOUT"/></comp>
+  <comp lib="0" loc="(460,100)" name="Tunnel"><a name="width" val="8"/><a name="label" val="ADDR"/></comp>
+  <comp lib="0" loc="(510,140)" name="Tunnel"><a name="label" val="ONE"/></comp>
+  <comp lib="2" loc="(600,600)" name="RAM"><a name="addrWidth" val="8"/><a name="dataWidth" val="32"/><a name="bus" val="separate"/></comp>
+  <comp lib="0" loc="(600,600)" name="Tunnel"><a name="width" val="32"/><a name="label" val="DOUT"/></comp>
+  <comp lib="0" loc="(460,600)" name="Tunnel"><a name="width" val="8"/><a name="label" val="ADDR"/></comp>
+  <comp lib="0" loc="(510,640)" name="Tunnel"><a name="label" val="ONE"/></comp>
+  <comp lib="0" loc="(550,640)" name="Tunnel"><a name="label" val="OE"/></comp>
+  <comp lib="0" loc="(570,640)" name="Tunnel"><a name="label" val="RST"/></comp>
+  <comp lib="0" loc="(530,640)" name="Tunnel"><a name="label" val="CLK"/></comp>
+  <comp lib="0" loc="(490,640)" name="Tunnel"><a name="label" val="WE"/></comp>
+  <comp lib="0" loc="(460,620)" name="Tunnel"><a name="width" val="32"/><a name="label" val="DIN"/></comp>
+  <comp lib="2" loc="(600,900)" name="Register"><a name="width" val="32"/><a name="label" val="PC"/></comp>
+  <comp lib="0" loc="(600,900)" name="Tunnel"><a name="width" val="32"/><a name="label" val="Q"/></comp>
+  <comp lib="0" loc="(570,900)" name="Tunnel"><a name="width" val="32"/><a name="label" val="DIN"/></comp>
+  <comp lib="0" loc="(580,920)" name="Tunnel"><a name="label" val="CLK"/></comp>
+  <comp lib="0" loc="(590,920)" name="Tunnel"><a name="label" val="RST"/></comp>
+  <comp lib="0" loc="(570,910)" name="Tunnel"><a name="label" val="WE"/></comp>
+ </circuit>
+</project>

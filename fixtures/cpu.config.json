@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "name": "generated-single-cycle-mips",
+  "circuitName": "SingleCycleCPU",
+  "clock": {
+    "pin": "CLK",
+    "edge": "rising"
+  },
+  "reset": {
+    "strategy": "pin",
+    "pin": "RST",
+    "activeLow": false,
+    "ticks": 1
+  },
+  "pc": {
+    "mode": "pin",
+    "port": "pc",
+    "initial": 0,
+    "checkEachCycle": true
+  },
+  "rom": {
+    "path": "SingleCycleCPU/ROM@1200,13200",
+    "baseByteAddress": 0,
+    "addressBits": 8,
+    "addressShift": 2,
+    "dataBits": 32,
+    "capacityWords": 256
+  },
+  "ram": {
+    "baseByteAddress": 0,
+    "capacityWords": 256
+  },
+  "limits": {
+    "maxSteps": 10000,
+    "maxCycles": 10000
+  },
+  "inputs": [],
+  "outputs": {
+    "instruction": "Instr",
+    "pc": "pc",
+    "regWrite": "RegWrite",
+    "regAddr": "RegAddr",
+    "regData": "RegData",
+    "memWrite": "MemWrite",
+    "memAddr": "MemAddr",
+    "memData": "MemData"
+  },
+  "notes": "Generated single-cycle MIPS fixture. The CPU is tested through top-level outputs; its physical data RAM is implementation detail."
+}

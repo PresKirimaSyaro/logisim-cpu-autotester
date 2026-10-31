@@ -1,0 +1,2 @@
+# Linux build scripts and Autoconf templates require LF in Windows worktrees.
+* text=auto eol=lf

@@ -1,0 +1,17 @@
+<project source="2.7.1" version="1.0">
+ <lib desc="#Wiring" name="0"/><lib desc="#Arithmetic" name="1"/><lib desc="#Memory" name="2"/>
+ <main name="HierarchicalCircuit"/>
+ <circuit name="CombinationalAdder">
+  <comp lib="0" loc="(100,90)" name="Pin"><a name="width" val="8"/><a name="label" val="A"/></comp>
+  <comp lib="0" loc="(100,110)" name="Pin"><a name="width" val="8"/><a name="label" val="B"/></comp>
+  <comp lib="1" loc="(140,100)" name="Adder"><a name="width" val="8"/></comp>
+  <comp lib="0" loc="(140,100)" name="Pin"><a name="output" val="true"/><a name="facing" val="west"/><a name="width" val="8"/><a name="label" val="S"/></comp>
+ </circuit>
+ <circuit name="HierarchicalCircuit">
+  <comp loc="(300,100)" name="CombinationalAdder"/>
+  <comp lib="0" loc="(270,100)" name="Pin"><a name="width" val="8"/><a name="label" val="A"/></comp>
+  <comp lib="0" loc="(270,110)" name="Pin"><a name="width" val="8"/><a name="label" val="B"/></comp>
+  <comp lib="0" loc="(300,100)" name="Pin"><a name="output" val="true"/><a name="facing" val="west"/><a name="width" val="8"/><a name="label" val="S"/></comp>
+ </circuit>
+</project>
+

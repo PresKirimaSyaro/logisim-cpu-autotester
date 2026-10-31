@@ -1,0 +1,13 @@
+<project source="2.7.1" version="1.0">
+ <lib desc="#Wiring" name="0"/>
+ <main name="LogicValues"/>
+ <circuit name="LogicValues">
+  <comp lib="0" name="Pin" loc="(100,100)"><a name="label" val="X"/><a name="width" val="8"/></comp>
+  <comp lib="0" name="Pin" loc="(200,100)"><a name="label" val="U"/><a name="output" val="true"/><a name="width" val="8"/></comp>
+  <wire from="(100,100)" to="(200,100)"/>
+  <comp lib="0" name="Constant" loc="(100,200)"><a name="width" val="8"/><a name="value" val="0x00"/></comp>
+  <comp lib="0" name="Constant" loc="(200,200)"><a name="width" val="8"/><a name="value" val="0xff"/></comp>
+  <wire from="(100,200)" to="(200,200)"/>
+  <comp lib="0" name="Pin" loc="(200,200)"><a name="label" val="E"/><a name="output" val="true"/><a name="width" val="8"/></comp>
+ </circuit>
+</project>

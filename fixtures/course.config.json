@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "name": "course-single-cycle-mips",
+  "circuitName": "main",
+  "clock": {
+    "mode": "internal",
+    "halfCycles": 2
+  },
+  "reset": {
+    "strategy": "pin",
+    "pin": "reset",
+    "activeLow": false,
+    "ticks": 1
+  },
+  "pc": {
+    "mode": "pin",
+    "port": "pc",
+    "initial": 12288,
+    "checkEachCycle": true
+  },
+  "rom": {
+    "path": "main/ROM@200,5200",
+    "baseByteAddress": 12288,
+    "addressBits": 12,
+    "addressShift": 2,
+    "dataBits": 32,
+    "capacityWords": 4096
+  },
+  "ram": {
+    "baseByteAddress": 0,
+    "capacityWords": 3072
+  },
+  "limits": {
+    "maxSteps": 10000,
+    "maxCycles": 10000
+  },
+  "inputs": [],
+  "outputs": {
+    "instruction": "Instr",
+    "pc": "pc",
+    "regWrite": "RegWrite",
+    "regAddr": "RegAddr",
+    "regData": "RegData",
+    "memWrite": "MemWrite",
+    "memAddr": "MemAddr",
+    "memData": "MemData"
+  },
+  "notes": "Generated course-profile CPU fixture. Internal Logisim Clock, ROM at 0x3000, 3072-word logical data memory, standard observation outputs. Physical RAM is not part of the test contract."
+}

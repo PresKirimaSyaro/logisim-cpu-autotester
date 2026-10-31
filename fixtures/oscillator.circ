@@ -1,0 +1,14 @@
+<project source="2.7.1" version="1.0">
+ <lib desc="#Wiring" name="0"/><lib desc="#Gates" name="1"/>
+ <main name="Oscillator"/>
+ <circuit name="Oscillator">
+  <comp lib="1" name="NAND Gate" loc="(200,100)"><a name="inputs" val="2"/></comp>
+  <comp lib="0" name="Pin" loc="(140,80)"><a name="label" val="EN"/><a name="tristate" val="false"/></comp>
+  <wire from="(200,100)" to="(230,100)"/>
+  <wire from="(230,100)" to="(230,150)"/>
+  <wire from="(120,150)" to="(230,150)"/>
+  <wire from="(120,120)" to="(120,150)"/>
+  <wire from="(120,120)" to="(140,120)"/>
+  <comp lib="0" name="Pin" loc="(230,100)"><a name="label" val="Q"/><a name="output" val="true"/></comp>
+ </circuit>
+</project>
