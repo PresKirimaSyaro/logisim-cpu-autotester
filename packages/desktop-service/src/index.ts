@@ -1,4 +1,4 @@
-import {mkdir, readFile, readdir, stat, writeFile, rename} from 'node:fs/promises';
+import {mkdir, readFile, readdir, rm, stat, writeFile, rename} from 'node:fs/promises';
 import {dirname, extname, join, resolve} from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {BridgeError, LogisimBridge, type BridgeOptions} from '../../bridge-client/src/index.js';
@@ -23,6 +23,7 @@ import {
   type TestResult,
 } from '../../differential-runner/src/index.js';
 import {
+  generateRandomTests,
   generateStressTests,
   layoutForConfig,
   selectSuite,
@@ -146,6 +147,7 @@ export class TesterService {
       lastSummary: this.lastSummary ? {...this.lastSummary, results: []} : null,
       lastReportId: this.lastReportId,
       suiteFile: this.suiteFile,
+      dataDir: this.options.dataDir,
       lastError: this.lastError,
       logs: [...this.logs],
     };
@@ -475,8 +477,16 @@ export class TesterService {
             seed: request.seed,
             instructions: this.config.instructions,
           })
-        : await this.loadDirectedSuite(layout);
-      const selected = suite === 'full' ? all : selectSuite(all, suite);
+        : suite === 'random'
+          ? generateRandomTests(layout, {
+              count: request.seedCount ?? 20,
+              seed: request.seed,
+              instructions: this.config.instructions,
+            })
+          : await this.loadDirectedSuite(layout);
+      const selected = suite === 'full' || suite === 'stress' || suite === 'random'
+        ? all
+        : selectSuite(all, suite);
       if (selected.length === 0) throw new ServiceError(`未知测试集: ${suite}`, 'UNKNOWN_SUITE');
       return {
         tests: selected.map((test) => ({
@@ -539,6 +549,22 @@ export class TesterService {
 
   async getHistory(id: string): Promise<HistoryRecord | null> {
     return this.getReportRecord(id);
+  }
+
+  async deleteHistory(id: string): Promise<{deleted: boolean; error?: string}> {
+    if (this.running) return {deleted: false, error: '测试正在运行，不能删除记录'};
+    if (!/^[A-Za-z0-9._-]+$/.test(id)) return {deleted: false, error: '记录 id 无效'};
+    const record = await this.historyStore.get(id);
+    if (!record) return {deleted: false, error: '历史记录不存在'};
+    await this.historyStore.delete(id);
+    this.reportCache.delete(id);
+    if (this.lastReportId === id) {
+      const remaining = await this.historyStore.list();
+      this.lastReportId = remaining[0]?.id ?? null;
+    }
+    this.log('history', `deleted ${id}`);
+    this.emitState();
+    return {deleted: true};
   }
 
   async getReportMeta(id: string): Promise<ReportMeta | null> {
@@ -777,6 +803,12 @@ class HistoryStore {
     await atomicWrite(join(this.historyDir, `${id}.meta.json`), `${JSON.stringify(meta, null, 2)}\n`);
     return record;
   }
+  async delete(id: string): Promise<void> {
+    if (!/^[A-Za-z0-9._-]+$/.test(id)) throw new ServiceError('历史记录 id 无效', 'HISTORY_ID_INVALID');
+    await rm(join(this.historyDir, `${id}.json`), {force: true});
+    await rm(join(this.historyDir, `${id}.meta.json`), {force: true});
+  }
+
   async list(): Promise<HistoryMeta[]> {
     const files = (await readdir(this.historyDir)).filter((name) => name.endsWith('.meta.json'));
     const metas: HistoryMeta[] = [];

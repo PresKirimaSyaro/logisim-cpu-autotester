@@ -114,6 +114,33 @@ test('CLI returns 1 for a differential failure and reports the first signal', {t
   assert.equal(summary.results[0].firstSignalMismatch.expected, '0x12340000');
 });
 
+test('CLI runs reproducible random programs', {timeout: 120000}, async () => {
+  const result = await runCli([
+    '--circuit',
+    'fixtures/course-cpu.circ',
+    '--config',
+    'fixtures/course.config.json',
+    '--suite',
+    'random',
+    '--seed',
+    '1234',
+    '--seed-count',
+    '3',
+    '--report',
+    'test-results/cli-random.json',
+    '--json',
+  ]);
+  assert.equal(result.code, 0, result.stderr);
+  const summary = JSON.parse(result.stdout) as {
+    totals: Record<string, number>;
+    results: {id: string; seed: number; status: string}[];
+  };
+  assert.equal(summary.totals.total, 3);
+  assert.equal(summary.totals.failed, 0);
+  assert.equal(summary.totals.errors, 0);
+  assert.ok(summary.results.every((entry) => entry.seed === 1234 && entry.id.startsWith('random-')));
+});
+
 test('CLI runs the stress intensity with coverage', {timeout: 120000}, async () => {
   const result = await runCli([
     '--circuit',

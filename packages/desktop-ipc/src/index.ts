@@ -22,6 +22,7 @@ export const IPC = {
   historyList: 'history:list',
   historyGet: 'history:get',
   historyRerun: 'history:rerun',
+  historyDelete: 'history:delete',
   resultOpen: 'result:open',
   reportMeta: 'report:meta',
   reportTest: 'report:test',
@@ -33,7 +34,7 @@ export const IPC = {
   stateUpdate: 'state:update',
 } as const;
 
-export type SuiteName = 'basic' | 'full' | 'branch' | 'memory' | 'alu' | 'stress';
+export type SuiteName = 'basic' | 'full' | 'branch' | 'memory' | 'alu' | 'stress' | 'random';
 export type StressIntensity = 'quick' | 'standard' | 'stress';
 
 export interface TesterSettings {
@@ -181,6 +182,8 @@ export interface AppState {
   lastReportId: string | null;
   /** External directed-test suite used by the next generated run. */
   suiteFile: string;
+  /** Directory next to the executable containing settings/history/reports. */
+  dataDir: string;
   lastError: string | null;
   logs: string[];
 }
@@ -245,6 +248,7 @@ export interface DesktopApi {
   getReportTrace(reportId: string, testId: string, offset: number, limit: number): Promise<TracePage | null>;
   exportHex(reportId: string, testId: string): Promise<{saved: boolean; path?: string}>;
   rerun(historyId: string, onlyFailed: boolean): Promise<RunStartResult>;
+  deleteHistory(historyId: string): Promise<{deleted: boolean; error?: string}>;
   assemble(source: string): Promise<AssembleResult>;
   getLogs(): Promise<string[]>;
   onRunUpdate(listener: (update: RunUpdate) => void): () => void;

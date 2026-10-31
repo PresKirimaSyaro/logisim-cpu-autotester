@@ -8,7 +8,10 @@ import {TesterService} from '../../packages/desktop-service/src/index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(app.getAppPath());
-const dataDir = join(app.getPath('userData'), 'logisim-cpu-tester');
+// Records live next to the EXE in the portable package; development keeps them
+// in the repository root. This makes the portable folder self-contained.
+const exeDir = app.isPackaged ? dirname(process.execPath) : resolve('.');
+const dataDir = join(exeDir, 'test-records');
 let mainWindow: BrowserWindow | null = null;
 let service: TesterService | null = null;
 const resultWindows = new Map<string, BrowserWindow>();
@@ -239,6 +242,16 @@ function registerIpc(): void {
     });
     if (!target) return {saved: false};
     return service!.exportHex(reportId, testId, target);
+  });
+  ipcMain.handle(IPC.historyDelete, async (_event, historyId: string) => {
+    if (typeof historyId !== 'string') return {deleted: false, error: '记录 id 无效'};
+    const result = await service!.deleteHistory(historyId);
+    if (result.deleted) {
+      const window = resultWindows.get(historyId);
+      window?.close();
+    }
+    sendState();
+    return result;
   });
   ipcMain.handle(IPC.historyRerun, async (_event, historyId: string, onlyFailed: boolean) => {
     if (typeof historyId !== 'string') return {started: false, error: '历史记录无效'};

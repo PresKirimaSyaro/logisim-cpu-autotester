@@ -9,11 +9,14 @@ interface Props {
 
 export function HistoryPage({onOpenWorkbench, onMessage}: Props) {
   const [entries, setEntries] = useState<HistoryMeta[]>([]);
+  const [recordsDir, setRecordsDir] = useState('');
   const [busy, setBusy] = useState(false);
 
   async function refresh(): Promise<void> {
     try {
       setEntries(await window.cpuTester.listHistory());
+      const state = await window.cpuTester.getState();
+      setRecordsDir(state.dataDir);
     } catch (error) {
       onMessage(String(error));
     }
@@ -54,6 +57,24 @@ export function HistoryPage({onOpenWorkbench, onMessage}: Props) {
     }
   }
 
+  async function deleteRecord(meta: HistoryMeta): Promise<void> {
+    if (!window.confirm(`删除测试记录 ${meta.circuitName} · ${meta.suite}？此操作不可恢复。`)) return;
+    setBusy(true);
+    try {
+      const result = await window.cpuTester.deleteHistory(meta.id);
+      if (!result.deleted) {
+        onMessage(result.error ?? '删除失败');
+        return;
+      }
+      onMessage(`已删除记录 ${meta.id}`);
+      await refresh();
+    } catch (error) {
+      onMessage(String(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="history-page history-page-single" data-testid="history">
       <section className="card history-list-card">
@@ -62,6 +83,7 @@ export function HistoryPage({onOpenWorkbench, onMessage}: Props) {
             <div className="eyebrow">本地记录</div>
             <h2>测试历史</h2>
             <p className="muted small history-lead">点击记录在独立窗口中打开完整用例、机器码和逐周期轨迹。</p>
+            {recordsDir && <p className="muted small history-lead mono" title={recordsDir}>记录目录：{shortPath(recordsDir, 100)}</p>}
           </div>
           <button className="btn ghost" onClick={refresh} disabled={busy}>
             刷新
@@ -102,6 +124,9 @@ export function HistoryPage({onOpenWorkbench, onMessage}: Props) {
                   <button className="btn ghost" onClick={() => exportReport(entry)} disabled={busy}>导出 JSON</button>
                   <button className="btn ghost" onClick={() => rerun(entry, true)} disabled={busy || entry.totals.failed + entry.totals.errors === 0}>
                     重跑失败
+                  </button>
+                  <button className="btn danger" onClick={() => void deleteRecord(entry)} disabled={busy}>
+                    删除
                   </button>
                 </div>
               </div>

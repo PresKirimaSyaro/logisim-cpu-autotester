@@ -2,7 +2,7 @@ import {ConfigError} from '../../mips-core/src/errors.js';
 import type {CpuConfig} from '../../mips-core/src/config/config.js';
 import {ALL_INSTRUCTIONS, type InstructionName} from '../../mips-core/src/isa/instruction-set.js';
 
-export type TestCategory = 'add-sub' | 'ori' | 'sll' | 'lui' | 'j' | 'nextpc' | 'lw-sw' | 'beq' | 'mixed' | 'stress';
+export type TestCategory = 'add-sub' | 'ori' | 'sll' | 'lui' | 'j' | 'nextpc' | 'lw-sw' | 'beq' | 'mixed' | 'stress' | 'random';
 
 export interface SignatureExpectation {
   byteAddress: number;

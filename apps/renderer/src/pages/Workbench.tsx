@@ -229,18 +229,21 @@ export function Workbench(props: Props) {
                 <option value="memory">memory · load/store</option>
                 <option value="branch">branch · 分支</option>
                 <option value="stress">stress · 强力循环</option>
+                <option value="random">random · 随机程序</option>
               </select>
             </label>
             {suite === 'stress' && (
+              <label className="field narrow">
+                <span>强度</span>
+                <select value={intensity} onChange={(event) => setIntensity(event.target.value as StressIntensity)} disabled={running}>
+                  <option value="quick">Quick</option>
+                  <option value="standard">Standard</option>
+                  <option value="stress">Stress</option>
+                </select>
+              </label>
+            )}
+            {(suite === 'stress' || suite === 'random') && (
               <>
-                <label className="field narrow">
-                  <span>强度</span>
-                  <select value={intensity} onChange={(event) => setIntensity(event.target.value as StressIntensity)} disabled={running}>
-                    <option value="quick">Quick</option>
-                    <option value="standard">Standard</option>
-                    <option value="stress">Stress</option>
-                  </select>
-                </label>
                 <label className="field narrow">
                   <span>随机种子</span>
                   <input
@@ -251,10 +254,10 @@ export function Workbench(props: Props) {
                   />
                 </label>
                 <label className="field narrow">
-                  <span>Seed 数量</span>
+                  <span>{suite === 'stress' ? 'Seed 数量' : '程序数量'}</span>
                   <input
                     type="number"
-                    min={0}
+                    min={suite === 'random' ? 1 : 0}
                     value={seedCountText}
                     onChange={(event) => setSeedCountText(event.target.value)}
                     placeholder="默认"

@@ -87,6 +87,12 @@ test('desktop service loads the course CPU and runs a real suite', {timeout: 120
     await service.exportHistory(record!.meta.id, exportPath);
     const exported = JSON.parse(await readFile(exportPath, 'utf8')) as {meta: {totals: {passed: number}}};
     assert.equal(exported.meta.totals.passed, state.lastSummary?.totals.passed);
+
+    const deleted = await service.deleteHistory(record!.meta.id);
+    assert.equal(deleted.deleted, true, deleted.error);
+    assert.equal(await service.getHistory(record!.meta.id), null);
+    assert.equal((await service.listHistory()).length, 1);
+    assert.equal((await service.deleteHistory(record!.meta.id)).deleted, false);
   } finally {
     await rm(dataDir, {recursive: true, force: true});
   }
@@ -115,6 +121,20 @@ test('desktop service runs the stress intensity and stores coverage/report pages
     assert.ok((page0?.total ?? 0) > 200);
     const page1 = await service.getReportTrace(state.lastReportId!, loop!.id, 200, 200);
     assert.equal(page1?.rows[0].cycle, 201);
+
+    const randomStart = await service.startRun({kind: 'suite', suite: 'random', seed: 0x2468, seedCount: 4});
+    assert.equal(randomStart.started, true, randomStart.error);
+    await service.waitForRun();
+    const randomState = service.getState();
+    assert.equal(randomState.lastSummary?.totals.total, 4);
+    assert.equal(randomState.lastSummary?.totals.failed, 0);
+    assert.equal(randomState.lastSummary?.totals.errors, 0);
+    const randomMeta = await service.getReportMeta(randomState.lastReportId!);
+    assert.equal(randomMeta?.tests.length, 4);
+    for (const entry of randomMeta?.tests ?? []) {
+      const report = await service.getReportTest(randomState.lastReportId!, entry.id);
+      assert.equal(report?.seed, 0x2468);
+    }
   } finally {
     await rm(dataDir, {recursive: true, force: true});
   }

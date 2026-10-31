@@ -91,7 +91,7 @@ writeFileSync(join(releaseRoot, 'README.txt'), [
   'A bundled Java runtime is in resources/app/runtime when jlink was available;',
   'otherwise install Java 17+ or select java.exe in Settings.',
   '',
-  'User data (history/settings) is under %APPDATA%\\Logisim CPU Tester\\logisim-cpu-tester.',
+  'Settings and test records are stored in the test-records folder next to this EXE.',
 ].join('\r\n') + '\r\n');
 
 const size = directorySize(appDir);

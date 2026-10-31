@@ -6,6 +6,7 @@ import {LogisimBridge} from '../../packages/bridge-client/src/index.js';
 import type {BridgeOperation} from '../../packages/protocol/src/index.js';
 import {ALL_INSTRUCTIONS, parseCpuConfig} from '../../packages/mips-core/src/index.js';
 import {
+  generateRandomTests,
   generateStressTests,
   layoutForConfig,
   parseTestSuite,
@@ -204,6 +205,18 @@ test('sw/lw cross-check observes store data and the later load writeback', {time
     assert.ok(checkpoints.some((entry) => entry.signal === 'MemData' && entry.cycle === 4 && entry.expected === '0x0000007B'));
   } finally {
     await bridge.close();
+  }
+});
+
+test('random suite is reproducible and runs real constrained-random programs', {timeout: 120000}, async () => {
+  const config = await loadCourseConfig();
+  const layout = layoutForConfig(config);
+  const tests = generateRandomTests(layout, {count: 5, seed: 0x2026, instructions: config.instructions}).map(toInput);
+  const summary = await runSuite('fixtures/course-cpu.circ', tests, config);
+  assert.deepEqual(summary.totals, {total: 5, passed: 5, failed: 0, errors: 0, skipped: 0});
+  for (const result of summary.results) {
+    assert.equal(result.status, 'pass', result.message);
+    assert.equal(result.seed, 0x2026);
   }
 });
 

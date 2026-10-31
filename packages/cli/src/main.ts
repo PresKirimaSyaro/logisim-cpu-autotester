@@ -19,6 +19,7 @@ import {
   type TestInput,
 } from '../../differential-runner/src/index.js';
 import {
+  generateRandomTests,
   generateStressTests,
   layoutForConfig,
   parseTestSuite,
@@ -59,11 +60,11 @@ Required:
   --config <path>        JSON CpuConfig (see fixtures/cpu.config.json).
   One of:
   --asm <path>           Assembly file to run.
-  --suite <name>         Run tests (basic, full, branch, memory, alu, stress).
+  --suite <name>         Run tests (basic, full, branch, memory, alu, stress, random).
   --suite-file <path>    External directed-test JSON (default: test-suites/course.json).
   --intensity <level>    Stress intensity: quick, standard, stress (default standard).
   --seed <n>             Base seed for stress random programs (default 0x5a17c0de).
-  --seed-count <n>       Override the number of seeded stress programs.
+  --seed-count <n>       Number of stress seed programs or random programs.
   --instructions <list>  Comma-separated enabled instructions (overrides config).
                          Default: add,sub,ori,lw,sw,beq,lui,nop; optional sll,j.
 
@@ -188,11 +189,17 @@ async function main(argv: string[]): Promise<number> {
 async function testsForSuite(config: CpuConfig, options: CliOptions): Promise<TestInput[]> {
   const layout = layoutForConfig(config);
   const suite = options.suite ?? 'basic';
-  let all: ReturnType<typeof generateStressTests>;
+  let all: ReturnType<typeof generateStressTests> | ReturnType<typeof generateRandomTests>;
   if (suite === 'stress') {
     all = generateStressTests(layout, {
       intensity: options.intensity ?? 'standard',
       seedCount: options.seedCount,
+      seed: options.seed,
+      instructions: config.instructions,
+    });
+  } else if (suite === 'random') {
+    all = generateRandomTests(layout, {
+      count: options.seedCount ?? 20,
       seed: options.seed,
       instructions: config.instructions,
     });
@@ -210,11 +217,13 @@ async function testsForSuite(config: CpuConfig, options: CliOptions): Promise<Te
     }
     all = testsFromSuite(parseTestSuite(raw), layout, config.instructions);
   }
-  const selected = suite === 'full' || suite === 'all' || suite === 'stress' ? all : selectSuite(all, suite);
+  const selected = suite === 'full' || suite === 'all' || suite === 'stress' || suite === 'random'
+    ? all
+    : selectSuite(all, suite);
   if (selected.length === 0) {
     throw new ConfigError(
       'CONFIG_INVALID',
-      `Unknown or empty suite "${suite}". Available: basic, full, branch, memory, alu, stress`,
+      `Unknown or empty suite "${suite}". Available: basic, full, branch, memory, alu, stress, random`,
       '$.suite',
     );
   }
