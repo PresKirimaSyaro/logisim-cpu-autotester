@@ -1,8 +1,12 @@
-name: bridge
+name: CI
 on: [push, pull_request]
 jobs:
   test:
+    timeout-minutes: 20
     strategy:
+      # Keep all OS/JDK combinations running so a single Windows timing
+      # failure does not cancel the other matrix entries.
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         java: ['17', '25']

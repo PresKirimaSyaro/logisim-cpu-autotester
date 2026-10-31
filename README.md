@@ -5,6 +5,7 @@
 加载你在 Logisim 2.7.1 中完成的 MIPS 单周期 CPU，自动注入测试程序、逐周期比较顶层信号，并在失败时定位到具体周期、PC、汇编指令和信号差异。
 
 ![BUAA Computer Organization P3](https://img.shields.io/badge/BUAA-Computer%20Organization%20P3-1f6feb)
+![CI](https://github.com/PresKirimaSyaro/logisim-cpu-autotester/actions/workflows/test.yml/badge.svg)
 ![Tests](https://img.shields.io/badge/tests-103%20passing-brightgreen)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
 ![Node](https://img.shields.io/badge/Node.js-22%2B-339933)
@@ -281,7 +282,7 @@ scripts                       构建、导出、打包
 | GUI smoke | 退出码 0 |
 | Windows 便携版 smoke | 退出码 0 |
 
-验证记录：[docs/phase8-validation.md](docs/phase8-validation.md)、[docs/phase7-validation.md](docs/phase7-validation.md)、[docs/phase6-validation.md](docs/phase6-validation.md)。
+CI：GitHub Actions 矩阵覆盖 Ubuntu/Windows × JDK 17/25，运行 `npm ci` + `npm test`。验证记录：[docs/phase8-validation.md](docs/phase8-validation.md)、[docs/phase7-validation.md](docs/phase7-validation.md)、[docs/phase6-validation.md](docs/phase6-validation.md)。
 
 ## 已知限制
 

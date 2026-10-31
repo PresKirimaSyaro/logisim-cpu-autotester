@@ -118,7 +118,12 @@ test('unexpected exit, startup error, timeout and independent restart',async()=>
  const b=new LogisimBridge();
  await b.load('fixtures/adder.circ','CombinationalAdder');
  const pending=b.batch(Array.from({length:5000},()=>({op:'inspect' as const})));
- const rejection=assert.rejects(pending,(e:unknown)=>e instanceof BridgeError && e.code==='PROCESS_EXIT');
+ // Windows may report the closed stdin pipe (`PROCESS_IO: write EOF`) before
+ // the child `exit` event, while Unix reports `PROCESS_EXIT`. Both mean the
+ // in-flight request must reject; neither may turn into a successful result.
+ const rejection=assert.rejects(pending,(e:unknown)=>
+  e instanceof BridgeError && (e.code==='PROCESS_EXIT'||e.code==='PROCESS_IO')
+ );
  process.kill(b.processId!); await rejection; await b.close();
  const restarted=new LogisimBridge();
  try {await restarted.load('fixtures/adder.circ','CombinationalAdder');assert.equal((await restarted.inspect()).ports.length,3);} finally {await restarted.close();}
