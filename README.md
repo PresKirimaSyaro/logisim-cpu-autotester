@@ -31,6 +31,81 @@ npm run dist:win
 
 需要 JDK 17+、Node 22+。`npm run gui` 构建并启动桌面应用；`dist:win` 生成便携版。
 
+## 推送到 GitHub
+
+当前本地仓库在 `master` 分支，尚未配置 remote。首次推送步骤：
+
+1. 在 GitHub 新建一个**空仓库**（不要勾选自动生成 README、.gitignore 或 license）。
+2. 配置提交身份并检查要提交的文件：
+
+```sh
+git config user.name  "Your Name"
+git config user.email "you@example.com"
+
+git status --short
+git add .gitignore README.md docs
+git status --short
+git commit -m "docs: GitHub README, validation records and ignore rules"
+```
+
+3. 关联远程并推送：
+
+```sh
+git remote add origin https://github.com/<your-account>/<repo>.git
+git branch -M main
+git push -u origin main
+```
+
+如果希望继续使用 `master`，最后两行改成：
+
+```sh
+git push -u origin master
+```
+
+GitHub 已配置凭据后，也可以直接使用 SSH：
+
+```sh
+git remote add origin git@github.com:<your-account>/<repo>.git
+```
+
+### 需要推送/不推送的内容
+
+**应该提交：**
+
+- `apps/`、`packages/`、`java-bridge/src/`、`scripts/`、`tests/`
+- `fixtures/`（课程/Phase 2/故障 CPU 与配置）
+- `test-suites/`（外部测试程序集）
+- `docs/`（设计、验证记录和截图）
+- `package.json`、`package-lock.json`、`tsconfig.json`
+- `vendor/` 顶层 JAR 与 license；这是构建/运行所需的 Logisim 2.7.1 和 Gson
+
+**不要提交：**
+
+- `node_modules/`、`dist/`、`java-bridge/build/`、`.gradle/`
+- `test-records/`（用户历史与设置）
+- `test-results/`（本地截图/报告）
+- `release/`（数百 MB 的 exe/runtime；应作为 GitHub Release 附件）
+- `vendor/src/`、`vendor/META-INF/`（上游解包源码，构建不需要）
+
+`.gitignore` 已处理这些目录。便携版 `.zip` 用 GitHub Releases 上传：
+
+```sh
+gh release create v1.0.0 \
+  "release/Logisim-CPU-Tester-win-x64.zip" \
+  --title "Logisim CPU Tester v1.0.0" \
+  --notes "Portable Windows build"
+```
+
+也可以在 GitHub 网页的 **Releases → Draft a new release** 中上传 zip。若仓库还没有提交，先执行 `git add`/`git commit`；检查忽略项可运行：
+
+```sh
+git status --short --ignored
+git ls-files | wc -l        # Linux/macOS
+# PowerShell: (git ls-files | Measure-Object).Count
+```
+
+推送后建议在仓库 About 中填写描述并添加 Topics：`logisim`、`mips`、`cpu`、`testing`、`electron`。
+
 ## 外部测试程序集（Phase 6/7）
 
 定向测试不再由运行时硬编码生成。应用和 CLI 每次开始测试都会读取：

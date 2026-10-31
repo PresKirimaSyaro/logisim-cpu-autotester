@@ -1,10 +1,31 @@
+# Dependencies and compiled output
 node_modules/
 dist/
 java-bridge/build/
 .gradle/
+**/.gradle/
+*.tsbuildinfo
+
+# Local test output and user data
+test-results/
+test-records/
+release/
+*.log
+npm-debug.log*
+*.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Local environment / secrets
+.env
+.env.*
+
+# The Logisim/Gson JARs in vendor/ are required and committed; their
+# unpacked upstream source tree is not needed for builds.
 vendor/src/
 vendor/META-INF/
-test-results/
-docs/
-release/
-test-records/
