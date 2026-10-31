@@ -1,6 +1,6 @@
 # 外部测试程序集
 
-`course.json` 是应用运行时读取的**唯一内置测试程序集**。直接编辑此 JSON 即可增删/修改测试，不需要重新编译或重新打包。
+`course.json` 是应用运行时读取的**唯一内置测试程序集**（当前 165 条；默认八指令过滤后 147 条）。直接编辑此 JSON 即可增删/修改测试，不需要重新编译或重新打包。
 
 ## 文件格式
 
@@ -42,4 +42,4 @@ npm run test:cpu -- --circuit fixtures/course-cpu.circ --config fixtures/course.
 
 GUI 从安装目录的 `test-suites/course.json` 读取；每次开始测试都会重新读取，因此修改后无需重启。
 
-`course.json` 由 `npm run build && node scripts/export-test-suite.mjs` 从当前生成器导出，作为迁移/维护工具；应用/CLI 的正常运行路径不再调用硬编码 `generateDirectedTests`。
+`course.json` 最初由 `scripts/export-test-suite.mjs` 导出，Phase 7 通过 `scripts/add-phase7-tests.mjs` 追加 100 条。应用/CLI 的正常运行路径只读取此 JSON，不调用硬编码 `generateDirectedTests`。

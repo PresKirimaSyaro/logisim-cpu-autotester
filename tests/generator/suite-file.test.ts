@@ -20,8 +20,8 @@ test('external suite is the application source of truth and filters optional ins
   assert.equal(suite.name, 'course-directed');
   const defaults = testsFromSuite(suite, layout, COURSE_INSTRUCTIONS);
   const all = testsFromSuite(suite, layout, ALL_INSTRUCTIONS);
-  assert.equal(defaults.length, 47);
-  assert.equal(all.length, 65);
+  assert.equal(defaults.length, 147);
+  assert.equal(all.length, 165);
   assert.ok(defaults.some((entry) => entry.id === 'lui-ffff'));
   assert.ok(!defaults.some((entry) => entry.id.startsWith('sll-')));
   assert.ok(all.some((entry) => entry.id === 'j-backward-loop'));

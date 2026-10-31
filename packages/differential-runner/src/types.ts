@@ -91,7 +91,10 @@ export type ReferenceFault =
   | 'beq-negative-offset'
   | 'ori-sign-extend'
   | 'lui-high'
-  | 'add-sub-msb';
+  | 'add-sub-msb'
+  | 'lw-as-beq'
+  | 'sw-as-beq'
+  | 'ori-as-beq';
 
 export interface RunnerOptions {
   circuitPath: string;

@@ -102,6 +102,45 @@ const CASES: {
       ori $t3, $zero, 1
     `,
   },
+  {
+    fault: 'lw-as-beq',
+    id: 'fault-lw-as-beq',
+    steps: 6,
+    assembly: `
+      ori $t0, $zero, 0x100
+      lw $t0, 4($t0)
+      ori $t1, $zero, 0x55
+      sw $t1, 0x100($zero)
+      ori $t2, $zero, 1
+      sw $t2, 0x104($zero)
+    `,
+  },
+  {
+    fault: 'sw-as-beq',
+    id: 'fault-sw-as-beq',
+    steps: 6,
+    assembly: `
+      ori $t0, $zero, 0x100
+      sw $t0, 4($t0)
+      ori $t1, $zero, 0x55
+      sw $t1, 0x100($zero)
+      ori $t2, $zero, 1
+      sw $t2, 0x104($zero)
+    `,
+  },
+  {
+    fault: 'ori-as-beq',
+    id: 'fault-ori-as-beq',
+    steps: 6,
+    assembly: `
+      ori $t0, $zero, 0x100
+      ori $t0, $t0, 1
+      ori $t1, $zero, 0x55
+      sw $t1, 0x100($zero)
+      ori $t2, $zero, 1
+      sw $t2, 0x104($zero)
+    `,
+  },
 ];
 
 for (const entry of CASES) {

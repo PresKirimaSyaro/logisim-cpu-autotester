@@ -840,6 +840,21 @@ function applyReferenceFault(trace: TraceEntry[], fault: ReferenceFault): void {
           entry.registerWrite = {...entry.registerWrite, value: (entry.registerWrite.value ^ 0x80000000) >>> 0};
         }
         break;
+      case 'lw-as-beq':
+        if (instruction.kind === 'lw' && instruction.rs === instruction.rt) {
+          entry.pcAfter = (entry.pcBefore + 4 + (instruction.offset << 2)) >>> 0;
+        }
+        break;
+      case 'sw-as-beq':
+        if (instruction.kind === 'sw' && instruction.rs === instruction.rt) {
+          entry.pcAfter = (entry.pcBefore + 4 + (instruction.offset << 2)) >>> 0;
+        }
+        break;
+      case 'ori-as-beq':
+        if (instruction.kind === 'ori' && instruction.rs === instruction.rt) {
+          entry.pcAfter = (entry.pcBefore + 4 + ((instruction.immediate & 0xffff) << 2)) >>> 0;
+        }
+        break;
     }
   }
 }

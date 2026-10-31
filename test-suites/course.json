@@ -1900,6 +1900,3280 @@
       ],
       "seed": 1592590340,
       "requiredRamBytes": 268
+    },
+    {
+      "id": "phase7-misdecode-lw-1",
+      "name": "lw with rs=rt must not branch (1)",
+      "category": "nextpc",
+      "description": "The load opcode must execute as lw; a controller that decoded its equal rs/rt fields as beq would skip the marker.",
+      "assembly": "    ori $t0, $zero, 256\n    lw $t0, 4($t0)\n    ori $t1, $zero, 64\n    sw $t1, 256($zero)\n    ori $t2, $zero, 128\n    sw $t2, 260($zero)\nphase7_end_0:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 64
+        },
+        {
+          "index": 1,
+          "expected": 128
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "lw-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-lw-2",
+      "name": "lw with rs=rt must not branch (2)",
+      "category": "nextpc",
+      "description": "The load opcode must execute as lw; a controller that decoded its equal rs/rt fields as beq would skip the marker.",
+      "assembly": "    ori $t0, $zero, 288\n    lw $t0, 8($t0)\n    ori $t1, $zero, 65\n    sw $t1, 256($zero)\n    ori $t2, $zero, 129\n    sw $t2, 260($zero)\nphase7_end_1:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 65
+        },
+        {
+          "index": 1,
+          "expected": 129
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "lw-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-lw-3",
+      "name": "lw with rs=rt must not branch (3)",
+      "category": "nextpc",
+      "description": "The load opcode must execute as lw; a controller that decoded its equal rs/rt fields as beq would skip the marker.",
+      "assembly": "    ori $t0, $zero, 320\n    lw $t0, 12($t0)\n    ori $t1, $zero, 66\n    sw $t1, 256($zero)\n    ori $t2, $zero, 130\n    sw $t2, 260($zero)\nphase7_end_2:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 66
+        },
+        {
+          "index": 1,
+          "expected": 130
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "lw-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-lw-4",
+      "name": "lw with rs=rt must not branch (4)",
+      "category": "nextpc",
+      "description": "The load opcode must execute as lw; a controller that decoded its equal rs/rt fields as beq would skip the marker.",
+      "assembly": "    ori $t0, $zero, 352\n    lw $t0, 4($t0)\n    ori $t1, $zero, 67\n    sw $t1, 256($zero)\n    ori $t2, $zero, 131\n    sw $t2, 260($zero)\nphase7_end_3:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 67
+        },
+        {
+          "index": 1,
+          "expected": 131
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "lw-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-lw-5",
+      "name": "lw with rs=rt must not branch (5)",
+      "category": "nextpc",
+      "description": "The load opcode must execute as lw; a controller that decoded its equal rs/rt fields as beq would skip the marker.",
+      "assembly": "    ori $t0, $zero, 384\n    lw $t0, 8($t0)\n    ori $t1, $zero, 68\n    sw $t1, 256($zero)\n    ori $t2, $zero, 132\n    sw $t2, 260($zero)\nphase7_end_4:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 68
+        },
+        {
+          "index": 1,
+          "expected": 132
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "lw-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-lw-6",
+      "name": "lw with rs=rt must not branch (6)",
+      "category": "nextpc",
+      "description": "The load opcode must execute as lw; a controller that decoded its equal rs/rt fields as beq would skip the marker.",
+      "assembly": "    ori $t0, $zero, 416\n    lw $t0, 12($t0)\n    ori $t1, $zero, 69\n    sw $t1, 256($zero)\n    ori $t2, $zero, 133\n    sw $t2, 260($zero)\nphase7_end_5:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 69
+        },
+        {
+          "index": 1,
+          "expected": 133
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "lw-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-sw-1",
+      "name": "sw with rs=rt must not branch (1)",
+      "category": "nextpc",
+      "description": "The store opcode must execute as sw and fall through; an erroneous beq decode would skip the marker.",
+      "assembly": "    ori $t0, $zero, 384\n    sw $t0, 4($t0)\n    ori $t1, $zero, 80\n    sw $t1, 256($zero)\n    ori $t2, $zero, 144\n    sw $t2, 260($zero)\nphase7_end_6:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 80
+        },
+        {
+          "index": 1,
+          "expected": 144
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "sw-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-sw-2",
+      "name": "sw with rs=rt must not branch (2)",
+      "category": "nextpc",
+      "description": "The store opcode must execute as sw and fall through; an erroneous beq decode would skip the marker.",
+      "assembly": "    ori $t0, $zero, 416\n    sw $t0, 8($t0)\n    ori $t1, $zero, 81\n    sw $t1, 256($zero)\n    ori $t2, $zero, 145\n    sw $t2, 260($zero)\nphase7_end_7:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 81
+        },
+        {
+          "index": 1,
+          "expected": 145
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "sw-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-sw-3",
+      "name": "sw with rs=rt must not branch (3)",
+      "category": "nextpc",
+      "description": "The store opcode must execute as sw and fall through; an erroneous beq decode would skip the marker.",
+      "assembly": "    ori $t0, $zero, 448\n    sw $t0, 12($t0)\n    ori $t1, $zero, 82\n    sw $t1, 256($zero)\n    ori $t2, $zero, 146\n    sw $t2, 260($zero)\nphase7_end_8:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 82
+        },
+        {
+          "index": 1,
+          "expected": 146
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "sw-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-sw-4",
+      "name": "sw with rs=rt must not branch (4)",
+      "category": "nextpc",
+      "description": "The store opcode must execute as sw and fall through; an erroneous beq decode would skip the marker.",
+      "assembly": "    ori $t0, $zero, 480\n    sw $t0, 4($t0)\n    ori $t1, $zero, 83\n    sw $t1, 256($zero)\n    ori $t2, $zero, 147\n    sw $t2, 260($zero)\nphase7_end_9:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 83
+        },
+        {
+          "index": 1,
+          "expected": 147
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "sw-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-sw-5",
+      "name": "sw with rs=rt must not branch (5)",
+      "category": "nextpc",
+      "description": "The store opcode must execute as sw and fall through; an erroneous beq decode would skip the marker.",
+      "assembly": "    ori $t0, $zero, 512\n    sw $t0, 8($t0)\n    ori $t1, $zero, 84\n    sw $t1, 256($zero)\n    ori $t2, $zero, 148\n    sw $t2, 260($zero)\nphase7_end_10:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 84
+        },
+        {
+          "index": 1,
+          "expected": 148
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "sw-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-sw-6",
+      "name": "sw with rs=rt must not branch (6)",
+      "category": "nextpc",
+      "description": "The store opcode must execute as sw and fall through; an erroneous beq decode would skip the marker.",
+      "assembly": "    ori $t0, $zero, 544\n    sw $t0, 12($t0)\n    ori $t1, $zero, 85\n    sw $t1, 256($zero)\n    ori $t2, $zero, 149\n    sw $t2, 260($zero)\nphase7_end_11:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 85
+        },
+        {
+          "index": 1,
+          "expected": 149
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "sw-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-ori-1",
+      "name": "ori with rs=rt must not branch (1)",
+      "category": "nextpc",
+      "description": "The immediate OR must modify the register and fall through, not use its immediate as a beq displacement.",
+      "assembly": "    ori $t0, $zero, 256\n    ori $t0, $t0, 1\n    ori $t1, $zero, 96\n    sw $t1, 256($zero)\n    sw $t0, 260($zero)\nphase7_end_12:\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 96
+        },
+        {
+          "index": 1,
+          "expected": 257
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "ori-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-ori-2",
+      "name": "ori with rs=rt must not branch (2)",
+      "category": "nextpc",
+      "description": "The immediate OR must modify the register and fall through, not use its immediate as a beq displacement.",
+      "assembly": "    ori $t0, $zero, 257\n    ori $t0, $t0, 3\n    ori $t1, $zero, 97\n    sw $t1, 256($zero)\n    sw $t0, 260($zero)\nphase7_end_13:\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 97
+        },
+        {
+          "index": 1,
+          "expected": 259
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "ori-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-ori-3",
+      "name": "ori with rs=rt must not branch (3)",
+      "category": "nextpc",
+      "description": "The immediate OR must modify the register and fall through, not use its immediate as a beq displacement.",
+      "assembly": "    ori $t0, $zero, 258\n    ori $t0, $t0, 5\n    ori $t1, $zero, 98\n    sw $t1, 256($zero)\n    sw $t0, 260($zero)\nphase7_end_14:\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 98
+        },
+        {
+          "index": 1,
+          "expected": 263
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "ori-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-ori-4",
+      "name": "ori with rs=rt must not branch (4)",
+      "category": "nextpc",
+      "description": "The immediate OR must modify the register and fall through, not use its immediate as a beq displacement.",
+      "assembly": "    ori $t0, $zero, 259\n    ori $t0, $t0, 7\n    ori $t1, $zero, 99\n    sw $t1, 256($zero)\n    sw $t0, 260($zero)\nphase7_end_15:\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 99
+        },
+        {
+          "index": 1,
+          "expected": 263
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "ori-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-ori-5",
+      "name": "ori with rs=rt must not branch (5)",
+      "category": "nextpc",
+      "description": "The immediate OR must modify the register and fall through, not use its immediate as a beq displacement.",
+      "assembly": "    ori $t0, $zero, 260\n    ori $t0, $t0, 9\n    ori $t1, $zero, 100\n    sw $t1, 256($zero)\n    sw $t0, 260($zero)\nphase7_end_16:\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 100
+        },
+        {
+          "index": 1,
+          "expected": 269
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "ori-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-misdecode-ori-6",
+      "name": "ori with rs=rt must not branch (6)",
+      "category": "nextpc",
+      "description": "The immediate OR must modify the register and fall through, not use its immediate as a beq displacement.",
+      "assembly": "    ori $t0, $zero, 261\n    ori $t0, $t0, 11\n    ori $t1, $zero, 101\n    sw $t1, 256($zero)\n    sw $t0, 260($zero)\nphase7_end_17:\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 101
+        },
+        {
+          "index": 1,
+          "expected": 271
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "misdecode",
+        "ori-as-beq",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-ori-zeroext-1234-8000",
+      "name": "ori zero-extension 0x8000 on 0x1234xxxx",
+      "category": "ori",
+      "description": "ORI immediate is a zero-extended 16-bit pattern even when bit 15 is set.",
+      "assembly": "    lui $t0, 0x1234\n    ori $t0, $t0, 0x8000\n    sw $t0, 256($zero)\n    ori $t1, $zero, 33\n    sw $t1, 260($zero)\nphase7_end_18:\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 305430528
+        },
+        {
+          "index": 1,
+          "expected": 33
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "ori",
+        "zero-extension",
+        "high-immediate"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-ori-zeroext-abcd-ffff",
+      "name": "ori zero-extension 0xffff on 0xabcdxxxx",
+      "category": "ori",
+      "description": "ORI immediate is a zero-extended 16-bit pattern even when bit 15 is set.",
+      "assembly": "    lui $t0, 0xabcd\n    ori $t0, $t0, 0xffff\n    sw $t0, 256($zero)\n    ori $t1, $zero, 33\n    sw $t1, 260($zero)\nphase7_end_19:\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2882404351
+        },
+        {
+          "index": 1,
+          "expected": 33
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "ori",
+        "zero-extension",
+        "high-immediate"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-ori-zeroext-8000-8001",
+      "name": "ori zero-extension 0x8001 on 0x8000xxxx",
+      "category": "ori",
+      "description": "ORI immediate is a zero-extended 16-bit pattern even when bit 15 is set.",
+      "assembly": "    lui $t0, 0x8000\n    ori $t0, $t0, 0x8001\n    sw $t0, 256($zero)\n    ori $t1, $zero, 33\n    sw $t1, 260($zero)\nphase7_end_20:\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2147516417
+        },
+        {
+          "index": 1,
+          "expected": 33
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "ori",
+        "zero-extension",
+        "high-immediate"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-ori-zeroext-ffff-ffff",
+      "name": "ori zero-extension 0xffff on 0xffffxxxx",
+      "category": "ori",
+      "description": "ORI immediate is a zero-extended 16-bit pattern even when bit 15 is set.",
+      "assembly": "    lui $t0, 0xffff\n    ori $t0, $t0, 0xffff\n    sw $t0, 256($zero)\n    ori $t1, $zero, 33\n    sw $t1, 260($zero)\nphase7_end_21:\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4294967295
+        },
+        {
+          "index": 1,
+          "expected": 33
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "ori",
+        "zero-extension",
+        "high-immediate"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-ori-zeroext-7fff-abcd",
+      "name": "ori zero-extension 0xabcd on 0x7fffxxxx",
+      "category": "ori",
+      "description": "ORI immediate is a zero-extended 16-bit pattern even when bit 15 is set.",
+      "assembly": "    lui $t0, 0x7fff\n    ori $t0, $t0, 0xabcd\n    sw $t0, 256($zero)\n    ori $t1, $zero, 33\n    sw $t1, 260($zero)\nphase7_end_22:\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2147462093
+        },
+        {
+          "index": 1,
+          "expected": 33
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "ori",
+        "zero-extension",
+        "high-immediate"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-ori-zeroext-1-8000",
+      "name": "ori zero-extension 0x8000 on 0x1xxxx",
+      "category": "ori",
+      "description": "ORI immediate is a zero-extended 16-bit pattern even when bit 15 is set.",
+      "assembly": "    lui $t0, 0x1\n    ori $t0, $t0, 0x8000\n    sw $t0, 256($zero)\n    ori $t1, $zero, 33\n    sw $t1, 260($zero)\nphase7_end_23:\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 98304
+        },
+        {
+          "index": 1,
+          "expected": 33
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "ori",
+        "zero-extension",
+        "high-immediate"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-lui-nonzero-abcd-5678",
+      "name": "lui/ori overwrite non-zero destination 0xabcd5678",
+      "category": "lui",
+      "description": "LUI ignores rs and overwrites the rt high half even when the destination already contains data.",
+      "assembly": "    ori $t0, $zero, 4660\n    lui $t0, 0xabcd\n    ori $t0, $t0, 0x5678\n    sw $t0, 256($zero)\n    ori $t1, $zero, 49\n    sw $t1, 260($zero)\nphase7_end_24:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2882360952
+        },
+        {
+          "index": 1,
+          "expected": 49
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "non-zero-destination",
+        "32-bit"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-lui-nonzero-8000-1",
+      "name": "lui/ori overwrite non-zero destination 0x80001",
+      "category": "lui",
+      "description": "LUI ignores rs and overwrites the rt high half even when the destination already contains data.",
+      "assembly": "    ori $t0, $zero, 43690\n    lui $t0, 0x8000\n    ori $t0, $t0, 0x1\n    sw $t0, 256($zero)\n    ori $t1, $zero, 49\n    sw $t1, 260($zero)\nphase7_end_25:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2147483649
+        },
+        {
+          "index": 1,
+          "expected": 49
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "non-zero-destination",
+        "32-bit"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-lui-nonzero-ffff-8000",
+      "name": "lui/ori overwrite non-zero destination 0xffff8000",
+      "category": "lui",
+      "description": "LUI ignores rs and overwrites the rt high half even when the destination already contains data.",
+      "assembly": "    ori $t0, $zero, 21845\n    lui $t0, 0xffff\n    ori $t0, $t0, 0x8000\n    sw $t0, 256($zero)\n    ori $t1, $zero, 49\n    sw $t1, 260($zero)\nphase7_end_26:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4294934528
+        },
+        {
+          "index": 1,
+          "expected": 49
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "non-zero-destination",
+        "32-bit"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-lui-nonzero-7fff-ffff",
+      "name": "lui/ori overwrite non-zero destination 0x7fffffff",
+      "category": "lui",
+      "description": "LUI ignores rs and overwrites the rt high half even when the destination already contains data.",
+      "assembly": "    ori $t0, $zero, 4369\n    lui $t0, 0x7fff\n    ori $t0, $t0, 0xffff\n    sw $t0, 256($zero)\n    ori $t1, $zero, 49\n    sw $t1, 260($zero)\nphase7_end_27:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2147483647
+        },
+        {
+          "index": 1,
+          "expected": 49
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "non-zero-destination",
+        "32-bit"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-lui-nonzero-1-8001",
+      "name": "lui/ori overwrite non-zero destination 0x18001",
+      "category": "lui",
+      "description": "LUI ignores rs and overwrites the rt high half even when the destination already contains data.",
+      "assembly": "    ori $t0, $zero, 34952\n    lui $t0, 0x1\n    ori $t0, $t0, 0x8001\n    sw $t0, 256($zero)\n    ori $t1, $zero, 49\n    sw $t1, 260($zero)\nphase7_end_28:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 98305
+        },
+        {
+          "index": 1,
+          "expected": 49
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "non-zero-destination",
+        "32-bit"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-lui-nonzero-ffff-ffff",
+      "name": "lui/ori overwrite non-zero destination 0xffffffff",
+      "category": "lui",
+      "description": "LUI ignores rs and overwrites the rt high half even when the destination already contains data.",
+      "assembly": "    ori $t0, $zero, 57072\n    lui $t0, 0xffff\n    ori $t0, $t0, 0xffff\n    sw $t0, 256($zero)\n    ori $t1, $zero, 49\n    sw $t1, 260($zero)\nphase7_end_29:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4294967295
+        },
+        {
+          "index": 1,
+          "expected": 49
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "non-zero-destination",
+        "32-bit"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-mem-signext-300--4",
+      "name": "lw/sw sign-extended offset -4 from base 0x300",
+      "category": "lw-sw",
+      "description": "The 16-bit offset is sign-extended before adding the non-zero base register.",
+      "assembly": "    ori $t0, $zero, 768\n    ori $t1, $zero, 4660\n    sw $t1, -4($t0)\n    lw $t2, -4($t0)\n    sw $t2, 256($zero)\n    ori $t3, $zero, 119\n    sw $t3, 260($zero)\nphase7_end_30:\n",
+      "steps": 7,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4660
+        },
+        {
+          "index": 1,
+          "expected": 119
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "lw-sw",
+        "sign-extension",
+        "non-zero-base"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-mem-signext-300--8",
+      "name": "lw/sw sign-extended offset -8 from base 0x300",
+      "category": "lw-sw",
+      "description": "The 16-bit offset is sign-extended before adding the non-zero base register.",
+      "assembly": "    ori $t0, $zero, 768\n    ori $t1, $zero, 4660\n    sw $t1, -8($t0)\n    lw $t2, -8($t0)\n    sw $t2, 256($zero)\n    ori $t3, $zero, 119\n    sw $t3, 260($zero)\nphase7_end_31:\n",
+      "steps": 7,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4660
+        },
+        {
+          "index": 1,
+          "expected": 119
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "lw-sw",
+        "sign-extension",
+        "non-zero-base"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-mem-signext-2c0--16",
+      "name": "lw/sw sign-extended offset -16 from base 0x2c0",
+      "category": "lw-sw",
+      "description": "The 16-bit offset is sign-extended before adding the non-zero base register.",
+      "assembly": "    ori $t0, $zero, 704\n    ori $t1, $zero, 4660\n    sw $t1, -16($t0)\n    lw $t2, -16($t0)\n    sw $t2, 256($zero)\n    ori $t3, $zero, 119\n    sw $t3, 260($zero)\nphase7_end_32:\n",
+      "steps": 7,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4660
+        },
+        {
+          "index": 1,
+          "expected": 119
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "lw-sw",
+        "sign-extension",
+        "non-zero-base"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-mem-signext-380--64",
+      "name": "lw/sw sign-extended offset -64 from base 0x380",
+      "category": "lw-sw",
+      "description": "The 16-bit offset is sign-extended before adding the non-zero base register.",
+      "assembly": "    ori $t0, $zero, 896\n    ori $t1, $zero, 4660\n    sw $t1, -64($t0)\n    lw $t2, -64($t0)\n    sw $t2, 256($zero)\n    ori $t3, $zero, 119\n    sw $t3, 260($zero)\nphase7_end_33:\n",
+      "steps": 7,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4660
+        },
+        {
+          "index": 1,
+          "expected": 119
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "lw-sw",
+        "sign-extension",
+        "non-zero-base"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-mem-signext-300-0",
+      "name": "lw/sw sign-extended offset 0 from base 0x300",
+      "category": "lw-sw",
+      "description": "The 16-bit offset is sign-extended before adding the non-zero base register.",
+      "assembly": "    ori $t0, $zero, 768\n    ori $t1, $zero, 4660\n    sw $t1, 0($t0)\n    lw $t2, 0($t0)\n    sw $t2, 256($zero)\n    ori $t3, $zero, 119\n    sw $t3, 260($zero)\nphase7_end_34:\n",
+      "steps": 7,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4660
+        },
+        {
+          "index": 1,
+          "expected": 119
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "lw-sw",
+        "sign-extension",
+        "non-zero-base"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-mem-signext-240-64",
+      "name": "lw/sw sign-extended offset 64 from base 0x240",
+      "category": "lw-sw",
+      "description": "The 16-bit offset is sign-extended before adding the non-zero base register.",
+      "assembly": "    ori $t0, $zero, 576\n    ori $t1, $zero, 4660\n    sw $t1, 64($t0)\n    lw $t2, 64($t0)\n    sw $t2, 256($zero)\n    ori $t3, $zero, 119\n    sw $t3, 260($zero)\nphase7_end_35:\n",
+      "steps": 7,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4660
+        },
+        {
+          "index": 1,
+          "expected": 119
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "lw-sw",
+        "sign-extension",
+        "non-zero-base"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-grf-dm-1",
+      "name": "GRF/DM round trip with non-zero base (1)",
+      "category": "mixed",
+      "description": "Eight registers are stored, loaded back, summed, and individually checked while the base register is non-zero.",
+      "assembly": "    ori $s1, $zero, 0xfc\n    ori $t0, $zero, 257\n    ori $t1, $zero, 292\n    ori $t2, $zero, 327\n    ori $t3, $zero, 362\n    ori $t4, $zero, 397\n    ori $t5, $zero, 432\n    ori $t6, $zero, 467\n    ori $t7, $zero, 502\n    sw $t0, 4($s1)\n    sw $t1, 8($s1)\n    sw $t2, 12($s1)\n    sw $t3, 16($s1)\n    sw $t4, 20($s1)\n    sw $t5, 24($s1)\n    sw $t6, 28($s1)\n    sw $t7, 32($s1)\n    lw $t0, 4($s1)\n    lw $t1, 8($s1)\n    lw $t2, 12($s1)\n    lw $t3, 16($s1)\n    lw $t4, 20($s1)\n    lw $t5, 24($s1)\n    lw $t6, 28($s1)\n    lw $t7, 32($s1)\n    ori $s0, $zero, 0\n    add $s0, $s0, $t0\n    add $s0, $s0, $t1\n    add $s0, $s0, $t2\n    add $s0, $s0, $t3\n    add $s0, $s0, $t4\n    add $s0, $s0, $t5\n    add $s0, $s0, $t6\n    add $s0, $s0, $t7\n    sw $s0, 288($zero)\n    sw $t0, 256($zero)\n    sw $t1, 260($zero)\n    sw $t2, 264($zero)\n    sw $t3, 268($zero)\n    sw $t4, 272($zero)\n    sw $t5, 276($zero)\n    sw $t6, 280($zero)\n    sw $t7, 284($zero)\n    ori $s2, $zero, 153\n    sw $s2, 292($zero)\nphase7_end_36:\n",
+      "steps": 45,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 257
+        },
+        {
+          "index": 1,
+          "expected": 292
+        },
+        {
+          "index": 2,
+          "expected": 327
+        },
+        {
+          "index": 3,
+          "expected": 362
+        },
+        {
+          "index": 4,
+          "expected": 397
+        },
+        {
+          "index": 5,
+          "expected": 432
+        },
+        {
+          "index": 6,
+          "expected": 467
+        },
+        {
+          "index": 7,
+          "expected": 502
+        },
+        {
+          "index": 8,
+          "expected": 3036
+        },
+        {
+          "index": 9,
+          "expected": 153
+        }
+      ],
+      "suites": [
+        "full",
+        "alu",
+        "memory"
+      ],
+      "tags": [
+        "grf",
+        "dm",
+        "non-zero-base",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-grf-dm-2",
+      "name": "GRF/DM round trip with non-zero base (2)",
+      "category": "mixed",
+      "description": "Eight registers are stored, loaded back, summed, and individually checked while the base register is non-zero.",
+      "assembly": "    ori $s1, $zero, 0xfc\n    ori $t0, $zero, 274\n    ori $t1, $zero, 309\n    ori $t2, $zero, 344\n    ori $t3, $zero, 379\n    ori $t4, $zero, 414\n    ori $t5, $zero, 449\n    ori $t6, $zero, 484\n    ori $t7, $zero, 519\n    sw $t0, 4($s1)\n    sw $t1, 8($s1)\n    sw $t2, 12($s1)\n    sw $t3, 16($s1)\n    sw $t4, 20($s1)\n    sw $t5, 24($s1)\n    sw $t6, 28($s1)\n    sw $t7, 32($s1)\n    lw $t0, 4($s1)\n    lw $t1, 8($s1)\n    lw $t2, 12($s1)\n    lw $t3, 16($s1)\n    lw $t4, 20($s1)\n    lw $t5, 24($s1)\n    lw $t6, 28($s1)\n    lw $t7, 32($s1)\n    ori $s0, $zero, 0\n    add $s0, $s0, $t0\n    add $s0, $s0, $t1\n    add $s0, $s0, $t2\n    add $s0, $s0, $t3\n    add $s0, $s0, $t4\n    add $s0, $s0, $t5\n    add $s0, $s0, $t6\n    add $s0, $s0, $t7\n    sw $s0, 288($zero)\n    sw $t0, 256($zero)\n    sw $t1, 260($zero)\n    sw $t2, 264($zero)\n    sw $t3, 268($zero)\n    sw $t4, 272($zero)\n    sw $t5, 276($zero)\n    sw $t6, 280($zero)\n    sw $t7, 284($zero)\n    ori $s2, $zero, 153\n    sw $s2, 292($zero)\nphase7_end_37:\n",
+      "steps": 45,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 274
+        },
+        {
+          "index": 1,
+          "expected": 309
+        },
+        {
+          "index": 2,
+          "expected": 344
+        },
+        {
+          "index": 3,
+          "expected": 379
+        },
+        {
+          "index": 4,
+          "expected": 414
+        },
+        {
+          "index": 5,
+          "expected": 449
+        },
+        {
+          "index": 6,
+          "expected": 484
+        },
+        {
+          "index": 7,
+          "expected": 519
+        },
+        {
+          "index": 8,
+          "expected": 3172
+        },
+        {
+          "index": 9,
+          "expected": 153
+        }
+      ],
+      "suites": [
+        "full",
+        "alu",
+        "memory"
+      ],
+      "tags": [
+        "grf",
+        "dm",
+        "non-zero-base",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-grf-dm-3",
+      "name": "GRF/DM round trip with non-zero base (3)",
+      "category": "mixed",
+      "description": "Eight registers are stored, loaded back, summed, and individually checked while the base register is non-zero.",
+      "assembly": "    ori $s1, $zero, 0xfc\n    ori $t0, $zero, 291\n    ori $t1, $zero, 326\n    ori $t2, $zero, 361\n    ori $t3, $zero, 396\n    ori $t4, $zero, 431\n    ori $t5, $zero, 466\n    ori $t6, $zero, 501\n    ori $t7, $zero, 536\n    sw $t0, 4($s1)\n    sw $t1, 8($s1)\n    sw $t2, 12($s1)\n    sw $t3, 16($s1)\n    sw $t4, 20($s1)\n    sw $t5, 24($s1)\n    sw $t6, 28($s1)\n    sw $t7, 32($s1)\n    lw $t0, 4($s1)\n    lw $t1, 8($s1)\n    lw $t2, 12($s1)\n    lw $t3, 16($s1)\n    lw $t4, 20($s1)\n    lw $t5, 24($s1)\n    lw $t6, 28($s1)\n    lw $t7, 32($s1)\n    ori $s0, $zero, 0\n    add $s0, $s0, $t0\n    add $s0, $s0, $t1\n    add $s0, $s0, $t2\n    add $s0, $s0, $t3\n    add $s0, $s0, $t4\n    add $s0, $s0, $t5\n    add $s0, $s0, $t6\n    add $s0, $s0, $t7\n    sw $s0, 288($zero)\n    sw $t0, 256($zero)\n    sw $t1, 260($zero)\n    sw $t2, 264($zero)\n    sw $t3, 268($zero)\n    sw $t4, 272($zero)\n    sw $t5, 276($zero)\n    sw $t6, 280($zero)\n    sw $t7, 284($zero)\n    ori $s2, $zero, 153\n    sw $s2, 292($zero)\nphase7_end_38:\n",
+      "steps": 45,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 291
+        },
+        {
+          "index": 1,
+          "expected": 326
+        },
+        {
+          "index": 2,
+          "expected": 361
+        },
+        {
+          "index": 3,
+          "expected": 396
+        },
+        {
+          "index": 4,
+          "expected": 431
+        },
+        {
+          "index": 5,
+          "expected": 466
+        },
+        {
+          "index": 6,
+          "expected": 501
+        },
+        {
+          "index": 7,
+          "expected": 536
+        },
+        {
+          "index": 8,
+          "expected": 3308
+        },
+        {
+          "index": 9,
+          "expected": 153
+        }
+      ],
+      "suites": [
+        "full",
+        "alu",
+        "memory"
+      ],
+      "tags": [
+        "grf",
+        "dm",
+        "non-zero-base",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-grf-dm-4",
+      "name": "GRF/DM round trip with non-zero base (4)",
+      "category": "mixed",
+      "description": "Eight registers are stored, loaded back, summed, and individually checked while the base register is non-zero.",
+      "assembly": "    ori $s1, $zero, 0xfc\n    ori $t0, $zero, 308\n    ori $t1, $zero, 343\n    ori $t2, $zero, 378\n    ori $t3, $zero, 413\n    ori $t4, $zero, 448\n    ori $t5, $zero, 483\n    ori $t6, $zero, 518\n    ori $t7, $zero, 553\n    sw $t0, 4($s1)\n    sw $t1, 8($s1)\n    sw $t2, 12($s1)\n    sw $t3, 16($s1)\n    sw $t4, 20($s1)\n    sw $t5, 24($s1)\n    sw $t6, 28($s1)\n    sw $t7, 32($s1)\n    lw $t0, 4($s1)\n    lw $t1, 8($s1)\n    lw $t2, 12($s1)\n    lw $t3, 16($s1)\n    lw $t4, 20($s1)\n    lw $t5, 24($s1)\n    lw $t6, 28($s1)\n    lw $t7, 32($s1)\n    ori $s0, $zero, 0\n    add $s0, $s0, $t0\n    add $s0, $s0, $t1\n    add $s0, $s0, $t2\n    add $s0, $s0, $t3\n    add $s0, $s0, $t4\n    add $s0, $s0, $t5\n    add $s0, $s0, $t6\n    add $s0, $s0, $t7\n    sw $s0, 288($zero)\n    sw $t0, 256($zero)\n    sw $t1, 260($zero)\n    sw $t2, 264($zero)\n    sw $t3, 268($zero)\n    sw $t4, 272($zero)\n    sw $t5, 276($zero)\n    sw $t6, 280($zero)\n    sw $t7, 284($zero)\n    ori $s2, $zero, 153\n    sw $s2, 292($zero)\nphase7_end_39:\n",
+      "steps": 45,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 308
+        },
+        {
+          "index": 1,
+          "expected": 343
+        },
+        {
+          "index": 2,
+          "expected": 378
+        },
+        {
+          "index": 3,
+          "expected": 413
+        },
+        {
+          "index": 4,
+          "expected": 448
+        },
+        {
+          "index": 5,
+          "expected": 483
+        },
+        {
+          "index": 6,
+          "expected": 518
+        },
+        {
+          "index": 7,
+          "expected": 553
+        },
+        {
+          "index": 8,
+          "expected": 3444
+        },
+        {
+          "index": 9,
+          "expected": 153
+        }
+      ],
+      "suites": [
+        "full",
+        "alu",
+        "memory"
+      ],
+      "tags": [
+        "grf",
+        "dm",
+        "non-zero-base",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-grf-dm-5",
+      "name": "GRF/DM round trip with non-zero base (5)",
+      "category": "mixed",
+      "description": "Eight registers are stored, loaded back, summed, and individually checked while the base register is non-zero.",
+      "assembly": "    ori $s1, $zero, 0xfc\n    ori $t0, $zero, 325\n    ori $t1, $zero, 360\n    ori $t2, $zero, 395\n    ori $t3, $zero, 430\n    ori $t4, $zero, 465\n    ori $t5, $zero, 500\n    ori $t6, $zero, 535\n    ori $t7, $zero, 570\n    sw $t0, 4($s1)\n    sw $t1, 8($s1)\n    sw $t2, 12($s1)\n    sw $t3, 16($s1)\n    sw $t4, 20($s1)\n    sw $t5, 24($s1)\n    sw $t6, 28($s1)\n    sw $t7, 32($s1)\n    lw $t0, 4($s1)\n    lw $t1, 8($s1)\n    lw $t2, 12($s1)\n    lw $t3, 16($s1)\n    lw $t4, 20($s1)\n    lw $t5, 24($s1)\n    lw $t6, 28($s1)\n    lw $t7, 32($s1)\n    ori $s0, $zero, 0\n    add $s0, $s0, $t0\n    add $s0, $s0, $t1\n    add $s0, $s0, $t2\n    add $s0, $s0, $t3\n    add $s0, $s0, $t4\n    add $s0, $s0, $t5\n    add $s0, $s0, $t6\n    add $s0, $s0, $t7\n    sw $s0, 288($zero)\n    sw $t0, 256($zero)\n    sw $t1, 260($zero)\n    sw $t2, 264($zero)\n    sw $t3, 268($zero)\n    sw $t4, 272($zero)\n    sw $t5, 276($zero)\n    sw $t6, 280($zero)\n    sw $t7, 284($zero)\n    ori $s2, $zero, 153\n    sw $s2, 292($zero)\nphase7_end_40:\n",
+      "steps": 45,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 325
+        },
+        {
+          "index": 1,
+          "expected": 360
+        },
+        {
+          "index": 2,
+          "expected": 395
+        },
+        {
+          "index": 3,
+          "expected": 430
+        },
+        {
+          "index": 4,
+          "expected": 465
+        },
+        {
+          "index": 5,
+          "expected": 500
+        },
+        {
+          "index": 6,
+          "expected": 535
+        },
+        {
+          "index": 7,
+          "expected": 570
+        },
+        {
+          "index": 8,
+          "expected": 3580
+        },
+        {
+          "index": 9,
+          "expected": 153
+        }
+      ],
+      "suites": [
+        "full",
+        "alu",
+        "memory"
+      ],
+      "tags": [
+        "grf",
+        "dm",
+        "non-zero-base",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-grf-dm-6",
+      "name": "GRF/DM round trip with non-zero base (6)",
+      "category": "mixed",
+      "description": "Eight registers are stored, loaded back, summed, and individually checked while the base register is non-zero.",
+      "assembly": "    ori $s1, $zero, 0xfc\n    ori $t0, $zero, 342\n    ori $t1, $zero, 377\n    ori $t2, $zero, 412\n    ori $t3, $zero, 447\n    ori $t4, $zero, 482\n    ori $t5, $zero, 517\n    ori $t6, $zero, 552\n    ori $t7, $zero, 587\n    sw $t0, 4($s1)\n    sw $t1, 8($s1)\n    sw $t2, 12($s1)\n    sw $t3, 16($s1)\n    sw $t4, 20($s1)\n    sw $t5, 24($s1)\n    sw $t6, 28($s1)\n    sw $t7, 32($s1)\n    lw $t0, 4($s1)\n    lw $t1, 8($s1)\n    lw $t2, 12($s1)\n    lw $t3, 16($s1)\n    lw $t4, 20($s1)\n    lw $t5, 24($s1)\n    lw $t6, 28($s1)\n    lw $t7, 32($s1)\n    ori $s0, $zero, 0\n    add $s0, $s0, $t0\n    add $s0, $s0, $t1\n    add $s0, $s0, $t2\n    add $s0, $s0, $t3\n    add $s0, $s0, $t4\n    add $s0, $s0, $t5\n    add $s0, $s0, $t6\n    add $s0, $s0, $t7\n    sw $s0, 288($zero)\n    sw $t0, 256($zero)\n    sw $t1, 260($zero)\n    sw $t2, 264($zero)\n    sw $t3, 268($zero)\n    sw $t4, 272($zero)\n    sw $t5, 276($zero)\n    sw $t6, 280($zero)\n    sw $t7, 284($zero)\n    ori $s2, $zero, 153\n    sw $s2, 292($zero)\nphase7_end_41:\n",
+      "steps": 45,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 342
+        },
+        {
+          "index": 1,
+          "expected": 377
+        },
+        {
+          "index": 2,
+          "expected": 412
+        },
+        {
+          "index": 3,
+          "expected": 447
+        },
+        {
+          "index": 4,
+          "expected": 482
+        },
+        {
+          "index": 5,
+          "expected": 517
+        },
+        {
+          "index": 6,
+          "expected": 552
+        },
+        {
+          "index": 7,
+          "expected": 587
+        },
+        {
+          "index": 8,
+          "expected": 3716
+        },
+        {
+          "index": 9,
+          "expected": 153
+        }
+      ],
+      "suites": [
+        "full",
+        "alu",
+        "memory"
+      ],
+      "tags": [
+        "grf",
+        "dm",
+        "non-zero-base",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-grf-dm-7",
+      "name": "GRF/DM round trip with non-zero base (7)",
+      "category": "mixed",
+      "description": "Eight registers are stored, loaded back, summed, and individually checked while the base register is non-zero.",
+      "assembly": "    ori $s1, $zero, 0xfc\n    ori $t0, $zero, 359\n    ori $t1, $zero, 394\n    ori $t2, $zero, 429\n    ori $t3, $zero, 464\n    ori $t4, $zero, 499\n    ori $t5, $zero, 534\n    ori $t6, $zero, 569\n    ori $t7, $zero, 604\n    sw $t0, 4($s1)\n    sw $t1, 8($s1)\n    sw $t2, 12($s1)\n    sw $t3, 16($s1)\n    sw $t4, 20($s1)\n    sw $t5, 24($s1)\n    sw $t6, 28($s1)\n    sw $t7, 32($s1)\n    lw $t0, 4($s1)\n    lw $t1, 8($s1)\n    lw $t2, 12($s1)\n    lw $t3, 16($s1)\n    lw $t4, 20($s1)\n    lw $t5, 24($s1)\n    lw $t6, 28($s1)\n    lw $t7, 32($s1)\n    ori $s0, $zero, 0\n    add $s0, $s0, $t0\n    add $s0, $s0, $t1\n    add $s0, $s0, $t2\n    add $s0, $s0, $t3\n    add $s0, $s0, $t4\n    add $s0, $s0, $t5\n    add $s0, $s0, $t6\n    add $s0, $s0, $t7\n    sw $s0, 288($zero)\n    sw $t0, 256($zero)\n    sw $t1, 260($zero)\n    sw $t2, 264($zero)\n    sw $t3, 268($zero)\n    sw $t4, 272($zero)\n    sw $t5, 276($zero)\n    sw $t6, 280($zero)\n    sw $t7, 284($zero)\n    ori $s2, $zero, 153\n    sw $s2, 292($zero)\nphase7_end_42:\n",
+      "steps": 45,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 359
+        },
+        {
+          "index": 1,
+          "expected": 394
+        },
+        {
+          "index": 2,
+          "expected": 429
+        },
+        {
+          "index": 3,
+          "expected": 464
+        },
+        {
+          "index": 4,
+          "expected": 499
+        },
+        {
+          "index": 5,
+          "expected": 534
+        },
+        {
+          "index": 6,
+          "expected": 569
+        },
+        {
+          "index": 7,
+          "expected": 604
+        },
+        {
+          "index": 8,
+          "expected": 3852
+        },
+        {
+          "index": 9,
+          "expected": 153
+        }
+      ],
+      "suites": [
+        "full",
+        "alu",
+        "memory"
+      ],
+      "tags": [
+        "grf",
+        "dm",
+        "non-zero-base",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-grf-dm-8",
+      "name": "GRF/DM round trip with non-zero base (8)",
+      "category": "mixed",
+      "description": "Eight registers are stored, loaded back, summed, and individually checked while the base register is non-zero.",
+      "assembly": "    ori $s1, $zero, 0xfc\n    ori $t0, $zero, 376\n    ori $t1, $zero, 411\n    ori $t2, $zero, 446\n    ori $t3, $zero, 481\n    ori $t4, $zero, 516\n    ori $t5, $zero, 551\n    ori $t6, $zero, 586\n    ori $t7, $zero, 621\n    sw $t0, 4($s1)\n    sw $t1, 8($s1)\n    sw $t2, 12($s1)\n    sw $t3, 16($s1)\n    sw $t4, 20($s1)\n    sw $t5, 24($s1)\n    sw $t6, 28($s1)\n    sw $t7, 32($s1)\n    lw $t0, 4($s1)\n    lw $t1, 8($s1)\n    lw $t2, 12($s1)\n    lw $t3, 16($s1)\n    lw $t4, 20($s1)\n    lw $t5, 24($s1)\n    lw $t6, 28($s1)\n    lw $t7, 32($s1)\n    ori $s0, $zero, 0\n    add $s0, $s0, $t0\n    add $s0, $s0, $t1\n    add $s0, $s0, $t2\n    add $s0, $s0, $t3\n    add $s0, $s0, $t4\n    add $s0, $s0, $t5\n    add $s0, $s0, $t6\n    add $s0, $s0, $t7\n    sw $s0, 288($zero)\n    sw $t0, 256($zero)\n    sw $t1, 260($zero)\n    sw $t2, 264($zero)\n    sw $t3, 268($zero)\n    sw $t4, 272($zero)\n    sw $t5, 276($zero)\n    sw $t6, 280($zero)\n    sw $t7, 284($zero)\n    ori $s2, $zero, 153\n    sw $s2, 292($zero)\nphase7_end_43:\n",
+      "steps": 45,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 376
+        },
+        {
+          "index": 1,
+          "expected": 411
+        },
+        {
+          "index": 2,
+          "expected": 446
+        },
+        {
+          "index": 3,
+          "expected": 481
+        },
+        {
+          "index": 4,
+          "expected": 516
+        },
+        {
+          "index": 5,
+          "expected": 551
+        },
+        {
+          "index": 6,
+          "expected": 586
+        },
+        {
+          "index": 7,
+          "expected": 621
+        },
+        {
+          "index": 8,
+          "expected": 3988
+        },
+        {
+          "index": 9,
+          "expected": 153
+        }
+      ],
+      "suites": [
+        "full",
+        "alu",
+        "memory"
+      ],
+      "tags": [
+        "grf",
+        "dm",
+        "non-zero-base",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-grf-dm-9",
+      "name": "GRF/DM round trip with non-zero base (9)",
+      "category": "mixed",
+      "description": "Eight registers are stored, loaded back, summed, and individually checked while the base register is non-zero.",
+      "assembly": "    ori $s1, $zero, 0xfc\n    ori $t0, $zero, 393\n    ori $t1, $zero, 428\n    ori $t2, $zero, 463\n    ori $t3, $zero, 498\n    ori $t4, $zero, 533\n    ori $t5, $zero, 568\n    ori $t6, $zero, 603\n    ori $t7, $zero, 638\n    sw $t0, 4($s1)\n    sw $t1, 8($s1)\n    sw $t2, 12($s1)\n    sw $t3, 16($s1)\n    sw $t4, 20($s1)\n    sw $t5, 24($s1)\n    sw $t6, 28($s1)\n    sw $t7, 32($s1)\n    lw $t0, 4($s1)\n    lw $t1, 8($s1)\n    lw $t2, 12($s1)\n    lw $t3, 16($s1)\n    lw $t4, 20($s1)\n    lw $t5, 24($s1)\n    lw $t6, 28($s1)\n    lw $t7, 32($s1)\n    ori $s0, $zero, 0\n    add $s0, $s0, $t0\n    add $s0, $s0, $t1\n    add $s0, $s0, $t2\n    add $s0, $s0, $t3\n    add $s0, $s0, $t4\n    add $s0, $s0, $t5\n    add $s0, $s0, $t6\n    add $s0, $s0, $t7\n    sw $s0, 288($zero)\n    sw $t0, 256($zero)\n    sw $t1, 260($zero)\n    sw $t2, 264($zero)\n    sw $t3, 268($zero)\n    sw $t4, 272($zero)\n    sw $t5, 276($zero)\n    sw $t6, 280($zero)\n    sw $t7, 284($zero)\n    ori $s2, $zero, 153\n    sw $s2, 292($zero)\nphase7_end_44:\n",
+      "steps": 45,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 393
+        },
+        {
+          "index": 1,
+          "expected": 428
+        },
+        {
+          "index": 2,
+          "expected": 463
+        },
+        {
+          "index": 3,
+          "expected": 498
+        },
+        {
+          "index": 4,
+          "expected": 533
+        },
+        {
+          "index": 5,
+          "expected": 568
+        },
+        {
+          "index": 6,
+          "expected": 603
+        },
+        {
+          "index": 7,
+          "expected": 638
+        },
+        {
+          "index": 8,
+          "expected": 4124
+        },
+        {
+          "index": 9,
+          "expected": 153
+        }
+      ],
+      "suites": [
+        "full",
+        "alu",
+        "memory"
+      ],
+      "tags": [
+        "grf",
+        "dm",
+        "non-zero-base",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-grf-dm-10",
+      "name": "GRF/DM round trip with non-zero base (10)",
+      "category": "mixed",
+      "description": "Eight registers are stored, loaded back, summed, and individually checked while the base register is non-zero.",
+      "assembly": "    ori $s1, $zero, 0xfc\n    ori $t0, $zero, 410\n    ori $t1, $zero, 445\n    ori $t2, $zero, 480\n    ori $t3, $zero, 515\n    ori $t4, $zero, 550\n    ori $t5, $zero, 585\n    ori $t6, $zero, 620\n    ori $t7, $zero, 655\n    sw $t0, 4($s1)\n    sw $t1, 8($s1)\n    sw $t2, 12($s1)\n    sw $t3, 16($s1)\n    sw $t4, 20($s1)\n    sw $t5, 24($s1)\n    sw $t6, 28($s1)\n    sw $t7, 32($s1)\n    lw $t0, 4($s1)\n    lw $t1, 8($s1)\n    lw $t2, 12($s1)\n    lw $t3, 16($s1)\n    lw $t4, 20($s1)\n    lw $t5, 24($s1)\n    lw $t6, 28($s1)\n    lw $t7, 32($s1)\n    ori $s0, $zero, 0\n    add $s0, $s0, $t0\n    add $s0, $s0, $t1\n    add $s0, $s0, $t2\n    add $s0, $s0, $t3\n    add $s0, $s0, $t4\n    add $s0, $s0, $t5\n    add $s0, $s0, $t6\n    add $s0, $s0, $t7\n    sw $s0, 288($zero)\n    sw $t0, 256($zero)\n    sw $t1, 260($zero)\n    sw $t2, 264($zero)\n    sw $t3, 268($zero)\n    sw $t4, 272($zero)\n    sw $t5, 276($zero)\n    sw $t6, 280($zero)\n    sw $t7, 284($zero)\n    ori $s2, $zero, 153\n    sw $s2, 292($zero)\nphase7_end_45:\n",
+      "steps": 45,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 410
+        },
+        {
+          "index": 1,
+          "expected": 445
+        },
+        {
+          "index": 2,
+          "expected": 480
+        },
+        {
+          "index": 3,
+          "expected": 515
+        },
+        {
+          "index": 4,
+          "expected": 550
+        },
+        {
+          "index": 5,
+          "expected": 585
+        },
+        {
+          "index": 6,
+          "expected": 620
+        },
+        {
+          "index": 7,
+          "expected": 655
+        },
+        {
+          "index": 8,
+          "expected": 4260
+        },
+        {
+          "index": 9,
+          "expected": 153
+        }
+      ],
+      "suites": [
+        "full",
+        "alu",
+        "memory"
+      ],
+      "tags": [
+        "grf",
+        "dm",
+        "non-zero-base",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-memory-loop-1",
+      "name": "store/load loop with non-zero base (2)",
+      "category": "lw-sw",
+      "description": "A loop stores and reloads a changing value through a non-zero base; the final sum is checked in DM.",
+      "assembly": "    ori $t2, $zero, 512\n    ori $t0, $zero, 2\n    ori $t1, $zero, 0\nphase7_memory_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_memory_done\n    beq $zero, $zero, phase7_memory_loop\nphase7_memory_done:\n    sw $t1, 256($zero)\n    ori $t5, $zero, 68\n    sw $t5, 260($zero)\nphase7_end_46:\n",
+      "steps": 19,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 3
+        },
+        {
+          "index": 1,
+          "expected": 68
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "memory-loop",
+        "non-zero-base",
+        "beq",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-memory-loop-2",
+      "name": "store/load loop with non-zero base (3)",
+      "category": "lw-sw",
+      "description": "A loop stores and reloads a changing value through a non-zero base; the final sum is checked in DM.",
+      "assembly": "    ori $t2, $zero, 512\n    ori $t0, $zero, 3\n    ori $t1, $zero, 0\nphase7_memory_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_memory_done\n    beq $zero, $zero, phase7_memory_loop\nphase7_memory_done:\n    sw $t1, 256($zero)\n    ori $t5, $zero, 68\n    sw $t5, 260($zero)\nphase7_end_47:\n",
+      "steps": 26,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 6
+        },
+        {
+          "index": 1,
+          "expected": 68
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "memory-loop",
+        "non-zero-base",
+        "beq",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-memory-loop-3",
+      "name": "store/load loop with non-zero base (4)",
+      "category": "lw-sw",
+      "description": "A loop stores and reloads a changing value through a non-zero base; the final sum is checked in DM.",
+      "assembly": "    ori $t2, $zero, 512\n    ori $t0, $zero, 4\n    ori $t1, $zero, 0\nphase7_memory_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_memory_done\n    beq $zero, $zero, phase7_memory_loop\nphase7_memory_done:\n    sw $t1, 256($zero)\n    ori $t5, $zero, 68\n    sw $t5, 260($zero)\nphase7_end_48:\n",
+      "steps": 33,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 10
+        },
+        {
+          "index": 1,
+          "expected": 68
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "memory-loop",
+        "non-zero-base",
+        "beq",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-memory-loop-4",
+      "name": "store/load loop with non-zero base (5)",
+      "category": "lw-sw",
+      "description": "A loop stores and reloads a changing value through a non-zero base; the final sum is checked in DM.",
+      "assembly": "    ori $t2, $zero, 512\n    ori $t0, $zero, 5\n    ori $t1, $zero, 0\nphase7_memory_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_memory_done\n    beq $zero, $zero, phase7_memory_loop\nphase7_memory_done:\n    sw $t1, 256($zero)\n    ori $t5, $zero, 68\n    sw $t5, 260($zero)\nphase7_end_49:\n",
+      "steps": 40,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 15
+        },
+        {
+          "index": 1,
+          "expected": 68
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "memory-loop",
+        "non-zero-base",
+        "beq",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-memory-loop-5",
+      "name": "store/load loop with non-zero base (6)",
+      "category": "lw-sw",
+      "description": "A loop stores and reloads a changing value through a non-zero base; the final sum is checked in DM.",
+      "assembly": "    ori $t2, $zero, 512\n    ori $t0, $zero, 6\n    ori $t1, $zero, 0\nphase7_memory_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_memory_done\n    beq $zero, $zero, phase7_memory_loop\nphase7_memory_done:\n    sw $t1, 256($zero)\n    ori $t5, $zero, 68\n    sw $t5, 260($zero)\nphase7_end_50:\n",
+      "steps": 47,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 21
+        },
+        {
+          "index": 1,
+          "expected": 68
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "memory-loop",
+        "non-zero-base",
+        "beq",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-memory-loop-6",
+      "name": "store/load loop with non-zero base (7)",
+      "category": "lw-sw",
+      "description": "A loop stores and reloads a changing value through a non-zero base; the final sum is checked in DM.",
+      "assembly": "    ori $t2, $zero, 512\n    ori $t0, $zero, 7\n    ori $t1, $zero, 0\nphase7_memory_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_memory_done\n    beq $zero, $zero, phase7_memory_loop\nphase7_memory_done:\n    sw $t1, 256($zero)\n    ori $t5, $zero, 68\n    sw $t5, 260($zero)\nphase7_end_51:\n",
+      "steps": 54,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 28
+        },
+        {
+          "index": 1,
+          "expected": 68
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "memory-loop",
+        "non-zero-base",
+        "beq",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-memory-loop-7",
+      "name": "store/load loop with non-zero base (8)",
+      "category": "lw-sw",
+      "description": "A loop stores and reloads a changing value through a non-zero base; the final sum is checked in DM.",
+      "assembly": "    ori $t2, $zero, 512\n    ori $t0, $zero, 8\n    ori $t1, $zero, 0\nphase7_memory_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_memory_done\n    beq $zero, $zero, phase7_memory_loop\nphase7_memory_done:\n    sw $t1, 256($zero)\n    ori $t5, $zero, 68\n    sw $t5, 260($zero)\nphase7_end_52:\n",
+      "steps": 61,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 36
+        },
+        {
+          "index": 1,
+          "expected": 68
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "memory-loop",
+        "non-zero-base",
+        "beq",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-memory-loop-8",
+      "name": "store/load loop with non-zero base (9)",
+      "category": "lw-sw",
+      "description": "A loop stores and reloads a changing value through a non-zero base; the final sum is checked in DM.",
+      "assembly": "    ori $t2, $zero, 512\n    ori $t0, $zero, 9\n    ori $t1, $zero, 0\nphase7_memory_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_memory_done\n    beq $zero, $zero, phase7_memory_loop\nphase7_memory_done:\n    sw $t1, 256($zero)\n    ori $t5, $zero, 68\n    sw $t5, 260($zero)\nphase7_end_53:\n",
+      "steps": 68,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 45
+        },
+        {
+          "index": 1,
+          "expected": 68
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "memory-loop",
+        "non-zero-base",
+        "beq",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-memory-loop-9",
+      "name": "store/load loop with non-zero base (10)",
+      "category": "lw-sw",
+      "description": "A loop stores and reloads a changing value through a non-zero base; the final sum is checked in DM.",
+      "assembly": "    ori $t2, $zero, 512\n    ori $t0, $zero, 10\n    ori $t1, $zero, 0\nphase7_memory_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_memory_done\n    beq $zero, $zero, phase7_memory_loop\nphase7_memory_done:\n    sw $t1, 256($zero)\n    ori $t5, $zero, 68\n    sw $t5, 260($zero)\nphase7_end_54:\n",
+      "steps": 75,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 55
+        },
+        {
+          "index": 1,
+          "expected": 68
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "memory-loop",
+        "non-zero-base",
+        "beq",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-memory-loop-10",
+      "name": "store/load loop with non-zero base (11)",
+      "category": "lw-sw",
+      "description": "A loop stores and reloads a changing value through a non-zero base; the final sum is checked in DM.",
+      "assembly": "    ori $t2, $zero, 512\n    ori $t0, $zero, 11\n    ori $t1, $zero, 0\nphase7_memory_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_memory_done\n    beq $zero, $zero, phase7_memory_loop\nphase7_memory_done:\n    sw $t1, 256($zero)\n    ori $t5, $zero, 68\n    sw $t5, 260($zero)\nphase7_end_55:\n",
+      "steps": 82,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 66
+        },
+        {
+          "index": 1,
+          "expected": 68
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "memory-loop",
+        "non-zero-base",
+        "beq",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-tree-1",
+      "name": "multi-way beq decision tree (5, 5)",
+      "category": "beq",
+      "description": "Three dependent beq conditions choose one of four paths; every path leaves a distinct visible value.",
+      "assembly": "    ori $t0, $zero, 5\n    ori $t1, $zero, 5\n    beq $t0, $t1, phase7_eq\n    beq $t0, $zero, phase7_zero_a\n    beq $t1, $zero, phase7_zero_b\n    ori $t2, $zero, 17\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_eq:\n    ori $t2, $zero, 34\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_a:\n    ori $t2, $zero, 51\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_b:\n    ori $t2, $zero, 68\n    sw $t2, 256($zero)\nphase7_branch_done:\n    ori $t3, $zero, 170\n    sw $t3, 260($zero)\nphase7_end_56:\n",
+      "steps": 8,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 34
+        },
+        {
+          "index": 1,
+          "expected": 170
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "multi-branch",
+        "control-flow"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-tree-2",
+      "name": "multi-way beq decision tree (5, 0)",
+      "category": "beq",
+      "description": "Three dependent beq conditions choose one of four paths; every path leaves a distinct visible value.",
+      "assembly": "    ori $t0, $zero, 5\n    ori $t1, $zero, 0\n    beq $t0, $t1, phase7_eq\n    beq $t0, $zero, phase7_zero_a\n    beq $t1, $zero, phase7_zero_b\n    ori $t2, $zero, 17\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_eq:\n    ori $t2, $zero, 34\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_a:\n    ori $t2, $zero, 51\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_b:\n    ori $t2, $zero, 68\n    sw $t2, 256($zero)\nphase7_branch_done:\n    ori $t3, $zero, 170\n    sw $t3, 260($zero)\nphase7_end_57:\n",
+      "steps": 9,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 68
+        },
+        {
+          "index": 1,
+          "expected": 170
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "multi-branch",
+        "control-flow"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-tree-3",
+      "name": "multi-way beq decision tree (0, 5)",
+      "category": "beq",
+      "description": "Three dependent beq conditions choose one of four paths; every path leaves a distinct visible value.",
+      "assembly": "    ori $t0, $zero, 0\n    ori $t1, $zero, 5\n    beq $t0, $t1, phase7_eq\n    beq $t0, $zero, phase7_zero_a\n    beq $t1, $zero, phase7_zero_b\n    ori $t2, $zero, 17\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_eq:\n    ori $t2, $zero, 34\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_a:\n    ori $t2, $zero, 51\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_b:\n    ori $t2, $zero, 68\n    sw $t2, 256($zero)\nphase7_branch_done:\n    ori $t3, $zero, 170\n    sw $t3, 260($zero)\nphase7_end_58:\n",
+      "steps": 9,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 51
+        },
+        {
+          "index": 1,
+          "expected": 170
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "multi-branch",
+        "control-flow"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-tree-4",
+      "name": "multi-way beq decision tree (0, 0)",
+      "category": "beq",
+      "description": "Three dependent beq conditions choose one of four paths; every path leaves a distinct visible value.",
+      "assembly": "    ori $t0, $zero, 0\n    ori $t1, $zero, 0\n    beq $t0, $t1, phase7_eq\n    beq $t0, $zero, phase7_zero_a\n    beq $t1, $zero, phase7_zero_b\n    ori $t2, $zero, 17\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_eq:\n    ori $t2, $zero, 34\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_a:\n    ori $t2, $zero, 51\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_b:\n    ori $t2, $zero, 68\n    sw $t2, 256($zero)\nphase7_branch_done:\n    ori $t3, $zero, 170\n    sw $t3, 260($zero)\nphase7_end_59:\n",
+      "steps": 8,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 34
+        },
+        {
+          "index": 1,
+          "expected": 170
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "multi-branch",
+        "control-flow"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-tree-5",
+      "name": "multi-way beq decision tree (7, 7)",
+      "category": "beq",
+      "description": "Three dependent beq conditions choose one of four paths; every path leaves a distinct visible value.",
+      "assembly": "    ori $t0, $zero, 7\n    ori $t1, $zero, 7\n    beq $t0, $t1, phase7_eq\n    beq $t0, $zero, phase7_zero_a\n    beq $t1, $zero, phase7_zero_b\n    ori $t2, $zero, 17\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_eq:\n    ori $t2, $zero, 34\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_a:\n    ori $t2, $zero, 51\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_b:\n    ori $t2, $zero, 68\n    sw $t2, 256($zero)\nphase7_branch_done:\n    ori $t3, $zero, 170\n    sw $t3, 260($zero)\nphase7_end_60:\n",
+      "steps": 8,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 34
+        },
+        {
+          "index": 1,
+          "expected": 170
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "multi-branch",
+        "control-flow"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-tree-6",
+      "name": "multi-way beq decision tree (7, 9)",
+      "category": "beq",
+      "description": "Three dependent beq conditions choose one of four paths; every path leaves a distinct visible value.",
+      "assembly": "    ori $t0, $zero, 7\n    ori $t1, $zero, 9\n    beq $t0, $t1, phase7_eq\n    beq $t0, $zero, phase7_zero_a\n    beq $t1, $zero, phase7_zero_b\n    ori $t2, $zero, 17\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_eq:\n    ori $t2, $zero, 34\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_a:\n    ori $t2, $zero, 51\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_b:\n    ori $t2, $zero, 68\n    sw $t2, 256($zero)\nphase7_branch_done:\n    ori $t3, $zero, 170\n    sw $t3, 260($zero)\nphase7_end_61:\n",
+      "steps": 10,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 17
+        },
+        {
+          "index": 1,
+          "expected": 170
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "multi-branch",
+        "control-flow"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-tree-7",
+      "name": "multi-way beq decision tree (0, 9)",
+      "category": "beq",
+      "description": "Three dependent beq conditions choose one of four paths; every path leaves a distinct visible value.",
+      "assembly": "    ori $t0, $zero, 0\n    ori $t1, $zero, 9\n    beq $t0, $t1, phase7_eq\n    beq $t0, $zero, phase7_zero_a\n    beq $t1, $zero, phase7_zero_b\n    ori $t2, $zero, 17\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_eq:\n    ori $t2, $zero, 34\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_a:\n    ori $t2, $zero, 51\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_b:\n    ori $t2, $zero, 68\n    sw $t2, 256($zero)\nphase7_branch_done:\n    ori $t3, $zero, 170\n    sw $t3, 260($zero)\nphase7_end_62:\n",
+      "steps": 9,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 51
+        },
+        {
+          "index": 1,
+          "expected": 170
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "multi-branch",
+        "control-flow"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-tree-8",
+      "name": "multi-way beq decision tree (9, 0)",
+      "category": "beq",
+      "description": "Three dependent beq conditions choose one of four paths; every path leaves a distinct visible value.",
+      "assembly": "    ori $t0, $zero, 9\n    ori $t1, $zero, 0\n    beq $t0, $t1, phase7_eq\n    beq $t0, $zero, phase7_zero_a\n    beq $t1, $zero, phase7_zero_b\n    ori $t2, $zero, 17\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_eq:\n    ori $t2, $zero, 34\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_a:\n    ori $t2, $zero, 51\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_b:\n    ori $t2, $zero, 68\n    sw $t2, 256($zero)\nphase7_branch_done:\n    ori $t3, $zero, 170\n    sw $t3, 260($zero)\nphase7_end_63:\n",
+      "steps": 9,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 68
+        },
+        {
+          "index": 1,
+          "expected": 170
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "multi-branch",
+        "control-flow"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-tree-9",
+      "name": "multi-way beq decision tree (127, 127)",
+      "category": "beq",
+      "description": "Three dependent beq conditions choose one of four paths; every path leaves a distinct visible value.",
+      "assembly": "    ori $t0, $zero, 127\n    ori $t1, $zero, 127\n    beq $t0, $t1, phase7_eq\n    beq $t0, $zero, phase7_zero_a\n    beq $t1, $zero, phase7_zero_b\n    ori $t2, $zero, 17\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_eq:\n    ori $t2, $zero, 34\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_a:\n    ori $t2, $zero, 51\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_b:\n    ori $t2, $zero, 68\n    sw $t2, 256($zero)\nphase7_branch_done:\n    ori $t3, $zero, 170\n    sw $t3, 260($zero)\nphase7_end_64:\n",
+      "steps": 8,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 34
+        },
+        {
+          "index": 1,
+          "expected": 170
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "multi-branch",
+        "control-flow"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-tree-10",
+      "name": "multi-way beq decision tree (128, 128)",
+      "category": "beq",
+      "description": "Three dependent beq conditions choose one of four paths; every path leaves a distinct visible value.",
+      "assembly": "    ori $t0, $zero, 128\n    ori $t1, $zero, 128\n    beq $t0, $t1, phase7_eq\n    beq $t0, $zero, phase7_zero_a\n    beq $t1, $zero, phase7_zero_b\n    ori $t2, $zero, 17\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_eq:\n    ori $t2, $zero, 34\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_a:\n    ori $t2, $zero, 51\n    sw $t2, 256($zero)\n    beq $zero, $zero, phase7_branch_done\nphase7_zero_b:\n    ori $t2, $zero, 68\n    sw $t2, 256($zero)\nphase7_branch_done:\n    ori $t3, $zero, 170\n    sw $t3, 260($zero)\nphase7_end_65:\n",
+      "steps": 8,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 34
+        },
+        {
+          "index": 1,
+          "expected": 170
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "multi-branch",
+        "control-flow"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-loop-1",
+      "name": "state-dependent beq loop (1)",
+      "category": "beq",
+      "description": "The branch condition changes with the loop-carried decrement; the final sum is stored in DM.",
+      "assembly": "    ori $t0, $zero, 1\n    ori $t1, $zero, 0\nphase7_state_loop:\n    add $t1, $t1, $t0\n    ori $t2, $zero, 1\n    sub $t0, $t0, $t2\n    beq $t0, $zero, phase7_state_done\n    beq $zero, $zero, phase7_state_loop\nphase7_state_done:\n    sw $t1, 256($zero)\n    ori $t3, $zero, 85\n    sw $t3, 260($zero)\nphase7_end_66:\n",
+      "steps": 9,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 1
+        },
+        {
+          "index": 1,
+          "expected": 85
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "loop",
+        "state-dependent"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-loop-2",
+      "name": "state-dependent beq loop (2)",
+      "category": "beq",
+      "description": "The branch condition changes with the loop-carried decrement; the final sum is stored in DM.",
+      "assembly": "    ori $t0, $zero, 2\n    ori $t1, $zero, 0\nphase7_state_loop:\n    add $t1, $t1, $t0\n    ori $t2, $zero, 1\n    sub $t0, $t0, $t2\n    beq $t0, $zero, phase7_state_done\n    beq $zero, $zero, phase7_state_loop\nphase7_state_done:\n    sw $t1, 256($zero)\n    ori $t3, $zero, 85\n    sw $t3, 260($zero)\nphase7_end_67:\n",
+      "steps": 14,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 3
+        },
+        {
+          "index": 1,
+          "expected": 85
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "loop",
+        "state-dependent"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-loop-3",
+      "name": "state-dependent beq loop (3)",
+      "category": "beq",
+      "description": "The branch condition changes with the loop-carried decrement; the final sum is stored in DM.",
+      "assembly": "    ori $t0, $zero, 3\n    ori $t1, $zero, 0\nphase7_state_loop:\n    add $t1, $t1, $t0\n    ori $t2, $zero, 1\n    sub $t0, $t0, $t2\n    beq $t0, $zero, phase7_state_done\n    beq $zero, $zero, phase7_state_loop\nphase7_state_done:\n    sw $t1, 256($zero)\n    ori $t3, $zero, 85\n    sw $t3, 260($zero)\nphase7_end_68:\n",
+      "steps": 19,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 6
+        },
+        {
+          "index": 1,
+          "expected": 85
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "loop",
+        "state-dependent"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-loop-4",
+      "name": "state-dependent beq loop (4)",
+      "category": "beq",
+      "description": "The branch condition changes with the loop-carried decrement; the final sum is stored in DM.",
+      "assembly": "    ori $t0, $zero, 4\n    ori $t1, $zero, 0\nphase7_state_loop:\n    add $t1, $t1, $t0\n    ori $t2, $zero, 1\n    sub $t0, $t0, $t2\n    beq $t0, $zero, phase7_state_done\n    beq $zero, $zero, phase7_state_loop\nphase7_state_done:\n    sw $t1, 256($zero)\n    ori $t3, $zero, 85\n    sw $t3, 260($zero)\nphase7_end_69:\n",
+      "steps": 24,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 10
+        },
+        {
+          "index": 1,
+          "expected": 85
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "loop",
+        "state-dependent"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-loop-5",
+      "name": "state-dependent beq loop (5)",
+      "category": "beq",
+      "description": "The branch condition changes with the loop-carried decrement; the final sum is stored in DM.",
+      "assembly": "    ori $t0, $zero, 5\n    ori $t1, $zero, 0\nphase7_state_loop:\n    add $t1, $t1, $t0\n    ori $t2, $zero, 1\n    sub $t0, $t0, $t2\n    beq $t0, $zero, phase7_state_done\n    beq $zero, $zero, phase7_state_loop\nphase7_state_done:\n    sw $t1, 256($zero)\n    ori $t3, $zero, 85\n    sw $t3, 260($zero)\nphase7_end_70:\n",
+      "steps": 29,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 15
+        },
+        {
+          "index": 1,
+          "expected": 85
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "loop",
+        "state-dependent"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-loop-6",
+      "name": "state-dependent beq loop (6)",
+      "category": "beq",
+      "description": "The branch condition changes with the loop-carried decrement; the final sum is stored in DM.",
+      "assembly": "    ori $t0, $zero, 6\n    ori $t1, $zero, 0\nphase7_state_loop:\n    add $t1, $t1, $t0\n    ori $t2, $zero, 1\n    sub $t0, $t0, $t2\n    beq $t0, $zero, phase7_state_done\n    beq $zero, $zero, phase7_state_loop\nphase7_state_done:\n    sw $t1, 256($zero)\n    ori $t3, $zero, 85\n    sw $t3, 260($zero)\nphase7_end_71:\n",
+      "steps": 34,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 21
+        },
+        {
+          "index": 1,
+          "expected": 85
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "loop",
+        "state-dependent"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-loop-7",
+      "name": "state-dependent beq loop (7)",
+      "category": "beq",
+      "description": "The branch condition changes with the loop-carried decrement; the final sum is stored in DM.",
+      "assembly": "    ori $t0, $zero, 7\n    ori $t1, $zero, 0\nphase7_state_loop:\n    add $t1, $t1, $t0\n    ori $t2, $zero, 1\n    sub $t0, $t0, $t2\n    beq $t0, $zero, phase7_state_done\n    beq $zero, $zero, phase7_state_loop\nphase7_state_done:\n    sw $t1, 256($zero)\n    ori $t3, $zero, 85\n    sw $t3, 260($zero)\nphase7_end_72:\n",
+      "steps": 39,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 28
+        },
+        {
+          "index": 1,
+          "expected": 85
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "loop",
+        "state-dependent"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-loop-8",
+      "name": "state-dependent beq loop (8)",
+      "category": "beq",
+      "description": "The branch condition changes with the loop-carried decrement; the final sum is stored in DM.",
+      "assembly": "    ori $t0, $zero, 8\n    ori $t1, $zero, 0\nphase7_state_loop:\n    add $t1, $t1, $t0\n    ori $t2, $zero, 1\n    sub $t0, $t0, $t2\n    beq $t0, $zero, phase7_state_done\n    beq $zero, $zero, phase7_state_loop\nphase7_state_done:\n    sw $t1, 256($zero)\n    ori $t3, $zero, 85\n    sw $t3, 260($zero)\nphase7_end_73:\n",
+      "steps": 44,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 36
+        },
+        {
+          "index": 1,
+          "expected": 85
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "loop",
+        "state-dependent"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-loop-9",
+      "name": "state-dependent beq loop (9)",
+      "category": "beq",
+      "description": "The branch condition changes with the loop-carried decrement; the final sum is stored in DM.",
+      "assembly": "    ori $t0, $zero, 9\n    ori $t1, $zero, 0\nphase7_state_loop:\n    add $t1, $t1, $t0\n    ori $t2, $zero, 1\n    sub $t0, $t0, $t2\n    beq $t0, $zero, phase7_state_done\n    beq $zero, $zero, phase7_state_loop\nphase7_state_done:\n    sw $t1, 256($zero)\n    ori $t3, $zero, 85\n    sw $t3, 260($zero)\nphase7_end_74:\n",
+      "steps": 49,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 45
+        },
+        {
+          "index": 1,
+          "expected": 85
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "loop",
+        "state-dependent"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-loop-10",
+      "name": "state-dependent beq loop (10)",
+      "category": "beq",
+      "description": "The branch condition changes with the loop-carried decrement; the final sum is stored in DM.",
+      "assembly": "    ori $t0, $zero, 10\n    ori $t1, $zero, 0\nphase7_state_loop:\n    add $t1, $t1, $t0\n    ori $t2, $zero, 1\n    sub $t0, $t0, $t2\n    beq $t0, $zero, phase7_state_done\n    beq $zero, $zero, phase7_state_loop\nphase7_state_done:\n    sw $t1, 256($zero)\n    ori $t3, $zero, 85\n    sw $t3, 260($zero)\nphase7_end_75:\n",
+      "steps": 54,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 55
+        },
+        {
+          "index": 1,
+          "expected": 85
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "beq",
+        "loop",
+        "state-dependent"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-songsign-1",
+      "name": "repeated sign-extended memory operation (1)",
+      "category": "lw-sw",
+      "description": "A negative offset is reused for multiple stores and loads; a zero-extended address would be far outside DM.",
+      "assembly": "    ori $t0, $zero, 640\n    ori $t1, $zero, 4096\n    sw $t1, -4($t0)\n    lw $t2, -4($t0)\n    sw $t1, -4($t0)\n    lw $t3, -4($t0)\n    add $t4, $t2, $t3\n    sw $t4, 256($zero)\n    ori $t5, $zero, 102\n    sw $t5, 260($zero)\nphase7_end_76:\n",
+      "steps": 10,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 8192
+        },
+        {
+          "index": 1,
+          "expected": 102
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "lw-sw",
+        "sign-extension",
+        "repeated-access"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-songsign-2",
+      "name": "repeated sign-extended memory operation (2)",
+      "category": "lw-sw",
+      "description": "A negative offset is reused for multiple stores and loads; a zero-extended address would be far outside DM.",
+      "assembly": "    ori $t0, $zero, 656\n    ori $t1, $zero, 4097\n    sw $t1, -8($t0)\n    lw $t2, -8($t0)\n    sw $t1, -8($t0)\n    lw $t3, -8($t0)\n    add $t4, $t2, $t3\n    sw $t4, 256($zero)\n    ori $t5, $zero, 102\n    sw $t5, 260($zero)\nphase7_end_77:\n",
+      "steps": 10,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 8194
+        },
+        {
+          "index": 1,
+          "expected": 102
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "lw-sw",
+        "sign-extension",
+        "repeated-access"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-songsign-3",
+      "name": "repeated sign-extended memory operation (3)",
+      "category": "lw-sw",
+      "description": "A negative offset is reused for multiple stores and loads; a zero-extended address would be far outside DM.",
+      "assembly": "    ori $t0, $zero, 672\n    ori $t1, $zero, 4098\n    sw $t1, -12($t0)\n    lw $t2, -12($t0)\n    sw $t1, -12($t0)\n    lw $t3, -12($t0)\n    add $t4, $t2, $t3\n    sw $t4, 256($zero)\n    ori $t5, $zero, 102\n    sw $t5, 260($zero)\nphase7_end_78:\n",
+      "steps": 10,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 8196
+        },
+        {
+          "index": 1,
+          "expected": 102
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "lw-sw",
+        "sign-extension",
+        "repeated-access"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-songsign-4",
+      "name": "repeated sign-extended memory operation (4)",
+      "category": "lw-sw",
+      "description": "A negative offset is reused for multiple stores and loads; a zero-extended address would be far outside DM.",
+      "assembly": "    ori $t0, $zero, 688\n    ori $t1, $zero, 4099\n    sw $t1, -16($t0)\n    lw $t2, -16($t0)\n    sw $t1, -16($t0)\n    lw $t3, -16($t0)\n    add $t4, $t2, $t3\n    sw $t4, 256($zero)\n    ori $t5, $zero, 102\n    sw $t5, 260($zero)\nphase7_end_79:\n",
+      "steps": 10,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 8198
+        },
+        {
+          "index": 1,
+          "expected": 102
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "lw-sw",
+        "sign-extension",
+        "repeated-access"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-songsign-5",
+      "name": "repeated sign-extended memory operation (5)",
+      "category": "lw-sw",
+      "description": "A negative offset is reused for multiple stores and loads; a zero-extended address would be far outside DM.",
+      "assembly": "    ori $t0, $zero, 704\n    ori $t1, $zero, 4100\n    sw $t1, -20($t0)\n    lw $t2, -20($t0)\n    sw $t1, -20($t0)\n    lw $t3, -20($t0)\n    add $t4, $t2, $t3\n    sw $t4, 256($zero)\n    ori $t5, $zero, 102\n    sw $t5, 260($zero)\nphase7_end_80:\n",
+      "steps": 10,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 8200
+        },
+        {
+          "index": 1,
+          "expected": 102
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "lw-sw",
+        "sign-extension",
+        "repeated-access"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-songsign-6",
+      "name": "repeated sign-extended memory operation (6)",
+      "category": "lw-sw",
+      "description": "A negative offset is reused for multiple stores and loads; a zero-extended address would be far outside DM.",
+      "assembly": "    ori $t0, $zero, 720\n    ori $t1, $zero, 4101\n    sw $t1, -24($t0)\n    lw $t2, -24($t0)\n    sw $t1, -24($t0)\n    lw $t3, -24($t0)\n    add $t4, $t2, $t3\n    sw $t4, 256($zero)\n    ori $t5, $zero, 102\n    sw $t5, 260($zero)\nphase7_end_81:\n",
+      "steps": 10,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 8202
+        },
+        {
+          "index": 1,
+          "expected": 102
+        }
+      ],
+      "suites": [
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "lw-sw",
+        "sign-extension",
+        "repeated-access"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-lui-ori-mix-1",
+      "name": "LUI then ORI on a live register (1)",
+      "category": "lui",
+      "description": "LUI overwrites the high half and ORI zero-extends its immediate into a live destination.",
+      "assembly": "    ori $t0, $zero, 8738\n    lui $t0, 0x9000\n    ori $t0, $t0, 0x100\n    sw $t0, 256($zero)\n    ori $t1, $zero, 119\n    sw $t1, 260($zero)\nphase7_end_82:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2415919360
+        },
+        {
+          "index": 1,
+          "expected": 119
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "ori",
+        "live-register"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-lui-ori-mix-2",
+      "name": "LUI then ORI on a live register (2)",
+      "category": "lui",
+      "description": "LUI overwrites the high half and ORI zero-extends its immediate into a live destination.",
+      "assembly": "    ori $t0, $zero, 8738\n    lui $t0, 0x9111\n    ori $t0, $t0, 0x211\n    sw $t0, 256($zero)\n    ori $t1, $zero, 119\n    sw $t1, 260($zero)\nphase7_end_83:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2433810961
+        },
+        {
+          "index": 1,
+          "expected": 119
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "ori",
+        "live-register"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-lui-ori-mix-3",
+      "name": "LUI then ORI on a live register (3)",
+      "category": "lui",
+      "description": "LUI overwrites the high half and ORI zero-extends its immediate into a live destination.",
+      "assembly": "    ori $t0, $zero, 8738\n    lui $t0, 0x9222\n    ori $t0, $t0, 0x322\n    sw $t0, 256($zero)\n    ori $t1, $zero, 119\n    sw $t1, 260($zero)\nphase7_end_84:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2451702562
+        },
+        {
+          "index": 1,
+          "expected": 119
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "ori",
+        "live-register"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-lui-ori-mix-4",
+      "name": "LUI then ORI on a live register (4)",
+      "category": "lui",
+      "description": "LUI overwrites the high half and ORI zero-extends its immediate into a live destination.",
+      "assembly": "    ori $t0, $zero, 8738\n    lui $t0, 0x9333\n    ori $t0, $t0, 0x433\n    sw $t0, 256($zero)\n    ori $t1, $zero, 119\n    sw $t1, 260($zero)\nphase7_end_85:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2469594163
+        },
+        {
+          "index": 1,
+          "expected": 119
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "ori",
+        "live-register"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-lui-ori-mix-5",
+      "name": "LUI then ORI on a live register (5)",
+      "category": "lui",
+      "description": "LUI overwrites the high half and ORI zero-extends its immediate into a live destination.",
+      "assembly": "    ori $t0, $zero, 8738\n    lui $t0, 0x9444\n    ori $t0, $t0, 0x544\n    sw $t0, 256($zero)\n    ori $t1, $zero, 119\n    sw $t1, 260($zero)\nphase7_end_86:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2487485764
+        },
+        {
+          "index": 1,
+          "expected": 119
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "ori",
+        "live-register"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-lui-ori-mix-6",
+      "name": "LUI then ORI on a live register (6)",
+      "category": "lui",
+      "description": "LUI overwrites the high half and ORI zero-extends its immediate into a live destination.",
+      "assembly": "    ori $t0, $zero, 8738\n    lui $t0, 0x9555\n    ori $t0, $t0, 0x655\n    sw $t0, 256($zero)\n    ori $t1, $zero, 119\n    sw $t1, 260($zero)\nphase7_end_87:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2505377365
+        },
+        {
+          "index": 1,
+          "expected": 119
+        }
+      ],
+      "suites": [
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "ori",
+        "live-register"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-memory-1",
+      "name": "branch-controlled memory accumulator (1)",
+      "category": "mixed",
+      "description": "A beq loop updates memory through a non-zero base while a register accumulator tracks the same values.",
+      "assembly": "    ori $t2, $zero, 576\n    ori $t0, $zero, 2\n    ori $t1, $zero, 0\nphase7_branch_mem_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_branch_mem_done\n    beq $zero, $zero, phase7_branch_mem_loop\nphase7_branch_mem_done:\n    sw $t1, 256($zero)\n    sw $t2, 260($zero)\nphase7_end_88:\n",
+      "steps": 18,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 3
+        },
+        {
+          "index": 1,
+          "expected": 576
+        }
+      ],
+      "suites": [
+        "full",
+        "branch",
+        "memory"
+      ],
+      "tags": [
+        "beq",
+        "memory",
+        "non-zero-base",
+        "loop"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-memory-2",
+      "name": "branch-controlled memory accumulator (2)",
+      "category": "mixed",
+      "description": "A beq loop updates memory through a non-zero base while a register accumulator tracks the same values.",
+      "assembly": "    ori $t2, $zero, 592\n    ori $t0, $zero, 3\n    ori $t1, $zero, 0\nphase7_branch_mem_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_branch_mem_done\n    beq $zero, $zero, phase7_branch_mem_loop\nphase7_branch_mem_done:\n    sw $t1, 256($zero)\n    sw $t2, 260($zero)\nphase7_end_89:\n",
+      "steps": 25,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 6
+        },
+        {
+          "index": 1,
+          "expected": 592
+        }
+      ],
+      "suites": [
+        "full",
+        "branch",
+        "memory"
+      ],
+      "tags": [
+        "beq",
+        "memory",
+        "non-zero-base",
+        "loop"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-memory-3",
+      "name": "branch-controlled memory accumulator (3)",
+      "category": "mixed",
+      "description": "A beq loop updates memory through a non-zero base while a register accumulator tracks the same values.",
+      "assembly": "    ori $t2, $zero, 608\n    ori $t0, $zero, 4\n    ori $t1, $zero, 0\nphase7_branch_mem_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_branch_mem_done\n    beq $zero, $zero, phase7_branch_mem_loop\nphase7_branch_mem_done:\n    sw $t1, 256($zero)\n    sw $t2, 260($zero)\nphase7_end_90:\n",
+      "steps": 32,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 10
+        },
+        {
+          "index": 1,
+          "expected": 608
+        }
+      ],
+      "suites": [
+        "full",
+        "branch",
+        "memory"
+      ],
+      "tags": [
+        "beq",
+        "memory",
+        "non-zero-base",
+        "loop"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-memory-4",
+      "name": "branch-controlled memory accumulator (4)",
+      "category": "mixed",
+      "description": "A beq loop updates memory through a non-zero base while a register accumulator tracks the same values.",
+      "assembly": "    ori $t2, $zero, 624\n    ori $t0, $zero, 5\n    ori $t1, $zero, 0\nphase7_branch_mem_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_branch_mem_done\n    beq $zero, $zero, phase7_branch_mem_loop\nphase7_branch_mem_done:\n    sw $t1, 256($zero)\n    sw $t2, 260($zero)\nphase7_end_91:\n",
+      "steps": 39,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 15
+        },
+        {
+          "index": 1,
+          "expected": 624
+        }
+      ],
+      "suites": [
+        "full",
+        "branch",
+        "memory"
+      ],
+      "tags": [
+        "beq",
+        "memory",
+        "non-zero-base",
+        "loop"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-memory-5",
+      "name": "branch-controlled memory accumulator (5)",
+      "category": "mixed",
+      "description": "A beq loop updates memory through a non-zero base while a register accumulator tracks the same values.",
+      "assembly": "    ori $t2, $zero, 576\n    ori $t0, $zero, 6\n    ori $t1, $zero, 0\nphase7_branch_mem_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_branch_mem_done\n    beq $zero, $zero, phase7_branch_mem_loop\nphase7_branch_mem_done:\n    sw $t1, 256($zero)\n    sw $t2, 260($zero)\nphase7_end_92:\n",
+      "steps": 46,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 21
+        },
+        {
+          "index": 1,
+          "expected": 576
+        }
+      ],
+      "suites": [
+        "full",
+        "branch",
+        "memory"
+      ],
+      "tags": [
+        "beq",
+        "memory",
+        "non-zero-base",
+        "loop"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-memory-6",
+      "name": "branch-controlled memory accumulator (6)",
+      "category": "mixed",
+      "description": "A beq loop updates memory through a non-zero base while a register accumulator tracks the same values.",
+      "assembly": "    ori $t2, $zero, 592\n    ori $t0, $zero, 2\n    ori $t1, $zero, 0\nphase7_branch_mem_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_branch_mem_done\n    beq $zero, $zero, phase7_branch_mem_loop\nphase7_branch_mem_done:\n    sw $t1, 256($zero)\n    sw $t2, 260($zero)\nphase7_end_93:\n",
+      "steps": 18,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 3
+        },
+        {
+          "index": 1,
+          "expected": 592
+        }
+      ],
+      "suites": [
+        "full",
+        "branch",
+        "memory"
+      ],
+      "tags": [
+        "beq",
+        "memory",
+        "non-zero-base",
+        "loop"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-memory-7",
+      "name": "branch-controlled memory accumulator (7)",
+      "category": "mixed",
+      "description": "A beq loop updates memory through a non-zero base while a register accumulator tracks the same values.",
+      "assembly": "    ori $t2, $zero, 608\n    ori $t0, $zero, 3\n    ori $t1, $zero, 0\nphase7_branch_mem_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_branch_mem_done\n    beq $zero, $zero, phase7_branch_mem_loop\nphase7_branch_mem_done:\n    sw $t1, 256($zero)\n    sw $t2, 260($zero)\nphase7_end_94:\n",
+      "steps": 25,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 6
+        },
+        {
+          "index": 1,
+          "expected": 608
+        }
+      ],
+      "suites": [
+        "full",
+        "branch",
+        "memory"
+      ],
+      "tags": [
+        "beq",
+        "memory",
+        "non-zero-base",
+        "loop"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-memory-8",
+      "name": "branch-controlled memory accumulator (8)",
+      "category": "mixed",
+      "description": "A beq loop updates memory through a non-zero base while a register accumulator tracks the same values.",
+      "assembly": "    ori $t2, $zero, 624\n    ori $t0, $zero, 4\n    ori $t1, $zero, 0\nphase7_branch_mem_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_branch_mem_done\n    beq $zero, $zero, phase7_branch_mem_loop\nphase7_branch_mem_done:\n    sw $t1, 256($zero)\n    sw $t2, 260($zero)\nphase7_end_95:\n",
+      "steps": 32,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 10
+        },
+        {
+          "index": 1,
+          "expected": 624
+        }
+      ],
+      "suites": [
+        "full",
+        "branch",
+        "memory"
+      ],
+      "tags": [
+        "beq",
+        "memory",
+        "non-zero-base",
+        "loop"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-memory-9",
+      "name": "branch-controlled memory accumulator (9)",
+      "category": "mixed",
+      "description": "A beq loop updates memory through a non-zero base while a register accumulator tracks the same values.",
+      "assembly": "    ori $t2, $zero, 576\n    ori $t0, $zero, 5\n    ori $t1, $zero, 0\nphase7_branch_mem_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_branch_mem_done\n    beq $zero, $zero, phase7_branch_mem_loop\nphase7_branch_mem_done:\n    sw $t1, 256($zero)\n    sw $t2, 260($zero)\nphase7_end_96:\n",
+      "steps": 39,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 15
+        },
+        {
+          "index": 1,
+          "expected": 576
+        }
+      ],
+      "suites": [
+        "full",
+        "branch",
+        "memory"
+      ],
+      "tags": [
+        "beq",
+        "memory",
+        "non-zero-base",
+        "loop"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-memory-10",
+      "name": "branch-controlled memory accumulator (10)",
+      "category": "mixed",
+      "description": "A beq loop updates memory through a non-zero base while a register accumulator tracks the same values.",
+      "assembly": "    ori $t2, $zero, 592\n    ori $t0, $zero, 6\n    ori $t1, $zero, 0\nphase7_branch_mem_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_branch_mem_done\n    beq $zero, $zero, phase7_branch_mem_loop\nphase7_branch_mem_done:\n    sw $t1, 256($zero)\n    sw $t2, 260($zero)\nphase7_end_97:\n",
+      "steps": 46,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 21
+        },
+        {
+          "index": 1,
+          "expected": 592
+        }
+      ],
+      "suites": [
+        "full",
+        "branch",
+        "memory"
+      ],
+      "tags": [
+        "beq",
+        "memory",
+        "non-zero-base",
+        "loop"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-memory-11",
+      "name": "branch-controlled memory accumulator (11)",
+      "category": "mixed",
+      "description": "A beq loop updates memory through a non-zero base while a register accumulator tracks the same values.",
+      "assembly": "    ori $t2, $zero, 608\n    ori $t0, $zero, 2\n    ori $t1, $zero, 0\nphase7_branch_mem_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_branch_mem_done\n    beq $zero, $zero, phase7_branch_mem_loop\nphase7_branch_mem_done:\n    sw $t1, 256($zero)\n    sw $t2, 260($zero)\nphase7_end_98:\n",
+      "steps": 18,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 3
+        },
+        {
+          "index": 1,
+          "expected": 608
+        }
+      ],
+      "suites": [
+        "full",
+        "branch",
+        "memory"
+      ],
+      "tags": [
+        "beq",
+        "memory",
+        "non-zero-base",
+        "loop"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
+    },
+    {
+      "id": "phase7-branch-memory-12",
+      "name": "branch-controlled memory accumulator (12)",
+      "category": "mixed",
+      "description": "A beq loop updates memory through a non-zero base while a register accumulator tracks the same values.",
+      "assembly": "    ori $t2, $zero, 624\n    ori $t0, $zero, 3\n    ori $t1, $zero, 0\nphase7_branch_mem_loop:\n    sw $t0, 0($t2)\n    lw $t3, 0($t2)\n    add $t1, $t1, $t3\n    ori $t4, $zero, 1\n    sub $t0, $t0, $t4\n    beq $t0, $zero, phase7_branch_mem_done\n    beq $zero, $zero, phase7_branch_mem_loop\nphase7_branch_mem_done:\n    sw $t1, 256($zero)\n    sw $t2, 260($zero)\nphase7_end_99:\n",
+      "steps": 25,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 6
+        },
+        {
+          "index": 1,
+          "expected": 624
+        }
+      ],
+      "suites": [
+        "full",
+        "branch",
+        "memory"
+      ],
+      "tags": [
+        "beq",
+        "memory",
+        "non-zero-base",
+        "loop"
+      ],
+      "seed": null,
+      "requiredRamBytes": 1024
     }
   ]
 }

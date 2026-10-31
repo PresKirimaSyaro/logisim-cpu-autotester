@@ -292,7 +292,7 @@ export function App() {
             <span className={`dot ${state?.bridgeStatus === 'running' ? 'dot-busy' : state?.bridgeStatus === 'error' ? 'dot-error' : 'dot-idle'}`} />
             Bridge {bridgeLabel(state?.bridgeStatus)}
           </div>
-          <div className="muted small">Phase 5 · 动态指令集 · 真实 Java Bridge</div>
+          <div className="muted small">Phase 7 · 外部测试集 · 动态指令集 · 真实 Java Bridge</div>
         </div>
       </aside>
 
