@@ -1,47 +1,84 @@
 import {useState} from 'react';
-import type {AppState, SuiteName} from '../../../../packages/desktop-ipc/src/index.js';
-import type {RunSummary, TestResult} from '../../../../packages/differential-runner/src/types.js';
+import type {AppState, StressIntensity, SuiteName} from '../../../../packages/desktop-ipc/src/index.js';
+import type {InstructionName} from '../../../../packages/mips-core/src/isa/instruction-set.js';
+import {ALL_INSTRUCTIONS, OPTIONAL_INSTRUCTIONS} from '../../../../packages/mips-core/src/isa/instruction-set.js';
+import type {RunSummary} from '../../../../packages/differential-runner/src/types.js';
 import type {LiveRun} from '../App.js';
-import {ResultDetail} from '../components/ResultDetail.js';
-import {ResultTable} from '../components/ResultTable.js';
 import {formatDuration, hex, shortPath} from '../format.js';
 
 interface Props {
   state: AppState | null;
   run: LiveRun | null;
-  results: TestResult[];
   counts: {pass: number; fail: number; error: number};
   summary: RunSummary | null;
   progress: number;
   elapsed: number;
-  selected: TestResult | null;
   assembly: string;
+  lastReportId: string | null;
   onAssemblyChange: (value: string) => void;
-  onSelect: (result: TestResult) => void;
   onChooseCircuit: () => Promise<void>;
   onChooseConfig: () => Promise<void>;
-  onRunSuite: (suite: SuiteName) => Promise<void>;
-  onRunAssembly: (steps: number, stopPc?: number) => Promise<void>;
+  onRunSuite: (
+    suite: SuiteName,
+    intensity?: StressIntensity,
+    maxCycles?: number,
+    seed?: number,
+    seedCount?: number,
+  ) => Promise<void>;
+  onRunAssembly: (steps: number, stopPc?: number, maxCycles?: number) => Promise<void>;
+  onInstructionsChange: (instructions: InstructionName[]) => Promise<void>;
+  onOpenResult: () => void;
   onStop: () => Promise<void>;
   onOpenEditor: () => void;
 }
 
 export function Workbench(props: Props) {
-  const {state, run, results, counts, summary, selected} = props;
+  const {state, run, counts, summary} = props;
   const [mode, setMode] = useState<'suite' | 'assembly'>('suite');
   const [suite, setSuite] = useState<SuiteName>('basic');
+  const [intensity, setIntensity] = useState<StressIntensity>('standard');
   const [steps, setSteps] = useState(4);
   const [stopPcText, setStopPcText] = useState('');
+  const [maxCyclesText, setMaxCyclesText] = useState('');
+  const [seedText, setSeedText] = useState('');
+  const [seedCountText, setSeedCountText] = useState('');
   const [localError, setLocalError] = useState<string | null>(null);
   const configured = Boolean(state?.circuit && state?.config);
   const running = Boolean(run?.running);
+  const enabled = new Set<InstructionName>(state?.config?.instructions ?? []);
+  const toggleInstruction = async (name: InstructionName) => {
+    const next = ALL_INSTRUCTIONS.filter((candidate) =>
+      candidate === name ? !enabled.has(candidate) : enabled.has(candidate),
+    );
+    if (next.length === 0) {
+      setLocalError('至少启用一条指令');
+      return;
+    }
+    setLocalError(null);
+    await props.onInstructionsChange(next);
+  };
   const total = run?.total ?? summary?.totals.total ?? 0;
   const completed = run?.completed ?? summary?.totals.total ?? 0;
 
   async function start(): Promise<void> {
     setLocalError(null);
+    const maxCycles = maxCyclesText.trim().length > 0 ? Number(maxCyclesText) : undefined;
+    if (maxCycles !== undefined && (!Number.isInteger(maxCycles) || maxCycles < 1)) {
+      setLocalError('周期上限必须是正整数');
+      return;
+    }
+    const seed = seedText.trim().length > 0 ? Number(seedText) : undefined;
+    const seedCount = seedCountText.trim().length > 0 ? Number(seedCountText) : undefined;
+    if (seed !== undefined && (!Number.isInteger(seed) || seed < 0)) {
+      setLocalError('随机种子必须是非负整数');
+      return;
+    }
+    if (seedCount !== undefined && (!Number.isInteger(seedCount) || seedCount < 0)) {
+      setLocalError('seed 数量必须是非负整数');
+      return;
+    }
     if (mode === 'suite') {
-      await props.onRunSuite(suite);
+      await props.onRunSuite(suite, intensity, maxCycles, seed, seedCount);
       return;
     }
     const stopPc = stopPcText.trim().length > 0 ? parseAddress(stopPcText) : undefined;
@@ -53,7 +90,7 @@ export function Workbench(props: Props) {
       setLocalError('周期数必须是正整数');
       return;
     }
-    await props.onRunAssembly(steps, stopPc ?? undefined);
+    await props.onRunAssembly(steps, stopPc ?? undefined, maxCycles);
   }
 
   return (
@@ -151,6 +188,36 @@ export function Workbench(props: Props) {
           </div>
         </div>
 
+        <div className="instruction-set" data-testid="instruction-set">
+          <div className="instruction-set-title">
+            <span>启用的指令集</span>
+            <small>
+              默认课程 8 条；sll / j 为可选扩展。生成器和手动汇编都会遵守此选择。
+            </small>
+          </div>
+          <div className="suite-source" title={state?.suiteFile}>
+            内置测试程序集：<span className="mono">{shortPath(state?.suiteFile ?? 'test-suites/course.json', 92)}</span>
+            <em>可直接编辑该 JSON，无需重新构建</em>
+          </div>
+          <div className="instruction-checks">
+            {ALL_INSTRUCTIONS.map((name) => {
+              const optional = (OPTIONAL_INSTRUCTIONS as readonly string[]).includes(name);
+              return (
+                <label className={`instruction-check${optional ? ' optional' : ''}`} key={name}>
+                  <input
+                    type="checkbox"
+                    checked={enabled.has(name)}
+                    onChange={() => void toggleInstruction(name)}
+                    disabled={running || !configured}
+                  />
+                  <span>{name}</span>
+                  {optional && <em>可选</em>}
+                </label>
+              );
+            })}
+          </div>
+        </div>
+
         {mode === 'suite' ? (
           <div className="run-controls">
             <label className="field">
@@ -161,7 +228,51 @@ export function Workbench(props: Props) {
                 <option value="alu">alu · 算术/移位</option>
                 <option value="memory">memory · load/store</option>
                 <option value="branch">branch · 分支</option>
+                <option value="stress">stress · 强力循环</option>
               </select>
+            </label>
+            {suite === 'stress' && (
+              <>
+                <label className="field narrow">
+                  <span>强度</span>
+                  <select value={intensity} onChange={(event) => setIntensity(event.target.value as StressIntensity)} disabled={running}>
+                    <option value="quick">Quick</option>
+                    <option value="standard">Standard</option>
+                    <option value="stress">Stress</option>
+                  </select>
+                </label>
+                <label className="field narrow">
+                  <span>随机种子</span>
+                  <input
+                    value={seedText}
+                    onChange={(event) => setSeedText(event.target.value)}
+                    placeholder="默认"
+                    disabled={running}
+                  />
+                </label>
+                <label className="field narrow">
+                  <span>Seed 数量</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={seedCountText}
+                    onChange={(event) => setSeedCountText(event.target.value)}
+                    placeholder="默认"
+                    disabled={running}
+                  />
+                </label>
+              </>
+            )}
+            <label className="field narrow">
+              <span>周期上限</span>
+              <input
+                type="number"
+                min={1}
+                value={maxCyclesText}
+                onChange={(event) => setMaxCyclesText(event.target.value)}
+                placeholder="默认"
+                disabled={running}
+              />
             </label>
             <button className="btn primary" data-testid="run-suite" onClick={start} disabled={!configured || running}>
               {running ? '测试运行中…' : '开始测试'}
@@ -203,6 +314,17 @@ export function Workbench(props: Props) {
                   placeholder="0x3030"
                   value={stopPcText}
                   onChange={(event) => setStopPcText(event.target.value)}
+                  disabled={running}
+                />
+              </label>
+              <label className="field narrow">
+                <span>周期上限</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={maxCyclesText}
+                  onChange={(event) => setMaxCyclesText(event.target.value)}
+                  placeholder="默认"
                   disabled={running}
                 />
               </label>
@@ -265,8 +387,8 @@ export function Workbench(props: Props) {
       <section className="card results-card">
         <div className="card-head">
           <div>
-            <div className="eyebrow">测试结果</div>
-            <h2>用例列表</h2>
+            <div className="eyebrow">独立报告</div>
+            <h2>测试结果窗口</h2>
           </div>
           {summary && (
             <div className="summary-line">
@@ -276,15 +398,20 @@ export function Workbench(props: Props) {
             </div>
           )}
         </div>
-        <ResultTable
-          results={results}
-          selectedId={selected?.id}
-          onSelect={props.onSelect}
-          emptyText="还没有测试结果。加载电路后运行内置测试集或自定义汇编。"
-        />
+        <p className="muted small result-window-hint">
+          详细用例、汇编/机器码和逐周期 Expected / Actual 轨迹在独立窗口中展示，主窗口不保存这些临时状态。
+        </p>
+        <div className="toolbar-row">
+          <button className="btn primary" onClick={props.onOpenResult} disabled={!props.lastReportId}>
+            打开测试结果窗口
+          </button>
+          {summary?.coverage && (
+            <span className="chip">
+              覆盖率：动态 {summary.coverage.dynamicInstructions} 条 / 静态 {summary.coverage.staticInstructions} 条
+            </span>
+          )}
+        </div>
       </section>
-
-      <ResultDetail result={selected} />
     </div>
   );
 }

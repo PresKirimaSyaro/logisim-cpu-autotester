@@ -7,7 +7,10 @@ export type Instruction =
   | {kind: 'lw'; rs: number; rt: number; offset: number; word: number}
   | {kind: 'sw'; rs: number; rt: number; offset: number; word: number}
   | {kind: 'beq'; rs: number; rt: number; offset: number; word: number}
-  | {kind: 'sll'; rt: number; rd: number; shamt: number; word: number};
+  | {kind: 'sll'; rt: number; rd: number; shamt: number; word: number}
+  | {kind: 'lui'; rt: number; immediate: number; word: number}
+  | {kind: 'j'; index: number; word: number}
+  | {kind: 'nop'; word: number};
 
 export interface DecodeFailure {
   ok: false;
@@ -21,11 +24,13 @@ export interface DecodeFailure {
 export type DecodeResult = {ok: true; instruction: Instruction} | DecodeFailure;
 
 /**
- * Decode exactly the seven-instruction course subset. Every other encoding is
- * rejected; decoding never guesses or silently turns an unknown word into NOP.
+ * Decode the ten-instruction course subset. 0x00000000 is the canonical nop,
+ * which is also the all-zero `sll $zero,$zero,0` encoding. Every other
+ * unsupported encoding is rejected rather than guessed.
  */
 export function decode(word: number): DecodeResult {
   const value = u32(word);
+  if (value === 0) return {ok: true, instruction: {kind: 'nop', word: value}};
   const f = fieldsOf(value);
   if (f.opcode === OPCODE.R) {
     if (f.funct === FUNCT.ADD) {
@@ -44,6 +49,18 @@ export function decode(word: number): DecodeResult {
       };
     }
     return unsupported(value, f.opcode, f.funct, `unsupported R-type funct 0x${f.funct.toString(16)}`);
+  }
+  if (f.opcode === OPCODE.LUI) {
+    return {
+      ok: true,
+      instruction: {kind: 'lui', rt: f.rt, immediate: f.immediate, word: value},
+    };
+  }
+  if (f.opcode === OPCODE.J) {
+    return {
+      ok: true,
+      instruction: {kind: 'j', index: value & 0x03ffffff, word: value},
+    };
   }
   if (f.opcode === OPCODE.ORI) {
     return {
@@ -95,5 +112,11 @@ export function formatInstruction(instruction: Instruction): string {
       return `beq $${instruction.rs}, $${instruction.rt}, ${instruction.offset}`;
     case 'sll':
       return `sll $${instruction.rd}, $${instruction.rt}, ${instruction.shamt}`;
+    case 'lui':
+      return `lui $${instruction.rt}, 0x${instruction.immediate.toString(16)}`;
+    case 'j':
+      return `j 0x${(instruction.index << 2).toString(16)}`;
+    case 'nop':
+      return 'nop';
   }
 }

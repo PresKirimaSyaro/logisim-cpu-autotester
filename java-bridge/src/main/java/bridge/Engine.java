@@ -6,6 +6,7 @@ import com.cburch.logisim.data.*;
 import com.cburch.logisim.file.*;
 import com.cburch.logisim.instance.*;
 import com.cburch.logisim.proj.Project;
+import com.cburch.logisim.gui.hex.HexFile;
 import com.cburch.logisim.std.memory.BridgeMemory;
 import com.cburch.logisim.std.wiring.Clock;
 import com.cburch.logisim.std.wiring.Pin;
@@ -22,6 +23,27 @@ public final class Engine implements AutoCloseable {
         public Failure(String code, String message) { super(message); this.code = code; }
     }
     static Failure fail(String c, String m) { return new Failure(c, m); }
+
+    /** Parse a Logisim "v2.0 raw" HEX image through the original HexFile parser. */
+    public static List<String> parseHexImage(String text) {
+        try {
+            String body = text;
+            int newline = text.indexOf('\n');
+            if (newline >= 0) {
+                String header = text.substring(0, newline).replace("\r", "").trim();
+                if (!header.equals("v2.0 raw")) throw fail("INVALID_HEX", "Invalid Logisim HEX header");
+                body = text.substring(newline + 1);
+            } else {
+                throw fail("INVALID_HEX", "Missing Logisim HEX header");
+            }
+            int[] words = HexFile.parse(new StringReader(body));
+            List<String> result = new ArrayList<>();
+            for (int word : words) result.add(String.format("0x%08X", word));
+            return result;
+        } catch (IOException e) {
+            throw fail("INVALID_HEX", e.getMessage());
+        }
+    }
 
     private static final int MAX_MEMORY_WORDS = 1 << 20;
     private static final int DEFAULT_READ_LIMIT = 1 << 16;

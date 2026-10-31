@@ -1,0 +1,1905 @@
+{
+  "schemaVersion": 1,
+  "name": "course-directed",
+  "description": "External course test programs. Edit this JSON without rebuilding the application. Signature indexes are relative to the layout signatureBase (course: 0x100).",
+  "tests": [
+    {
+      "id": "add-zero",
+      "name": "add 0 + 0",
+      "category": "add-sub",
+      "description": "Zero operands, with a non-zero marker so the test is observable.",
+      "assembly": "    ori $t0, $zero, 0\n    ori $t1, $zero, 0\n    add $t2, $t0, $t1\n    sw $t2, 256($zero)\n    ori $t3, $zero, 1\n    sw $t3, 260($zero)\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 0
+        },
+        {
+          "index": 1,
+          "expected": 1
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "zero",
+        "marker"
+      ],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "add-basic",
+      "name": "add 5 + 7",
+      "category": "add-sub",
+      "description": "Ordinary addition and a RAM signature.",
+      "assembly": "    ori $t0, $zero, 5\n    ori $t1, $zero, 7\n    add $t2, $t0, $t1\n    sw $t2, 256($zero)\n",
+      "steps": 4,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 12
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "sub-basic",
+      "name": "sub 9 - 4",
+      "category": "add-sub",
+      "description": "Ordinary subtraction.",
+      "assembly": "    ori $t0, $zero, 9\n    ori $t1, $zero, 4\n    sub $t2, $t0, $t1\n    sw $t2, 256($zero)\n",
+      "steps": 4,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 5
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "add-wrap-32",
+      "name": "add wraps modulo 2^32",
+      "category": "add-sub",
+      "description": "0xFFFFFFFF + 1 must produce 0 without an overflow exception.",
+      "assembly": "    lui $t0, 0xffff\n    ori $t0, $t0, 0xffff\n    ori $t1, $zero, 1\n    add $t2, $t0, $t1\n    sw $t2, 256($zero)\n    sw $t1, 260($zero)\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 0
+        },
+        {
+          "index": 1,
+          "expected": 1
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "wrap"
+      ],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "sub-underflow",
+      "name": "sub underflows to 0xFFFFFFFF",
+      "category": "add-sub",
+      "description": "0 - 1 must wrap, not trap.",
+      "assembly": "    ori $t0, $zero, 0\n    ori $t1, $zero, 1\n    sub $t2, $t0, $t1\n    sw $t2, 256($zero)\n",
+      "steps": 4,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4294967295
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "wrap"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "add-sign-bit",
+      "name": "add crosses the sign bit",
+      "category": "add-sub",
+      "description": "0x7FFFFFFF + 1 becomes 0x80000000, not an overflow exception.",
+      "assembly": "    lui $t0, 0x7fff\n    ori $t0, $t0, 0xffff\n    ori $t1, $zero, 1\n    add $t2, $t0, $t1\n    sw $t2, 256($zero)\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2147483648
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "sign-bit"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "add-same-register",
+      "name": "add rd = rs = rt",
+      "category": "add-sub",
+      "description": "Source and destination register are the same.",
+      "assembly": "    ori $t0, $zero, 21\n    add $t0, $t0, $t0\n    sw $t0, 256($zero)\n",
+      "steps": 3,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 42
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "aliasing"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "add-zero-register",
+      "name": "add with $zero and write to $zero",
+      "category": "add-sub",
+      "description": "$zero reads as zero and ignores writes.",
+      "assembly": "    ori $t0, $zero, 0x1234\n    add $t1, $t0, $zero\n    sw $t1, 256($zero)\n    add $zero, $t1, $t1\n    sw $zero, 260($zero)\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4660
+        },
+        {
+          "index": 1,
+          "expected": 0
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "zero"
+      ],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "add-dependency-chain",
+      "name": "add data-dependency chain",
+      "category": "add-sub",
+      "description": "Back-to-back dependent additions.",
+      "assembly": "    ori $t0, $zero, 1\n    ori $t1, $zero, 2\n    add $t2, $t0, $t1\n    add $t3, $t2, $t1\n    add $t4, $t3, $t2\n    sw $t4, 256($zero)\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 8
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "sub-same-source",
+      "name": "sub rs = rt",
+      "category": "add-sub",
+      "description": "Equal source registers produce zero; a marker proves execution.",
+      "assembly": "    ori $t0, $zero, 123\n    sub $t1, $t0, $t0\n    sw $t1, 256($zero)\n    sw $t0, 260($zero)\n",
+      "steps": 4,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 0
+        },
+        {
+          "index": 1,
+          "expected": 123
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "ori-zero-immediate",
+      "name": "ori immediate 0",
+      "category": "ori",
+      "description": "ori with zero immediate leaves the low half unchanged; source high half is preserved.",
+      "assembly": "    ori $t0, $zero, 0\n    ori $t1, $zero, 0x1234\n    ori $t2, $t0, 0x1234\n    sw $t2, 256($zero)\n    sw $t0, 260($zero)\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4660
+        },
+        {
+          "index": 1,
+          "expected": 0
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "ori-ffff",
+      "name": "ori immediate 0xFFFF",
+      "category": "ori",
+      "description": "0xFFFF is zero-extended, not sign-extended.",
+      "assembly": "    ori $t0, $zero, 0xffff\n    sw $t0, 256($zero)\n",
+      "steps": 2,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 65535
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "zero-extend"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "ori-preserve-high",
+      "name": "ori preserves the high 16 bits",
+      "category": "ori",
+      "description": "0x12340000 | 0xABCD = 0x1234ABCD.",
+      "assembly": "    lui $t0, 0x1234\n    ori $t0, $t0, 0x0\n    ori $t0, $t0, 0xabcd\n    sw $t0, 256($zero)\n",
+      "steps": 4,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 305441741
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "ori-same-register",
+      "name": "ori with rd = rs",
+      "category": "ori",
+      "description": "In-place OR-immediate.",
+      "assembly": "    ori $t0, $zero, 0x00ff\n    ori $t0, $t0, 0x1100\n    sw $t0, 256($zero)\n",
+      "steps": 3,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4607
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "aliasing"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "ori-negative-literal",
+      "name": "ori -1 encodes 0xFFFF",
+      "category": "ori",
+      "description": "A negative literal is encoded as its 16-bit two's-complement pattern and zero-extended on read.",
+      "assembly": "    ori $t0, $zero, -1\n    sw $t0, 256($zero)\n",
+      "steps": 2,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 65535
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "negative"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "ori-high-bit",
+      "name": "ori 0x8000 is not sign-extended",
+      "category": "ori",
+      "description": "The immediate high bit must not propagate into the upper 16 bits.",
+      "assembly": "    ori $t0, $zero, 0x8000\n    sw $t0, 256($zero)\n",
+      "steps": 2,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 32768
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "zero-extend"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "lui-zero",
+      "name": "lui immediate 0",
+      "category": "lui",
+      "description": "LUI writes imm16 << 16 and the low half stays zero.",
+      "assembly": "    lui $t0, 0x0000\n    sw $t0, 256($zero)\n    ori $t1, $zero, 1\n    sw $t1, 260($zero)\n",
+      "steps": 4,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 0
+        },
+        {
+          "index": 1,
+          "expected": 1
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "zero"
+      ],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "lui-ffff",
+      "name": "lui 0xFFFF then ori 0x8000",
+      "category": "lui",
+      "description": "The course-required LUI + ORI construction must produce 0xFFFF8000.",
+      "assembly": "    lui $t0, 0xffff\n    ori $t0, $t0, 0x8000\n    sw $t0, 256($zero)\n",
+      "steps": 3,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4294934528
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "32-bit"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "lui-boundaries",
+      "name": "lui/ori 32-bit boundary values",
+      "category": "lui",
+      "description": "Construct 0x80000000, 0x7FFFFFFF, 0xFFFF0000 and 0x00008000 through LUI+ORI.",
+      "assembly": "    lui $t0, 0x8000\n    sw $t0, 256($zero)\n    lui $t1, 0x7fff\n    ori $t1, $t1, 0xffff\n    sw $t1, 260($zero)\n    lui $t2, 0xffff\n    sw $t2, 264($zero)\n    ori $t3, $zero, 0x8000\n    sw $t3, 268($zero)\n",
+      "steps": 9,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2147483648
+        },
+        {
+          "index": 1,
+          "expected": 2147483647
+        },
+        {
+          "index": 2,
+          "expected": 4294901760
+        },
+        {
+          "index": 3,
+          "expected": 32768
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "boundary",
+        "32-bit"
+      ],
+      "seed": null,
+      "requiredRamBytes": 272
+    },
+    {
+      "id": "lui-nop-nextpc",
+      "name": "lui/nop maintain PC+4",
+      "category": "lui",
+      "description": "LUI and NOP are non-control instructions; following ORIs must execute in order.",
+      "assembly": "    lui $t0, 0xffff\n    nop\n    ori $t0, $t0, 1\n    nop\n    ori $t1, $zero, 0x55\n    sw $t0, 256($zero)\n    sw $t1, 260($zero)\n",
+      "steps": 7,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4294901761
+        },
+        {
+          "index": 1,
+          "expected": 85
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "lui",
+        "nop",
+        "next-pc"
+      ],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "nextpc-sw-offset",
+      "name": "sw NextPC ignores its memory offset",
+      "category": "nextpc",
+      "description": "Nonzero and negative store offsets must only affect MemAddr, never the next PC.",
+      "assembly": "    ori $t0, $zero, 64\n    ori $t1, $zero, 123\n    sw $t1, -4($t0)\n    ori $t2, $zero, 456\n    sw $t2, 0($t0)\n    lw $t3, -4($t0)\n    sw $t3, 256($zero)\n    ori $t4, $zero, 0x7f\n    sw $t4, 260($zero)\n",
+      "steps": 9,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 123
+        },
+        {
+          "index": 1,
+          "expected": 127
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "next-pc",
+        "sw",
+        "negative-offset"
+      ],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "nextpc-all-non-control",
+      "name": "all non-control instructions use PC+4",
+      "category": "nextpc",
+      "description": "LUI, ORI, ADD, SUB, LW, SW and NOP are followed by visible writebacks in sequence.",
+      "assembly": "    lui $t0, 0x1234\n    ori $t0, $t0, 0x5678\n    ori $t1, $zero, 4\n    add $t2, $t0, $t1\n    sub $t3, $t2, $t1\n    sw $t3, 0x100($zero)\n    lw $t4, 0x100($zero)\n    nop\n    add $t5, $t4, $t0\n    sw $t5, 256($zero)\n    ori $t6, $zero, 0x33\n    sw $t6, 260($zero)\n",
+      "steps": 12,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 610839792
+        },
+        {
+          "index": 1,
+          "expected": 51
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "next-pc",
+        "all-non-control"
+      ],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "nextpc-memory-positive-offset",
+      "name": "lw/sw positive offsets do not branch",
+      "category": "nextpc",
+      "description": "A positive offset that would be a large branch displacement must only change MemAddr.",
+      "assembly": "    ori $t0, $zero, 0x200\n    ori $t1, $zero, 0x1357\n    sw $t1, 0x40($t0)\n    ori $t2, $zero, 0x2468\n    sw $t2, 0x80($t0)\n    lw $t3, 0x40($t0)\n    sw $t3, 256($zero)\n    sw $t2, 260($zero)\n",
+      "steps": 8,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4951
+        },
+        {
+          "index": 1,
+          "expected": 9320
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "next-pc",
+        "lw-sw",
+        "positive-offset"
+      ],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "sll-zero",
+      "name": "sll by 0",
+      "category": "sll",
+      "description": "shamt = 0 returns the input unchanged.",
+      "assembly": "    lui $t0, 0x1234\n    ori $t0, $t0, 0x5678\n    sll $t1, $t0, 0\n    sw $t1, 256($zero)\n",
+      "steps": 4,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 305419896
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "sll-one-high-bit-out",
+      "name": "sll by 1 shifts the top bit out",
+      "category": "sll",
+      "description": "0x80000001 << 1 = 0x00000002.",
+      "assembly": "    lui $t0, 0x8000\n    ori $t0, $t0, 0x1\n    sll $t1, $t0, 1\n    sw $t1, 256($zero)\n",
+      "steps": 4,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "shift-out"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "sll-15",
+      "name": "sll by 15",
+      "category": "sll",
+      "description": "0x12345678 << 15 = 0x2B3C0000.",
+      "assembly": "    lui $t0, 0x1234\n    ori $t0, $t0, 0x5678\n    sll $t1, $t0, 15\n    sw $t1, 256($zero)\n",
+      "steps": 4,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 725352448
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "sll-16",
+      "name": "sll by 16",
+      "category": "sll",
+      "description": "0x12345678 << 16 = 0x56780000.",
+      "assembly": "    lui $t0, 0x1234\n    ori $t0, $t0, 0x5678\n    sll $t1, $t0, 16\n    sw $t1, 256($zero)\n",
+      "steps": 4,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 1450704896
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "sll-30",
+      "name": "sll by 30",
+      "category": "sll",
+      "description": "3 << 30 = 0xC0000000.",
+      "assembly": "    ori $t0, $zero, 3\n    sll $t1, $t0, 30\n    sw $t1, 256($zero)\n",
+      "steps": 3,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 3221225472
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "sll-31",
+      "name": "sll by 31",
+      "category": "sll",
+      "description": "1 << 31 = 0x80000000.",
+      "assembly": "    ori $t0, $zero, 1\n    sll $t1, $t0, 31\n    sw $t1, 256($zero)\n",
+      "steps": 3,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2147483648
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "sll-same-register",
+      "name": "sll rd = rt",
+      "category": "sll",
+      "description": "In-place shift left.",
+      "assembly": "    ori $t0, $zero, 1\n    sll $t0, $t0, 4\n    sw $t0, 256($zero)\n",
+      "steps": 3,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 16
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "aliasing"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "sll-zero-destination",
+      "name": "sll writes to $zero",
+      "category": "sll",
+      "description": "$zero must remain zero after being used as rd.",
+      "assembly": "    ori $t0, $zero, 1\n    sll $zero, $t0, 1\n    add $t1, $zero, $zero\n    ori $t1, $t1, 7\n    sw $t1, 256($zero)\n    sw $zero, 260($zero)\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 7
+        },
+        {
+          "index": 1,
+          "expected": 0
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "zero"
+      ],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "sll-dependency",
+      "name": "sll result feeds another sll",
+      "category": "sll",
+      "description": "1 << 4 = 16; 16 << 1 = 32; 32 + 1 = 33.",
+      "assembly": "    ori $t0, $zero, 1\n    sll $t1, $t0, 4\n    sll $t2, $t1, 1\n    add $t3, $t2, $t0\n    sw $t3, 256($zero)\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 33
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "sll-all-shift-amounts",
+      "name": "sll covers all 32 shift amounts",
+      "category": "sll",
+      "description": "Shift 0xDEADBEEF by every shamt 0..31 and store each 32-bit result.",
+      "assembly": "    lui $t0, 0xdead\n    ori $t0, $t0, 0xbeef\n    sll $t1, $t0, 0\n    sw $t1, 256($zero)\n    sll $t1, $t0, 1\n    sw $t1, 260($zero)\n    sll $t1, $t0, 2\n    sw $t1, 264($zero)\n    sll $t1, $t0, 3\n    sw $t1, 268($zero)\n    sll $t1, $t0, 4\n    sw $t1, 272($zero)\n    sll $t1, $t0, 5\n    sw $t1, 276($zero)\n    sll $t1, $t0, 6\n    sw $t1, 280($zero)\n    sll $t1, $t0, 7\n    sw $t1, 284($zero)\n    sll $t1, $t0, 8\n    sw $t1, 288($zero)\n    sll $t1, $t0, 9\n    sw $t1, 292($zero)\n    sll $t1, $t0, 10\n    sw $t1, 296($zero)\n    sll $t1, $t0, 11\n    sw $t1, 300($zero)\n    sll $t1, $t0, 12\n    sw $t1, 304($zero)\n    sll $t1, $t0, 13\n    sw $t1, 308($zero)\n    sll $t1, $t0, 14\n    sw $t1, 312($zero)\n    sll $t1, $t0, 15\n    sw $t1, 316($zero)\n    sll $t1, $t0, 16\n    sw $t1, 320($zero)\n    sll $t1, $t0, 17\n    sw $t1, 324($zero)\n    sll $t1, $t0, 18\n    sw $t1, 328($zero)\n    sll $t1, $t0, 19\n    sw $t1, 332($zero)\n    sll $t1, $t0, 20\n    sw $t1, 336($zero)\n    sll $t1, $t0, 21\n    sw $t1, 340($zero)\n    sll $t1, $t0, 22\n    sw $t1, 344($zero)\n    sll $t1, $t0, 23\n    sw $t1, 348($zero)\n    sll $t1, $t0, 24\n    sw $t1, 352($zero)\n    sll $t1, $t0, 25\n    sw $t1, 356($zero)\n    sll $t1, $t0, 26\n    sw $t1, 360($zero)\n    sll $t1, $t0, 27\n    sw $t1, 364($zero)\n    sll $t1, $t0, 28\n    sw $t1, 368($zero)\n    sll $t1, $t0, 29\n    sw $t1, 372($zero)\n    sll $t1, $t0, 30\n    sw $t1, 376($zero)\n    sll $t1, $t0, 31\n    sw $t1, 380($zero)\n",
+      "steps": 66,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 3735928559
+        },
+        {
+          "index": 1,
+          "expected": 3176889822
+        },
+        {
+          "index": 2,
+          "expected": 2058812348
+        },
+        {
+          "index": 3,
+          "expected": 4117624696
+        },
+        {
+          "index": 4,
+          "expected": 3940282096
+        },
+        {
+          "index": 5,
+          "expected": 3585596896
+        },
+        {
+          "index": 6,
+          "expected": 2876226496
+        },
+        {
+          "index": 7,
+          "expected": 1457485696
+        },
+        {
+          "index": 8,
+          "expected": 2914971392
+        },
+        {
+          "index": 9,
+          "expected": 1534975488
+        },
+        {
+          "index": 10,
+          "expected": 3069950976
+        },
+        {
+          "index": 11,
+          "expected": 1844934656
+        },
+        {
+          "index": 12,
+          "expected": 3689869312
+        },
+        {
+          "index": 13,
+          "expected": 3084771328
+        },
+        {
+          "index": 14,
+          "expected": 1874575360
+        },
+        {
+          "index": 15,
+          "expected": 3749150720
+        },
+        {
+          "index": 16,
+          "expected": 3203334144
+        },
+        {
+          "index": 17,
+          "expected": 2111700992
+        },
+        {
+          "index": 18,
+          "expected": 4223401984
+        },
+        {
+          "index": 19,
+          "expected": 4151836672
+        },
+        {
+          "index": 20,
+          "expected": 4008706048
+        },
+        {
+          "index": 21,
+          "expected": 3722444800
+        },
+        {
+          "index": 22,
+          "expected": 3149922304
+        },
+        {
+          "index": 23,
+          "expected": 2004877312
+        },
+        {
+          "index": 24,
+          "expected": 4009754624
+        },
+        {
+          "index": 25,
+          "expected": 3724541952
+        },
+        {
+          "index": 26,
+          "expected": 3154116608
+        },
+        {
+          "index": 27,
+          "expected": 2013265920
+        },
+        {
+          "index": 28,
+          "expected": 4026531840
+        },
+        {
+          "index": 29,
+          "expected": 3758096384
+        },
+        {
+          "index": 30,
+          "expected": 3221225472
+        },
+        {
+          "index": 31,
+          "expected": 2147483648
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "shift-amounts",
+        "32-bit"
+      ],
+      "seed": null,
+      "requiredRamBytes": 384
+    },
+    {
+      "id": "store-load",
+      "name": "sw then lw",
+      "category": "lw-sw",
+      "description": "Store 0x1234, load it back and store through a register.",
+      "assembly": "    ori $t0, $zero, 0x1234\n    sw $t0, 512($zero)\n    lw $t1, 512($zero)\n    add $t2, $t1, $zero\n    sw $t2, 256($zero)\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4660
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "memory"
+      ],
+      "tags": [],
+      "seed": null,
+      "requiredRamBytes": 516
+    },
+    {
+      "id": "multiple-addresses",
+      "name": "multiple RAM addresses",
+      "category": "lw-sw",
+      "description": "Two distinct words are written and read independently.",
+      "assembly": "    ori $t0, $zero, 0x11\n    sw $t0, 512($zero)\n    ori $t1, $zero, 0x22\n    sw $t1, 516($zero)\n    lw $t2, 512($zero)\n    lw $t3, 516($zero)\n    add $t4, $t2, $t3\n    sw $t4, 256($zero)\n",
+      "steps": 8,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 51
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "memory"
+      ],
+      "tags": [],
+      "seed": null,
+      "requiredRamBytes": 520
+    },
+    {
+      "id": "overwrite-same-address",
+      "name": "repeated overwrite",
+      "category": "lw-sw",
+      "description": "The second store to the same address must win.",
+      "assembly": "    ori $t0, $zero, 1\n    sw $t0, 512($zero)\n    ori $t1, $zero, 2\n    sw $t1, 512($zero)\n    lw $t2, 512($zero)\n    sw $t2, 256($zero)\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "memory"
+      ],
+      "tags": [],
+      "seed": null,
+      "requiredRamBytes": 516
+    },
+    {
+      "id": "negative-offset",
+      "name": "negative offset with a non-zero base",
+      "category": "lw-sw",
+      "description": "Base = M0+8, access at -8(base).",
+      "assembly": "    ori $t6, $zero, 520\n    ori $t0, $zero, 0x55\n    sw $t0, -8($t6)\n    lw $t1, -8($t6)\n    sw $t1, 256($zero)\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 85
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "negative-offset",
+        "base-register"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "base-not-zero",
+      "name": "base register is not $zero",
+      "category": "lw-sw",
+      "description": "Use $t6 = M0 as the base and offset 0.",
+      "assembly": "    ori $t6, $zero, 512\n    ori $t0, $zero, 0x77\n    sw $t0, 0($t6)\n    lw $t1, 0($t6)\n    sw $t1, 256($zero)\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 119
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "base-register"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "load-after-store-32bit",
+      "name": "lw reads a 32-bit value just stored",
+      "category": "lw-sw",
+      "description": "Initialize the logical DM with sw, then load the full 0xCAFEBABE pattern back.",
+      "assembly": "    lui $t0, 0xcafe\n    ori $t0, $t0, 0xbabe\n    sw $t0, 512($zero)\n    lw $t1, 512($zero)\n    sw $t1, 256($zero)\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 3405691582
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "store-load",
+        "32-bit"
+      ],
+      "seed": null,
+      "requiredRamBytes": 516
+    },
+    {
+      "id": "address-boundary-last-word",
+      "name": "store/load at the last RAM word",
+      "category": "lw-sw",
+      "description": "Exercises the upper address boundary of the configured RAM.",
+      "assembly": "    ori $t0, $zero, 0x5a5a\n    sw $t0, 12284($zero)\n    lw $t1, 12284($zero)\n    sw $t1, 256($zero)\n",
+      "steps": 4,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 23130
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "boundary"
+      ],
+      "seed": null,
+      "requiredRamBytes": 12288
+    },
+    {
+      "id": "high-bit-base-wraps",
+      "name": "high-bit base plus offset wraps to a valid RAM word",
+      "category": "lw-sw",
+      "description": "A base with bit 31 set and a positive offset must use 32-bit address arithmetic; base 0xFFFFF000 + 0x1000 = 0x00000000.",
+      "assembly": "    lui $t0, 0xffff\n    ori $t0, $t0, 0xf000\n    ori $t1, $zero, 0x1357\n    sw $t1, 0x1000($t0)\n    lw $t2, 0x1000($t0)\n    sw $t2, 256($zero)\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4951
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "high-bit-base",
+        "positive-offset",
+        "address-wrap"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "stack-frames",
+      "name": "stack frames with negative offsets",
+      "category": "lw-sw",
+      "description": "Use $sp to save and restore three locals, then combine the restored values.",
+      "assembly": "    ori $sp, $zero, 576\n    ori $t0, $zero, 0x1111\n    sw $t0, -4($sp)\n    ori $t1, $zero, 0x2222\n    sw $t1, -8($sp)\n    ori $t2, $zero, 3\n    sw $t2, -12($sp)\n    lw $t3, -4($sp)\n    lw $t4, -8($sp)\n    lw $t5, -12($sp)\n    add $t6, $t3, $t4\n    sub $t7, $t6, $t5\n    sw $t7, 256($zero)\n",
+      "steps": 13,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 13104
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "stack",
+        "negative-offset",
+        "restore",
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "store-load-dependency",
+      "name": "store then immediately load and use",
+      "category": "lw-sw",
+      "description": "0xABCD * 2 = 0x0001579A.",
+      "assembly": "    ori $t0, $zero, 0xabcd\n    sw $t0, 512($zero)\n    lw $t1, 512($zero)\n    add $t2, $t1, $t1\n    sw $t2, 256($zero)\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 87962
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 516
+    },
+    {
+      "id": "load-use-immediate",
+      "name": "lw result feeds an ALU operation",
+      "category": "lw-sw",
+      "description": "0x10 + 5 = 0x15.",
+      "assembly": "    ori $t0, $zero, 0x10\n    sw $t0, 512($zero)\n    lw $t1, 512($zero)\n    ori $t2, $zero, 5\n    add $t3, $t1, $t2\n    sw $t3, 256($zero)\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 21
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "memory"
+      ],
+      "tags": [
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 516
+    },
+    {
+      "id": "beq-taken",
+      "name": "beq taken",
+      "category": "beq",
+      "description": "Equal registers skip one instruction.",
+      "assembly": "    ori $t0, $zero, 3\n    ori $t1, $zero, 3\n    beq $t0, $t1, equal\n    ori $t2, $zero, 0xbad\nequal:\n    ori $t2, $zero, 0x600d\n    sw $t2, 256($zero)\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 24589
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "taken"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "beq-not-taken",
+      "name": "beq not taken",
+      "category": "beq",
+      "description": "Unequal registers fall through.",
+      "assembly": "    ori $t0, $zero, 3\n    ori $t1, $zero, 4\n    beq $t0, $t1, skip\n    ori $t2, $zero, 0x1111\n    sw $t2, 256($zero)\nskip:\n    sw $t2, 260($zero)\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4369
+        },
+        {
+          "index": 1,
+          "expected": 4369
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "not-taken"
+      ],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "beq-offset-zero",
+      "name": "beq with offset 0",
+      "category": "beq",
+      "description": "Target is PC+4, the same address as fall-through.",
+      "assembly": "    ori $t0, $zero, 1\n    ori $t1, $zero, 1\n    beq $t0, $t1, next\nnext:\n    ori $t2, $zero, 0x2222\n    sw $t2, 256($zero)\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 8738
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "offset-zero"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "beq-forward-skip",
+      "name": "beq with a positive offset",
+      "category": "beq",
+      "description": "Skip a store and a marker instruction.",
+      "assembly": "    ori $t0, $zero, 1\n    ori $t1, $zero, 1\n    beq $t0, $t1, forward\n    ori $t2, $zero, 0xbad\n    sw $t2, 260($zero)\nforward:\n    ori $t2, $zero, 0x3333\n    sw $t2, 256($zero)\n",
+      "steps": 5,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 13107
+        },
+        {
+          "index": 1,
+          "expected": 0
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "forward"
+      ],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "beq-backward-loop",
+      "name": "beq backward loop",
+      "category": "beq",
+      "description": "Count 3 + 2 + 1 = 6 with a backward branch and an unconditional beq.",
+      "assembly": "    ori $t0, $zero, 3\n    ori $t1, $zero, 0\nloop:\n    add $t1, $t1, $t0\n    ori $t2, $zero, 1\n    sub $t0, $t0, $t2\n    beq $t0, $zero, done\n    beq $zero, $zero, loop\ndone:\n    sw $t1, 256($zero)\n",
+      "steps": 17,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 6
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "backward",
+        "loop"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "beq-consecutive",
+      "name": "consecutive beq instructions",
+      "category": "beq",
+      "description": "Two taken branches in a row.",
+      "assembly": "    ori $t0, $zero, 1\n    ori $t1, $zero, 1\n    beq $t0, $t1, one\n    ori $t2, $zero, 0xbad\none:\n    beq $t0, $t1, two\n    ori $t2, $zero, 0xbad\ntwo:\n    sw $t0, 256($zero)\n    sw $t1, 260($zero)\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 1
+        },
+        {
+          "index": 1,
+          "expected": 1
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "consecutive"
+      ],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "beq-dependency",
+      "name": "beq not taken, then dependent add",
+      "category": "beq",
+      "description": "5 + 2 = 7 on the fall-through path.",
+      "assembly": "    ori $t0, $zero, 5\n    ori $t1, $zero, 0\n    beq $t0, $t1, skip\n    ori $t2, $zero, 2\n    add $t3, $t0, $t2\n    sw $t3, 256($zero)\nskip:\n",
+      "steps": 6,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 7
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "dependency"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "beq-zero-equal",
+      "name": "beq comparing $zero with itself",
+      "category": "beq",
+      "description": "$zero == $zero must always be true.",
+      "assembly": "    beq $zero, $zero, eq\n    ori $t0, $zero, 0xbad\neq:\n    ori $t0, $zero, 0x4444\n    sw $t0, 256($zero)\n",
+      "steps": 3,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 17476
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "zero"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "beq-negative-equal",
+      "name": "two negative values are equal",
+      "category": "beq",
+      "description": "0xFFFFFFFF == 0xFFFFFFFF must take the branch; comparison is on 32-bit patterns.",
+      "assembly": "    lui $t0, 0xffff\n    ori $t0, $t0, 0xffff\n    lui $t1, 0xffff\n    ori $t1, $t1, 0xffff\n    beq $t0, $t1, same\n    ori $t2, $zero, 0xbad\nsame:\n    ori $t2, $zero, 0x7777\n    sw $t2, 256($zero)\n",
+      "steps": 7,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 30583
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "negative",
+        "taken"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "beq-negative-unequal",
+      "name": "negative vs zero is not equal",
+      "category": "beq",
+      "description": "0xFFFFFFFF != 0 must fall through and use the fall-through value.",
+      "assembly": "    lui $t0, 0xffff\n    ori $t0, $t0, 0xffff\n    ori $t1, $zero, 0\n    beq $t0, $t1, bad\n    ori $t2, $zero, 0x2468\n    sw $t2, 256($zero)\nbad:\n    sw $zero, 260($zero)\n",
+      "steps": 7,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 9320
+        },
+        {
+          "index": 1,
+          "expected": 0
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "negative",
+        "not-taken"
+      ],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "beq-positive-negative",
+      "name": "positive vs negative is not equal",
+      "category": "beq",
+      "description": "1 != 0x80000000 even though both fit in 32 bits with different sign.",
+      "assembly": "    ori $t0, $zero, 1\n    lui $t1, 0x8000\n    ori $t1, $t1, 0x0\n    beq $t0, $t1, bad\n    ori $t2, $zero, 0x1357\n    sw $t2, 256($zero)\nbad:\n    sw $zero, 260($zero)\n",
+      "steps": 7,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4951
+        },
+        {
+          "index": 1,
+          "expected": 0
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "positive-negative",
+        "not-taken"
+      ],
+      "seed": null,
+      "requiredRamBytes": 264
+    },
+    {
+      "id": "beq-large-forward",
+      "name": "beq over a long forward displacement",
+      "category": "beq",
+      "description": "A positive branch offset skips eight distinct writebacks.",
+      "assembly": "    beq $zero, $zero, target\n    ori $t0, $zero, 1\n    ori $t0, $zero, 2\n    ori $t0, $zero, 3\n    ori $t0, $zero, 4\n    ori $t0, $zero, 5\n    ori $t0, $zero, 6\n    ori $t0, $zero, 7\n    ori $t0, $zero, 8\ntarget:\n    ori $t0, $zero, 0x55\n    sw $t0, 256($zero)\n",
+      "steps": 3,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 85
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "large-forward",
+        "taken"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "j-forward",
+      "name": "j skips the next instruction",
+      "category": "j",
+      "description": "The word after J must not execute; the target instruction must.",
+      "assembly": "    ori $t0, $zero, 1\n    j target\n    ori $t0, $zero, 0xbad\ntarget:\n    sw $t0, 256($zero)\n",
+      "steps": 3,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 1
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "j",
+        "forward",
+        "no-delay-slot"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "j-backward-loop",
+      "name": "j drives a backward countdown loop",
+      "category": "j",
+      "description": "J and beq together implement a loop without jal/jr.",
+      "assembly": "    ori $t0, $zero, 3\n    ori $t1, $zero, 0\nloop:\n    add $t1, $t1, $t0\n    ori $t2, $zero, 1\n    sub $t0, $t0, $t2\n    beq $t0, $zero, done\n    j loop\ndone:\n    sw $t1, 256($zero)\n",
+      "steps": 17,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 6
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "j",
+        "loop",
+        "backward"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "j-boundary-target",
+      "name": "j target within the low text region",
+      "category": "j",
+      "description": "A jump over several instructions must preserve the PC high nibble.",
+      "assembly": "    ori $t0, $zero, 0x10\n    j end\n    ori $t0, $zero, 0x11\n    ori $t0, $zero, 0x12\n    ori $t0, $zero, 0x13\nend:\n    sw $t0, 256($zero)\n",
+      "steps": 3,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 16
+        }
+      ],
+      "suites": [
+        "full",
+        "branch"
+      ],
+      "tags": [
+        "j",
+        "boundary"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    },
+    {
+      "id": "mixed-all-seven",
+      "name": "mixed program using all seven instructions",
+      "category": "mixed",
+      "description": "ori/ori/add/sub/sll/sw/lw/beq in one program; result 28.",
+      "assembly": "    ori $t0, $zero, 5\n    ori $t1, $zero, 7\n    add $t2, $t0, $t1\n    sub $t3, $t2, $t0\n    sll $t4, $t3, 2\n    sw $t4, 512($zero)\n    lw $t5, 512($zero)\n    beq $t5, $t4, eq\n    ori $t6, $zero, 0xbad\neq:\n    sw $t5, 256($zero)\n",
+      "steps": 9,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 28
+        }
+      ],
+      "suites": [
+        "basic",
+        "full"
+      ],
+      "tags": [
+        "all-seven"
+      ],
+      "seed": null,
+      "requiredRamBytes": 516
+    },
+    {
+      "id": "grf-all-registers",
+      "name": "all 31 general-purpose registers",
+      "category": "mixed",
+      "description": "Write a distinct value to every nonzero GRF register and read each one back through sw.",
+      "assembly": "    ori $1, $zero, 1\n    ori $2, $zero, 2\n    ori $3, $zero, 3\n    ori $4, $zero, 4\n    ori $5, $zero, 5\n    ori $6, $zero, 6\n    ori $7, $zero, 7\n    ori $8, $zero, 8\n    ori $9, $zero, 9\n    ori $10, $zero, 10\n    ori $11, $zero, 11\n    ori $12, $zero, 12\n    ori $13, $zero, 13\n    ori $14, $zero, 14\n    ori $15, $zero, 15\n    ori $16, $zero, 16\n    ori $17, $zero, 17\n    ori $18, $zero, 18\n    ori $19, $zero, 19\n    ori $20, $zero, 20\n    ori $21, $zero, 21\n    ori $22, $zero, 22\n    ori $23, $zero, 23\n    ori $24, $zero, 24\n    ori $25, $zero, 25\n    ori $26, $zero, 26\n    ori $27, $zero, 27\n    ori $28, $zero, 28\n    ori $29, $zero, 29\n    ori $30, $zero, 30\n    ori $31, $zero, 31\n    sw $1, 256($zero)\n    sw $2, 260($zero)\n    sw $3, 264($zero)\n    sw $4, 268($zero)\n    sw $5, 272($zero)\n    sw $6, 276($zero)\n    sw $7, 280($zero)\n    sw $8, 284($zero)\n    sw $9, 288($zero)\n    sw $10, 292($zero)\n    sw $11, 296($zero)\n    sw $12, 300($zero)\n    sw $13, 304($zero)\n    sw $14, 308($zero)\n    sw $15, 312($zero)\n    sw $16, 316($zero)\n    sw $17, 320($zero)\n    sw $18, 324($zero)\n    sw $19, 328($zero)\n    sw $20, 332($zero)\n    sw $21, 336($zero)\n    sw $22, 340($zero)\n    sw $23, 344($zero)\n    sw $24, 348($zero)\n    sw $25, 352($zero)\n    sw $26, 356($zero)\n    sw $27, 360($zero)\n    sw $28, 364($zero)\n    sw $29, 368($zero)\n    sw $30, 372($zero)\n    sw $31, 376($zero)\n",
+      "steps": 62,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 1
+        },
+        {
+          "index": 1,
+          "expected": 2
+        },
+        {
+          "index": 2,
+          "expected": 3
+        },
+        {
+          "index": 3,
+          "expected": 4
+        },
+        {
+          "index": 4,
+          "expected": 5
+        },
+        {
+          "index": 5,
+          "expected": 6
+        },
+        {
+          "index": 6,
+          "expected": 7
+        },
+        {
+          "index": 7,
+          "expected": 8
+        },
+        {
+          "index": 8,
+          "expected": 9
+        },
+        {
+          "index": 9,
+          "expected": 10
+        },
+        {
+          "index": 10,
+          "expected": 11
+        },
+        {
+          "index": 11,
+          "expected": 12
+        },
+        {
+          "index": 12,
+          "expected": 13
+        },
+        {
+          "index": 13,
+          "expected": 14
+        },
+        {
+          "index": 14,
+          "expected": 15
+        },
+        {
+          "index": 15,
+          "expected": 16
+        },
+        {
+          "index": 16,
+          "expected": 17
+        },
+        {
+          "index": 17,
+          "expected": 18
+        },
+        {
+          "index": 18,
+          "expected": 19
+        },
+        {
+          "index": 19,
+          "expected": 20
+        },
+        {
+          "index": 20,
+          "expected": 21
+        },
+        {
+          "index": 21,
+          "expected": 22
+        },
+        {
+          "index": 22,
+          "expected": 23
+        },
+        {
+          "index": 23,
+          "expected": 24
+        },
+        {
+          "index": 24,
+          "expected": 25
+        },
+        {
+          "index": 25,
+          "expected": 26
+        },
+        {
+          "index": 26,
+          "expected": 27
+        },
+        {
+          "index": 27,
+          "expected": 28
+        },
+        {
+          "index": 28,
+          "expected": 29
+        },
+        {
+          "index": 29,
+          "expected": 30
+        },
+        {
+          "index": 30,
+          "expected": 31
+        }
+      ],
+      "suites": [
+        "basic",
+        "full"
+      ],
+      "tags": [
+        "grf",
+        "register-coverage"
+      ],
+      "seed": null,
+      "requiredRamBytes": 380
+    },
+    {
+      "id": "seeded-5eed0001",
+      "name": "seeded 32-bit mix 0x5eed0001",
+      "category": "mixed",
+      "description": "Deterministic seeded 32-bit add/sub/sll program; rerunning the same seed reproduces the same expectations.",
+      "assembly": "    lui $t0, 0x7c91\n    ori $t0, $t0, 0x596c\n    lui $t1, 0x34fd\n    ori $t1, $t1, 0x85db\n    add $t2, $t0, $t1\n    sw $t2, 256($zero)\n    sub $t3, $t0, $t1\n    sw $t3, 260($zero)\n    sll $t4, $t2, 0\n    sw $t4, 264($zero)\n",
+      "steps": 10,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 2978930503
+        },
+        {
+          "index": 1,
+          "expected": 1200870289
+        },
+        {
+          "index": 2,
+          "expected": 2978930503
+        }
+      ],
+      "suites": [
+        "full"
+      ],
+      "tags": [
+        "seeded",
+        "reproducible"
+      ],
+      "seed": 1592590337,
+      "requiredRamBytes": 268
+    },
+    {
+      "id": "seeded-5eed0002",
+      "name": "seeded 32-bit mix 0x5eed0002",
+      "category": "mixed",
+      "description": "Deterministic seeded 32-bit add/sub/sll program; rerunning the same seed reproduces the same expectations.",
+      "assembly": "    lui $t0, 0x7caa\n    ori $t0, $t0, 0xbf79\n    lui $t1, 0x4c35\n    ori $t1, $t1, 0xe284\n    add $t2, $t0, $t1\n    sw $t2, 256($zero)\n    sub $t3, $t0, $t1\n    sw $t3, 260($zero)\n    sll $t4, $t2, 22\n    sw $t4, 264($zero)\n",
+      "steps": 10,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 3370164733
+        },
+        {
+          "index": 1,
+          "expected": 812965109
+        },
+        {
+          "index": 2,
+          "expected": 2134900736
+        }
+      ],
+      "suites": [
+        "full"
+      ],
+      "tags": [
+        "seeded",
+        "reproducible"
+      ],
+      "seed": 1592590338,
+      "requiredRamBytes": 268
+    },
+    {
+      "id": "seeded-5eed0003",
+      "name": "seeded 32-bit mix 0x5eed0003",
+      "category": "mixed",
+      "description": "Deterministic seeded 32-bit add/sub/sll program; rerunning the same seed reproduces the same expectations.",
+      "assembly": "    lui $t0, 0x7cc4\n    ori $t0, $t0, 0x2586\n    lui $t1, 0x636e\n    ori $t1, $t1, 0x3f2d\n    add $t2, $t0, $t1\n    sw $t2, 256($zero)\n    sub $t3, $t0, $t1\n    sw $t3, 260($zero)\n    sll $t4, $t2, 12\n    sw $t4, 264($zero)\n",
+      "steps": 10,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 3761398963
+        },
+        {
+          "index": 1,
+          "expected": 425059929
+        },
+        {
+          "index": 2,
+          "expected": 642461696
+        }
+      ],
+      "suites": [
+        "full"
+      ],
+      "tags": [
+        "seeded",
+        "reproducible"
+      ],
+      "seed": 1592590339,
+      "requiredRamBytes": 268
+    },
+    {
+      "id": "seeded-5eed0004",
+      "name": "seeded 32-bit mix 0x5eed0004",
+      "category": "mixed",
+      "description": "Deterministic seeded 32-bit add/sub/sll program; rerunning the same seed reproduces the same expectations.",
+      "assembly": "    lui $t0, 0x7cdd\n    ori $t0, $t0, 0x8b93\n    lui $t1, 0x7aa6\n    ori $t1, $t1, 0x9bd6\n    add $t2, $t0, $t1\n    sw $t2, 256($zero)\n    sub $t3, $t0, $t1\n    sw $t3, 260($zero)\n    sll $t4, $t2, 2\n    sw $t4, 264($zero)\n",
+      "steps": 10,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 4152633193
+        },
+        {
+          "index": 1,
+          "expected": 37154749
+        },
+        {
+          "index": 2,
+          "expected": 3725630884
+        }
+      ],
+      "suites": [
+        "full"
+      ],
+      "tags": [
+        "seeded",
+        "reproducible"
+      ],
+      "seed": 1592590340,
+      "requiredRamBytes": 268
+    }
+  ]
+}

@@ -25,6 +25,8 @@ export function toHex(value: number, width: number): string {
 
 export const OPCODE = {
   R: 0x00,
+  J: 0x02,
+  LUI: 0x0f,
   ORI: 0x0d,
   LW: 0x23,
   SW: 0x2b,
@@ -37,7 +39,18 @@ export const FUNCT = {
   SUB: 0x22,
 } as const;
 
-export const MNEMONICS = ['add', 'sub', 'ori', 'lw', 'sw', 'beq', 'sll'] as const;
+export const MNEMONICS = [
+  'add',
+  'sub',
+  'ori',
+  'lw',
+  'sw',
+  'beq',
+  'sll',
+  'lui',
+  'j',
+  'nop',
+] as const;
 export type Mnemonic = (typeof MNEMONICS)[number];
 
 const REGISTER_NAMES: Readonly<Record<string, number>> = {
@@ -188,6 +201,11 @@ export function encodeR(fields: {
       (fields.shamt << 6) |
       fields.funct,
   );
+}
+
+export function encodeJ(index: number): number {
+  checkField('jump index', index, 0, 0x3ffffff);
+  return u32((OPCODE.J << 26) | index);
 }
 
 export function encodeI(fields: {

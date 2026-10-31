@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "name": "example",
+  "description": "Minimal editable suite example.",
+  "tests": [
+    {
+      "id": "example-add",
+      "name": "example add 20 + 22",
+      "category": "add-sub",
+      "description": "Edit this file and point --suite-file at it.",
+      "assembly": "    ori $t0, $zero, 20\n    ori $t1, $zero, 22\n    add $t2, $t0, $t1\n    sw $t2, 256($zero)\n",
+      "steps": 4,
+      "signature": [
+        {
+          "index": 0,
+          "expected": 42
+        }
+      ],
+      "suites": [
+        "basic",
+        "full",
+        "alu"
+      ],
+      "tags": [
+        "example"
+      ],
+      "seed": null,
+      "requiredRamBytes": 260
+    }
+  ]
+}

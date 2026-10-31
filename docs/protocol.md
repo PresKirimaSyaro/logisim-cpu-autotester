@@ -17,6 +17,7 @@
 | tick | port, 可选 edge | null；edge 默认 rising，也支持 falling |
 | clockCycle | 可选 halfCycles（1 或 2，默认 2） | null；驱动所有内部 Logisim Clock，先 tick 再 propagate |
 | readOutputs | ports 数组 | 以端口名为键的 LogicValue 映射；只允许根输出 Pin |
+| parseHex | text | 用原版 `HexFile.parse` 解析 `v2.0 raw` 文本，返回 32 位字数组（用于导出往返验证） |
 | inspectComponents | 可选 recursive | circuit, components；递归默认 true |
 | readMemory | path, 可选 start/count | 底层内存诊断；黑盒 Runner 不调用 |
 | writeMemory | path, start, words 数组 | null；底层诊断，只允许 RAM，黑盒流程不调用 |
@@ -59,7 +60,7 @@
 
 一次 tick 包含建立基准电平和指定边沿；基准电平改变也可能触发相反边沿器件。对于双边沿或混合边沿电路，使用 `setInput` + `propagate` 自行控制每一次电平变化。
 
-`clockCycle` 用于课程 CPU 的**内部** Clock。它调用原版 `Propagator.tick()`（推进所有内置 Clock 的计数），然后 propagate；`halfCycles=2` 表示两次半周期，必然包含一个上升沿和一个下降沿，因此上升沿 CPU 恰好提交一条指令。若当前相位为高，顺序为高→低→高；若为低，为低→高→低，终态保持原相位。该操作不依赖墙钟、不自动计时；每次调用最多两次半周期。没有内部 Clock 时返回 `NO_INTERNAL_CLOCK`。
+`clockCycle` 用于课程 CPU 的**内部** Clock。结果窗口的 ROM HEX 导出使用 Logisim `v2.0 raw`，通过 `parseHex`（实际调用原版 `HexFile.parse`）做导入/解析往返测试。它调用原版 `Propagator.tick()`（推进所有内置 Clock 的计数），然后 propagate；`halfCycles=2` 表示两次半周期，必然包含一个上升沿和一个下降沿，因此上升沿 CPU 恰好提交一条指令。若当前相位为高，顺序为高→低→高；若为低，为低→高→低，终态保持原相位。该操作不依赖墙钟、不自动计时；每次调用最多两次半周期。没有内部 Clock 时返回 `NO_INTERNAL_CLOCK`。
 
 ## 组件、ROM/RAM 与 Register
 
@@ -88,7 +89,7 @@ operations 为不含 id 的普通操作数组，可以包含 load/inspect/setInp
 
 振荡发生后可 reset 或 load；原版已执行的传播不会回滚。getOutput 不隐式传播，振荡后不要把部分结果当成稳定输出。
 
-错误码：`INVALID_JSON`, `INVALID_REQUEST`, `DUPLICATE_ID`, `UNKNOWN_OPERATION`, `NOT_LOADED`, `INVALID_FILE`, `UNSUPPORTED_LIBRARY`, `CIRCUIT_NOT_FOUND`, `PORT_NOT_FOUND`, `AMBIGUOUS_PORT`, `WRONG_DIRECTION`, `WIDTH_MISMATCH`, `INVALID_VALUE`, `PROPAGATION_ERROR`, `OSCILLATION`, `INVALID_CLOCK`, `NO_INTERNAL_CLOCK`, `COMPONENT_NOT_FOUND`, `NOT_MEMORY`, `NOT_RAM`, `NOT_ROM`, `NOT_REGISTER`, `MEMORY_RANGE`, `MEMORY_VALUE`, `REGISTER_VALUE`, `EXPLICIT_COUNT_REQUIRED`, `READ_TOO_LARGE`, `HIERARCHY_TOO_DEEP`, `INTERNAL_ERROR`。
+错误码：`INVALID_JSON`, `INVALID_REQUEST`, `DUPLICATE_ID`, `UNKNOWN_OPERATION`, `NOT_LOADED`, `INVALID_FILE`, `UNSUPPORTED_LIBRARY`, `CIRCUIT_NOT_FOUND`, `PORT_NOT_FOUND`, `AMBIGUOUS_PORT`, `WRONG_DIRECTION`, `WIDTH_MISMATCH`, `INVALID_VALUE`, `PROPAGATION_ERROR`, `OSCILLATION`, `INVALID_CLOCK`, `NO_INTERNAL_CLOCK`, `INVALID_HEX`, `COMPONENT_NOT_FOUND`, `NOT_MEMORY`, `NOT_RAM`, `NOT_ROM`, `NOT_REGISTER`, `MEMORY_RANGE`, `MEMORY_VALUE`, `REGISTER_VALUE`, `EXPLICIT_COUNT_REQUIRED`, `READ_TOO_LARGE`, `HIERARCHY_TOO_DEEP`, `INTERNAL_ERROR`。
 
 客户端本地错误：`PROCESS_START`, `PROCESS_IO`, `PROCESS_EXIT`, `PROTOCOL_ERROR`, `TIMEOUT`, `TERMINATED`, `CLOSED`。默认超时 10 秒，可配置。超时会终止子进程并拒绝所有待处理请求，避免后续使用不确定的变更状态；调用者新建客户端后重新 load，不自动重放写入。stderr 保存最近 64 KiB，也可回调接收。close 幂等，等待退出，2 秒后强制终止。
 

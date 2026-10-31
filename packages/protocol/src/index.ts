@@ -46,6 +46,7 @@ export type BridgeOperation =
   | { op:'tick'; port:string; edge?:'rising'|'falling' }
   | { op:'clockCycle'; halfCycles?:1|2 }
   | { op:'readOutputs'; ports:string[] }
+  | { op:'parseHex'; text:string }
   | { op:'inspectComponents'; recursive?:boolean }
   | { op:'readMemory'; path:string; start?:number; count?:number }
   | { op:'writeMemory'; path:string; start?:number; words:string[] }

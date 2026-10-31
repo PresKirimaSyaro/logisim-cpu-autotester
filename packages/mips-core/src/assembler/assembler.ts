@@ -4,6 +4,7 @@ import {
   OPCODE,
   FUNCT,
   encodeI,
+  encodeJ,
   encodeR,
   mnemonic,
   parseIntegerLiteral,
@@ -12,11 +13,18 @@ import {
   toHex32,
   type Mnemonic,
 } from '../isa/constants.js';
+import {
+  ALL_INSTRUCTIONS,
+  instructionSetLabel,
+  type InstructionName,
+} from '../isa/instruction-set.js';
 
 export interface AssemblerOptions {
   /** Byte address assigned to the first word. Defaults to 0. */
   origin?: number;
   fileName?: string;
+  /** Instructions the CPU is allowed to execute. Defaults to all supported. */
+  instructions?: readonly InstructionName[];
 }
 
 export interface AssembledInstruction {
@@ -58,14 +66,15 @@ interface PendingInstruction extends PendingStatement {
 type ParsedStatement = PendingStatement | PendingInstruction;
 
 /**
- * Two-pass assembler for exactly add/sub/ori/lw/sw/beq/sll.
+ * Two-pass assembler for add/sub/ori/lw/sw/beq/sll/lui/j/nop.
  *
- * Pass 1 assigns a byte address to every label. Pass 2 parses operands and
- * encodes words. No pseudo-instructions are accepted; `nop` is intentionally
- * not recognized even though 0x00000000 decodes as `sll $zero,$zero,0`.
+ * `nop` encodes as the architectural all-zero word. The optional instruction
+ * set is enforced before encoding so a user cannot silently run a disabled
+ * instruction.
  */
 export function assemble(source: string, options: AssemblerOptions = {}): AssembledProgram {
   const origin = options.origin ?? 0;
+  const enabled = new Set<InstructionName>(options.instructions ?? ALL_INSTRUCTIONS);
   if (!Number.isInteger(origin) || origin < 0 || origin > 0xffffffff || origin % 4 !== 0) {
     throw new MipsError(
       'ASM_SYNTAX',
@@ -98,7 +107,15 @@ export function assemble(source: string, options: AssemblerOptions = {}): Assemb
       if (m === null) {
         throw new AssemblyError(
           'ASM_UNKNOWN_MNEMONIC',
-          `Unknown instruction "${statement.mnemonicToken.text}". Supported: add, sub, ori, lw, sw, beq, sll`,
+          `Unknown instruction "${statement.mnemonicToken.text}". Supported: ${ALL_INSTRUCTIONS.join(', ')}`,
+          tokenPosition(statement.mnemonicToken),
+          statement.mnemonicToken.lineText,
+        );
+      }
+      if (!enabled.has(m)) {
+        throw new AssemblyError(
+          'ASM_INSTRUCTION_DISABLED',
+          `Instruction "${m}" is not enabled for this CPU. Enabled: ${instructionSetLabel([...enabled])}`,
           tokenPosition(statement.mnemonicToken),
           statement.mnemonicToken.lineText,
         );
@@ -328,6 +345,48 @@ function encodeStatement(
       }
       return encodeI({opcode: OPCODE.BEQ, rs, rt, immediate: wordOffset});
     }
+    case 'lui': {
+      count(2);
+      const rt = register(operands[0], 'rt');
+      const immediate = integer(operands[1], 'immediate', 0, 0xffff);
+      return encodeI({opcode: OPCODE.LUI, rs: 0, rt, immediate});
+    }
+    case 'j': {
+      count(1);
+      const token = operands[0]?.[0];
+      if (!token || operands[0].length !== 1) {
+        fail('ASM_INVALID_OPERAND', 'j target must be a label or an absolute byte address', token ?? statement.mnemonicToken);
+      }
+      let target: number;
+      if (token!.type === 'identifier') {
+        const symbol = symbols.get(token!.text);
+        if (symbol === undefined) fail('ASM_UNDEFINED_LABEL', `Undefined label "${token!.text}"`, token!);
+        target = symbol!;
+      } else if (token!.type === 'number') {
+        const parsed = parseIntegerLiteral(token!.text);
+        if (parsed === null || parsed < 0 || parsed > 0xffffffff) {
+          fail('ASM_IMMEDIATE_RANGE', `Invalid jump target "${token!.text}"`, token!);
+        }
+        target = parsed!;
+      } else {
+        fail('ASM_INVALID_OPERAND', 'j target must be a label or an absolute byte address', token!);
+        target = 0;
+      }
+      if (target % 4 !== 0) {
+        fail('ASM_BRANCH_ALIGNMENT', `Jump target 0x${target.toString(16)} is not 4-byte aligned`, token!);
+      }
+      if ((target >>> 28) !== ((pc + 4) >>> 28)) {
+        fail(
+          'ASM_BRANCH_RANGE',
+          `Jump target 0x${target.toString(16)} is in a different 256 MB region from PC 0x${pc.toString(16)}`,
+          token!,
+        );
+      }
+      return encodeJ((target >>> 2) & 0x03ffffff);
+    }
+    case 'nop':
+      count(0);
+      return 0;
   }
   // Exhaustive check.
   const never: never = m;

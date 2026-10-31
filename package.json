@@ -17,6 +17,8 @@
     "generate:course": "node scripts/generate-course-cpu-fixture.mjs",
     "gui": "npm run build:gui && node scripts/launch-gui.mjs",
     "gui:smoke": "npm run build:gui && node scripts/launch-gui.mjs --smoke",
+    "export:suite": "npm run build:ts && node scripts/export-test-suite.mjs",
+    "dist:win": "npm run build:gui && node scripts/package-win.mjs",
     "typecheck:gui": "tsc -p apps/renderer/tsconfig.json && tsc -p apps/desktop/tsconfig.json --noEmit",
     "poc": "npm run build:java && node scripts/poc.mjs",
     "test:asm": "npm run build && node --test \"dist/tests/assembler/**/*.test.js\"",

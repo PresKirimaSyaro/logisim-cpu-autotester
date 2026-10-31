@@ -1,16 +1,18 @@
-import {useEffect, useMemo, useRef, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import type {
   AppState,
   RunUpdate,
+  StressIntensity,
   SuiteName,
   TesterSettings,
 } from '../../../packages/desktop-ipc/src/index.js';
-import type {RunSummary, TestResult} from '../../../packages/differential-runner/src/types.js';
+import type {RunSummary} from '../../../packages/differential-runner/src/types.js';
+import type {InstructionName} from '../../../packages/mips-core/src/isa/instruction-set.js';
 import {Workbench} from './pages/Workbench.js';
 import {Editor} from './pages/Editor.js';
 import {HistoryPage} from './pages/History.js';
 import {SettingsPage} from './pages/Settings.js';
-import {resultCounts} from './format.js';
+
 
 export type Page = 'workbench' | 'editor' | 'history' | 'settings';
 
@@ -24,7 +26,7 @@ export interface LiveRun {
   currentInstruction?: string;
   expectedPc?: string;
   expectedInstruction?: string;
-  results: TestResult[];
+  counts: {pass: number; fail: number; error: number};
   summary?: RunSummary;
   running: boolean;
   error?: string;
@@ -54,7 +56,6 @@ export function App() {
     return (stored ?? DEFAULT_ASM).replace('RAM 3072x32', '逻辑 DM 3072x32');
   });
   const [run, setRun] = useState<LiveRun | null>(null);
-  const [selected, setSelected] = useState<TestResult | null>(null);
   const [banner, setBanner] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const timerRef = useRef<number | null>(null);
@@ -101,14 +102,13 @@ export function App() {
     }
     if (update.type === 'started') {
       setElapsed(0);
-      setSelected(null);
       setBanner(null);
       setPage('workbench');
       setRun({
         startedAt: Date.parse(update.startedAt) || Date.now(),
         total: update.total,
         completed: 0,
-        results: [],
+        counts: {pass: 0, fail: 0, error: 0},
         running: true,
       });
       return;
@@ -133,13 +133,11 @@ export function App() {
     if (update.type === 'test-result') {
       setRun((current) => {
         if (!current) return current;
-        const results = [...current.results, update.result];
-        const selectedResult =
-          update.result.status !== 'pass' ? update.result : null;
-        if (selectedResult) {
-          setSelected((currentSelected) => currentSelected ?? selectedResult);
-        }
-        return {...current, results, completed: results.length};
+        const counts = {...current.counts};
+        if (update.result.status === 'pass') counts.pass++;
+        else if (update.result.status === 'fail') counts.fail++;
+        else counts.error++;
+        return {...current, counts, completed: current.completed + 1};
       });
       return;
     }
@@ -149,16 +147,18 @@ export function App() {
           ? {
               ...current,
               running: false,
-              summary: update.summary,
-              results: update.summary.results,
+              summary: {...update.summary, results: []},
               completed: update.summary.totals.total,
               total: update.summary.totals.total,
+              counts: {
+                pass: update.summary.totals.passed,
+                fail: update.summary.totals.failed,
+                error: update.summary.totals.errors,
+              },
             }
           : current,
       );
-      const firstFailure = update.summary.results.find((result) => result.status !== 'pass');
-      if (firstFailure) setSelected(firstFailure);
-      setState((current) => (current ? {...current, lastSummary: update.summary} : current));
+      setState((current) => (current ? {...current, lastSummary: update.summary, lastReportId: update.historyId} : current));
       return;
     }
     if (update.type === 'stopped') {
@@ -167,8 +167,14 @@ export function App() {
           ? {
               ...current,
               running: false,
-              summary: update.summary,
-              results: update.summary?.results ?? current.results,
+              summary: update.summary ? {...update.summary, results: []} : current.summary,
+              counts: update.summary
+                ? {
+                    pass: update.summary.totals.passed,
+                    fail: update.summary.totals.failed,
+                    error: update.summary.totals.errors,
+                  }
+                : current.counts,
               message: update.message,
             }
           : current,
@@ -215,28 +221,53 @@ export function App() {
     }
   }
 
-  async function runSuite(suite: SuiteName): Promise<void> {
-    const result = await window.cpuTester.run({kind: 'suite', suite});
+  async function setInstructions(instructions: InstructionName[]): Promise<void> {
+    const result = await window.cpuTester.setInstructions(instructions);
+    if (!result.ok) setBanner(result.error ?? '无法更新指令集');
+  }
+
+  async function runSuite(
+    suite: SuiteName,
+    intensity?: StressIntensity,
+    maxCycles?: number,
+    seed?: number,
+    seedCount?: number,
+  ): Promise<void> {
+    const result = await window.cpuTester.run({kind: 'suite', suite, intensity, maxCycles, seed, seedCount});
     if (!result.started) setBanner(result.error ?? '无法启动测试');
   }
 
-  async function runAssembly(steps: number, stopPc?: number): Promise<void> {
+  async function runAssembly(steps: number, stopPc?: number, maxCycles?: number): Promise<void> {
     const result = await window.cpuTester.run({
       kind: 'assembly',
       assembly,
       steps: stopPc === undefined ? steps : undefined,
       stopPc,
+      maxCycles,
     });
     if (!result.started) setBanner(result.error ?? '无法启动测试');
     else setPage('workbench');
+  }
+
+  async function openResult(): Promise<void> {
+    const reportId = state?.lastReportId;
+    if (!reportId) {
+      setBanner('还没有可打开的测试报告，请先运行测试');
+      return;
+    }
+    const opened = await window.cpuTester.openResult(reportId);
+    if (!opened) setBanner('无法打开测试结果窗口');
   }
 
   async function stop(): Promise<void> {
     await window.cpuTester.stop();
   }
 
-  const results = run?.results ?? state?.lastSummary?.results ?? [];
-  const counts = useMemo(() => resultCounts(results), [results]);
+  const counts = run?.counts ?? {
+    pass: state?.lastSummary?.totals.passed ?? 0,
+    fail: state?.lastSummary?.totals.failed ?? 0,
+    error: state?.lastSummary?.totals.errors ?? 0,
+  };
   const summary = run?.summary ?? state?.lastSummary ?? null;
   const progress = run?.total ? Math.min(100, (run.completed / run.total) * 100) : 0;
 
@@ -261,7 +292,7 @@ export function App() {
             <span className={`dot ${state?.bridgeStatus === 'running' ? 'dot-busy' : state?.bridgeStatus === 'error' ? 'dot-error' : 'dot-idle'}`} />
             Bridge {bridgeLabel(state?.bridgeStatus)}
           </div>
-          <div className="muted small">Phase 3 · 真实 Java Bridge</div>
+          <div className="muted small">Phase 5 · 动态指令集 · 真实 Java Bridge</div>
         </div>
       </aside>
 
@@ -306,19 +337,19 @@ export function App() {
             <Workbench
               state={state}
               run={run}
-              results={results}
               counts={counts}
               summary={summary}
               progress={progress}
               elapsed={elapsed}
-              selected={selected}
               assembly={assembly}
+              lastReportId={state?.lastReportId ?? null}
               onAssemblyChange={setAssembly}
-              onSelect={setSelected}
               onChooseCircuit={chooseCircuit}
               onChooseConfig={chooseConfig}
               onRunSuite={runSuite}
               onRunAssembly={runAssembly}
+              onInstructionsChange={setInstructions}
+              onOpenResult={openResult}
               onStop={stop}
               onOpenEditor={() => setPage('editor')}
             />

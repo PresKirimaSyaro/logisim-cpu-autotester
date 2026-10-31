@@ -15,8 +15,11 @@ import {
   ReferenceInterpreter,
   type ReferenceImage,
   type RunResult,
+  type TraceEntry,
 } from '../../mips-core/src/interpreter/interpreter.js';
 import type {
+  BatchResult,
+  BridgeOperation,
   ComponentInfo,
   LogicValue,
   PortInfo,
@@ -27,9 +30,11 @@ import type {
   PcCheckpoint,
   PcResult,
   RunnerOptions,
+  CoverageSummary,
   RunSummary,
   SignalCheckpoint,
   SignalMismatch,
+  ReferenceFault,
   TestErrorType,
   TestInput,
   TestResult,
@@ -108,6 +113,8 @@ export class DifferentialRunner {
       circuitName: this.options.config.circuitName,
       environment: this.options.environment ?? defaultEnvironment(),
       results,
+      instructions: [...this.options.config.instructions],
+      coverage: mergeCoverage(results),
       totals,
       durationMs: Date.now() - startedAt,
       knownLimitations: DEFAULT_KNOWN_LIMITATIONS,
@@ -159,8 +166,10 @@ export class DifferentialRunner {
       state.result.origin = program.origin;
       state.result.machineCode = program.hex;
       state.result.machineCodeWords = program.words.length;
+      state.result.instructions = program.instructions;
+      state.result.romStartIndex = (config.pc.initial - config.rom.baseByteAddress) >>> config.rom.addressShift;
 
-      const romStartIndex = (config.pc.initial - config.rom.baseByteAddress) >>> config.rom.addressShift;
+      const romStartIndex = state.result.romStartIndex;
       if (romStartIndex + program.words.length > config.rom.capacityWords) {
         throw new PhaseError(
           'config',
@@ -170,8 +179,14 @@ export class DifferentialRunner {
       const referenceImage = buildReferenceImage(config, program, romStartIndex);
       const reference = new ReferenceInterpreter(referenceImage, {trace: true});
       const referenceRun = this.runReference(reference, input, config);
+      if (this.options.referenceFault) applyReferenceFault(reference.trace, this.options.referenceFault);
       if (this.options.trace) state.result.trace = reference.trace;
       const steps = referenceRun.steps;
+      const maxCycles = input.maxCycles ?? this.options.maxCycles ?? config.limits.maxCycles;
+      if (!Number.isInteger(maxCycles) || maxCycles < 1) {
+        throw new PhaseError('config', `maxCycles must be a positive integer (received ${maxCycles})`);
+      }
+      const executableSteps = Math.min(steps, maxCycles);
       if (steps === 0) {
         throw new PhaseError('observability', 'Test executed zero instructions, so it cannot be a meaningful CPU test');
       }
@@ -186,6 +201,7 @@ export class DifferentialRunner {
       state.result.stepsRequested = input.steps ?? steps;
       state.result.stepsExecuted = steps;
       state.result.cyclesRequested = steps;
+      state.result.coverage = computeCoverage(program.instructions.length, reference.trace);
       state.result.reference = {
         stepsRequested: state.result.stepsRequested,
         stepsExecuted: steps,
@@ -232,13 +248,20 @@ export class DifferentialRunner {
       await this.applyInputs(state, config);
       await this.initializePc(state, config);
 
-      const outcome = await this.executeObservedCycles(state, config, steps, reference);
+      const outcome = await this.executeObservedCycles(state, config, executableSteps, reference);
       state.result.cyclesCompleted = outcome.cyclesCompleted;
       state.result.signalCheckpoints = outcome.signalCheckpoints;
       state.result.firstSignalMismatch = outcome.firstSignalMismatch;
       state.result.pc = this.buildPcResult(state, config, reference, outcome);
       if (outcome.error?.type === 'cancelled') throw outcome.error;
       if (outcome.error) throw outcome.error;
+      state.result.details = {
+        ...state.result.details,
+        requestedCycles: steps,
+        executedCycles: executableSteps,
+        maxCycles,
+        truncatedAtLimit: executableSteps < steps,
+      };
 
       if (outcome.firstSignalMismatch) {
         state.result.status = 'fail';
@@ -251,13 +274,17 @@ export class DifferentialRunner {
         state.result.message = state.result.pc.firstDivergence
           ? `PC diverged at cycle ${state.result.pc.firstDivergence.cycle}: expected ${state.result.pc.firstDivergence.expected}, actual ${state.result.pc.firstDivergence.actual}`
           : `Final PC mismatch: expected ${state.result.pc.expectedFinal}, actual ${state.result.pc.actualFinal}`;
-      } else if (outcome.cyclesCompleted !== steps) {
+      } else if (executableSteps < steps) {
+        state.result.status = 'error';
+        state.result.errorType = 'cycle-limit';
+        state.result.message = `Cycle limit ${maxCycles} reached while ${steps} cycles were expected; execution was truncated (not a CPU mismatch)`;
+      } else if (outcome.cyclesCompleted !== executableSteps) {
         state.result.status = 'error';
         state.result.errorType = 'simulation';
-        state.result.message = `CPU completed ${outcome.cyclesCompleted} of ${steps} requested cycles`;
+        state.result.message = `CPU completed ${outcome.cyclesCompleted} of ${executableSteps} requested cycles`;
       } else {
         state.result.status = 'pass';
-        state.result.message = `PASS: ${steps} cycle(s), 0 signal difference(s)`;
+        state.result.message = `PASS: ${executableSteps} cycle(s), 0 signal difference(s)`;
       }
     } catch (error) {
       this.applyError(state, error);
@@ -277,6 +304,7 @@ export class DifferentialRunner {
       program = assemble(input.assembly, {
         origin: config.pc.initial,
         fileName: input.assemblyFile,
+        instructions: config.instructions,
       });
     } catch (error) {
       throw phaseFromError('assembly', error);
@@ -422,16 +450,6 @@ export class DifferentialRunner {
   ): Promise<ExecutionOutcome> {
     const outputs = config.outputs;
     if (!outputs) throw new PhaseError('config', 'Outputs mapping is required for black-box testing');
-    const maxCycles = this.options.maxCycles ?? config.limits.maxCycles;
-    if (steps > maxCycles) {
-      return {
-        cyclesCompleted: 0,
-        checkpoints: [],
-        signalCheckpoints: [],
-        stoppedEarly: false,
-        error: new PhaseError('config', `Requested ${steps} cycles exceeds maxCycles ${maxCycles}`),
-      };
-    }
     const bridge = this.options.bridge;
     const ports = [
       outputs.instruction,
@@ -450,8 +468,9 @@ export class DifferentialRunner {
     let cyclesCompleted = 0;
     let finalPc: number | undefined;
     const stopOnDivergence = this.options.stopOnPcDivergence ?? true;
+    const batchSize = 64;
 
-    for (let cycle = 1; cycle <= steps; cycle++) {
+    for (let base = 1; base <= steps; base += batchSize) {
       if (this.options.signal?.aborted) {
         return {
           cyclesCompleted,
@@ -464,139 +483,21 @@ export class DifferentialRunner {
           error: new PhaseError('cancelled', 'Test run stopped by user'),
         };
       }
-      const entry = reference.trace[cycle - 1];
-      if (!entry) {
-        return {
-          cyclesCompleted,
-          checkpoints,
-          signalCheckpoints,
-          firstDivergence,
-          firstSignalMismatch,
-          stoppedEarly: true,
-          finalPc,
-          error: new PhaseError('reference', `Reference trace is missing cycle ${cycle}`),
-        };
-      }
-
-      let observations: Record<string, LogicValue>;
-      try {
-        observations = await bridge.readOutputs(ports);
-      } catch (error) {
-        return {
-          cyclesCompleted,
-          checkpoints,
-          signalCheckpoints,
-          firstDivergence,
-          firstSignalMismatch,
-          stoppedEarly: true,
-          finalPc,
-          error: phaseFromError(classifyBridgeError(error), error),
-        };
-      }
-      const actual: Record<string, number> = {};
-      try {
-        for (const port of ports) actual[port] = parseKnownOutput(observations[port], port);
-      } catch (error) {
-        return {
-          cyclesCompleted,
-          checkpoints,
-          signalCheckpoints,
-          firstDivergence,
-          firstSignalMismatch,
-          stoppedEarly: true,
-          finalPc,
-          error: phaseFromError('simulation', error),
-        };
-      }
-
-      this.options.onProgress?.({
-        kind: 'cycle',
-        testId: state.result.id,
-        cycle,
-        total: steps,
-        pc: toHex32(actual[outputs.pc]),
-        instruction: toHex32(actual[outputs.instruction]),
-        expectedPc: toHex32(entry.pcBefore),
-        expectedInstruction: toHex32(entry.machineCode),
-      });
-
-      const registerWrite =
-        entry.registerWrite && !entry.registerWrite.ignored ? entry.registerWrite : undefined;
-      const memoryWrite = entry.memoryWrite;
-      const expectations: Expectation[] = [
-        {signal: 'pc', port: outputs.pc, expected: entry.pcBefore, compare: true},
-        {signal: 'instruction', port: outputs.instruction, expected: entry.machineCode, compare: true},
-      ];
-
-      if (registerWrite) {
-        expectations.push(
-          {signal: 'RegWrite', port: outputs.regWrite, expected: 1, compare: true},
-          {signal: 'RegAddr', port: outputs.regAddr, expected: registerWrite.index, compare: true},
-          {signal: 'RegData', port: outputs.regData, expected: registerWrite.value, compare: true},
+      const count = Math.min(batchSize, steps - base + 1);
+      const operations: BridgeOperation[] = [];
+      for (let i = 0; i < count; i++) {
+        operations.push({op: 'readOutputs', ports});
+        operations.push(
+          config.clock.mode === 'internal'
+            ? {op: 'clockCycle', halfCycles: config.clock.halfCycles}
+            : {op: 'tick', port: config.clock.pin, edge: config.clock.edge},
         );
-      } else {
-        // No architectural register write is expected (including writes to
-        // $zero). A writeback to register 0 is architecturally a no-op and is
-        // implementation-defined, so RegWrite and RegData are not compared.
-        // A writeback to a nonzero register would be real corruption.
-        if (actual[outputs.regWrite] !== 0 && actual[outputs.regAddr] !== 0) {
-          expectations.push({
-            signal: 'RegAddr',
-            port: outputs.regAddr,
-            expected: 0,
-            compare: true,
-          });
-        }
+        operations.push({op: 'getOutput', port: outputs.pc});
       }
 
-      expectations.push({signal: 'MemWrite', port: outputs.memWrite, expected: memoryWrite ? 1 : 0, compare: true});
-      if (memoryWrite) {
-        expectations.push(
-          {signal: 'MemAddr', port: outputs.memAddr, expected: memoryWrite.address, compare: true},
-          {signal: 'MemData', port: outputs.memData, expected: memoryWrite.value, compare: true},
-        );
-      }
-
-      for (const expectation of expectations) {
-        if (!expectation.compare) continue;
-        const actualValue = actual[expectation.port] >>> 0;
-        const expectedValue = expectation.expected >>> 0;
-        const match = actualValue === expectedValue;
-        signalCheckpoints.push({
-          cycle,
-          signal: expectation.signal,
-          expected: toHex32(expectedValue),
-          actual: toHex32(actualValue),
-          match,
-        });
-        if (!match && !firstSignalMismatch) {
-          firstSignalMismatch = {
-            cycle,
-            signal: expectation.signal,
-            expected: toHex32(expectedValue),
-            actual: toHex32(actualValue),
-          };
-        }
-      }
-      if (firstSignalMismatch) {
-        finalPc = actual[outputs.pc] >>> 0;
-        return {
-          cyclesCompleted: cycle - 1,
-          checkpoints,
-          signalCheckpoints,
-          firstDivergence,
-          firstSignalMismatch,
-          stoppedEarly: true,
-          finalPc,
-        };
-      }
-
+      let batch: BatchResult;
       try {
-        if (config.clock.mode === 'internal') {
-          await bridge.clockCycle(config.clock.halfCycles);
-        } else {
-          await bridge.tick(config.clock.pin, config.clock.edge);
-        }
+        batch = await bridge.batch(operations);
       } catch (error) {
         return {
           cyclesCompleted,
@@ -609,47 +510,11 @@ export class DifferentialRunner {
           error: phaseFromError(classifyBridgeError(error), error),
         };
       }
-      cyclesCompleted = cycle;
-      let pcValue: LogicValue;
-      try {
-        pcValue = await bridge.getOutput(outputs.pc);
-      } catch (error) {
-        return {
-          cyclesCompleted,
-          checkpoints,
-          signalCheckpoints,
-          firstDivergence,
-          firstSignalMismatch,
-          stoppedEarly: true,
-          finalPc,
-          error: phaseFromError(classifyBridgeError(error), error),
-        };
-      }
-      try {
-        finalPc = parseKnownOutput(pcValue, outputs.pc);
-      } catch (error) {
-        return {
-          cyclesCompleted,
-          checkpoints,
-          signalCheckpoints,
-          firstDivergence,
-          firstSignalMismatch,
-          stoppedEarly: true,
-          finalPc,
-          error: phaseFromError('simulation', error),
-        };
-      }
-      const expectedPc = entry.pcAfter >>> 0;
-      const pcMatch = finalPc === expectedPc;
-      checkpoints.push({
-        cycle,
-        expected: toHex32(expectedPc),
-        actual: toHex32(finalPc),
-        match: pcMatch,
-      });
-      if (!pcMatch && !firstDivergence) {
-        firstDivergence = {cycle, expected: expectedPc, actual: finalPc};
-        if (stopOnDivergence) {
+
+      for (let i = 0; i < count; i++) {
+        const cycle = base + i;
+        const pre = batch.results[i * 3];
+        if (!pre || !pre.ok) {
           return {
             cyclesCompleted,
             checkpoints,
@@ -658,7 +523,198 @@ export class DifferentialRunner {
             firstSignalMismatch,
             stoppedEarly: true,
             finalPc,
+            error: new PhaseError(
+              'simulation',
+              `Could not sample outputs at cycle ${cycle}: ${pre && !pre.ok ? `${pre.error.code}: ${pre.error.message}` : 'missing batch result'}`,
+            ),
           };
+        }
+        const entry = reference.trace[cycle - 1];
+        const staticIndex = staticInstructionIndex(entry?.pcBefore, state.result.origin);
+        if (!entry) {
+          return {
+            cyclesCompleted,
+            checkpoints,
+            signalCheckpoints,
+            firstDivergence,
+            firstSignalMismatch,
+            stoppedEarly: true,
+            finalPc,
+            error: new PhaseError('reference', `Reference trace is missing cycle ${cycle}`),
+          };
+        }
+        const observations = pre.result as Record<string, LogicValue>;
+        const actual: Record<string, number> = {};
+        const actualText: Record<string, string> = {};
+        const actualStatus: Record<string, 'known' | 'unknown' | 'error'> = {};
+        for (const port of ports) {
+          const observation = observations[port];
+          if (!observation) {
+            actualStatus[port] = 'unknown';
+            actualText[port] = 'unknown';
+          } else if (observation.status === 'known') {
+            actualStatus[port] = 'known';
+            actualText[port] = observation.value;
+            actual[port] = parseHex(observation.value);
+          } else {
+            actualStatus[port] = observation.status;
+            actualText[port] = observation.status;
+          }
+        }
+
+        this.options.onProgress?.({
+          kind: 'cycle',
+          testId: state.result.id,
+          cycle,
+          total: steps,
+          pc: actualStatus[outputs.pc] === 'known' ? toHex32(actual[outputs.pc]) : actualText[outputs.pc],
+          instruction: actualStatus[outputs.instruction] === 'known'
+            ? toHex32(actual[outputs.instruction])
+            : actualText[outputs.instruction],
+          expectedPc: toHex32(entry.pcBefore),
+          expectedInstruction: toHex32(entry.machineCode),
+        });
+
+        const registerWrite =
+          entry.registerWrite && !entry.registerWrite.ignored ? entry.registerWrite : undefined;
+        const memoryWrite = entry.memoryWrite;
+        const expectations: Expectation[] = [
+          {signal: 'pc', port: outputs.pc, expected: entry.pcBefore, compare: true},
+          {signal: 'instruction', port: outputs.instruction, expected: entry.machineCode, compare: true},
+        ];
+
+        if (registerWrite) {
+          expectations.push(
+            {signal: 'RegWrite', port: outputs.regWrite, expected: 1, compare: true},
+            {signal: 'RegAddr', port: outputs.regAddr, expected: registerWrite.index, compare: true},
+            {signal: 'RegData', port: outputs.regData, expected: registerWrite.value, compare: true},
+          );
+        } else if (
+          actualStatus[outputs.regWrite] === 'known' &&
+          actualStatus[outputs.regAddr] === 'known' &&
+          actual[outputs.regWrite] !== 0 &&
+          actual[outputs.regAddr] !== 0
+        ) {
+          // A real (nonzero-register) writeback is corruption. A writeback to
+          // $zero is allowed as an implementation-defined no-op.
+          expectations.push({signal: 'RegAddr', port: outputs.regAddr, expected: 0, compare: true});
+        }
+
+        expectations.push({signal: 'MemWrite', port: outputs.memWrite, expected: memoryWrite ? 1 : 0, compare: true});
+        if (memoryWrite) {
+          expectations.push(
+            {signal: 'MemAddr', port: outputs.memAddr, expected: memoryWrite.address, compare: true},
+            {signal: 'MemData', port: outputs.memData, expected: memoryWrite.value, compare: true},
+          );
+        }
+
+        for (const expectation of expectations) {
+          if (!expectation.compare) continue;
+          const status = actualStatus[expectation.port] ?? 'unknown';
+          const actualValue = actual[expectation.port] >>> 0;
+          const expectedValue = expectation.expected >>> 0;
+          const match = status === 'known' && actualValue === expectedValue;
+          const actualDisplay = status === 'known' ? toHex32(actualValue) : status;
+          signalCheckpoints.push({
+            cycle,
+            signal: expectation.signal,
+            expected: toHex32(expectedValue),
+            actual: actualDisplay,
+            actualStatus: status,
+            match,
+            staticIndex,
+          });
+          if (!match && !firstSignalMismatch) {
+            firstSignalMismatch = {
+              cycle,
+              signal: expectation.signal,
+              expected: toHex32(expectedValue),
+              actual: actualDisplay,
+            };
+          }
+        }
+        if (firstSignalMismatch) {
+          finalPc = actualStatus[outputs.pc] === 'known' ? actual[outputs.pc] >>> 0 : undefined;
+          return {
+            cyclesCompleted: cycle - 1,
+            checkpoints,
+            signalCheckpoints,
+            firstDivergence,
+            firstSignalMismatch,
+            stoppedEarly: true,
+            finalPc,
+          };
+        }
+
+        const clockResult = batch.results[i * 3 + 1];
+        if (!clockResult || !clockResult.ok) {
+          return {
+            cyclesCompleted,
+            checkpoints,
+            signalCheckpoints,
+            firstDivergence,
+            firstSignalMismatch,
+            stoppedEarly: true,
+            finalPc,
+            error: new PhaseError(
+              'simulation',
+              `CPU clock failed at cycle ${cycle}: ${clockResult && !clockResult.ok ? `${clockResult.error.code}: ${clockResult.error.message}` : 'missing batch result'}`,
+            ),
+          };
+        }
+        const post = batch.results[i * 3 + 2];
+        if (!post || !post.ok) {
+          return {
+            cyclesCompleted,
+            checkpoints,
+            signalCheckpoints,
+            firstDivergence,
+            firstSignalMismatch,
+            stoppedEarly: true,
+            finalPc,
+            error: new PhaseError(
+              'simulation',
+              `Could not read PC after cycle ${cycle}: ${post && !post.ok ? `${post.error.code}: ${post.error.message}` : 'missing batch result'}`,
+            ),
+          };
+        }
+        try {
+          finalPc = parseKnownOutput(post.result as LogicValue, outputs.pc);
+        } catch (error) {
+          return {
+            cyclesCompleted,
+            checkpoints,
+            signalCheckpoints,
+            firstDivergence,
+            firstSignalMismatch,
+            stoppedEarly: true,
+            finalPc,
+            error: phaseFromError('simulation', error),
+          };
+        }
+        cyclesCompleted = cycle;
+        const expectedPc = entry.pcAfter >>> 0;
+        const pcMatch = finalPc === expectedPc;
+        checkpoints.push({
+          cycle,
+          expected: toHex32(expectedPc),
+          actual: toHex32(finalPc),
+          match: pcMatch,
+          staticIndex,
+        });
+        if (!pcMatch && !firstDivergence) {
+          firstDivergence = {cycle, expected: expectedPc, actual: finalPc};
+          if (stopOnDivergence) {
+            return {
+              cyclesCompleted,
+              checkpoints,
+              signalCheckpoints,
+              firstDivergence,
+              firstSignalMismatch,
+              stoppedEarly: true,
+              finalPc,
+            };
+          }
         }
       }
     }
@@ -735,7 +791,57 @@ function buildReferenceImage(
     rom: regionOf(config.rom),
     ram: regionOf(config.ram),
     initialPc: config.pc.initial,
+    instructions: config.instructions,
   };
+}
+
+/**
+ * Test-only reference mutation. This lets the regression suite prove that the
+ * generated programs observe each classic datapath bug; it never changes the
+ * user's circuit or the production reference model.
+ */
+function applyReferenceFault(trace: TraceEntry[], fault: ReferenceFault): void {
+  for (const entry of trace) {
+    const instruction = entry.instruction;
+    if (!instruction || !entry.ok) continue;
+    switch (fault) {
+      case 'sw-nextpc':
+        if (instruction.kind === 'sw') {
+          entry.pcAfter = (entry.pcBefore + 4 + (instruction.offset << 2)) >>> 0;
+        }
+        break;
+      case 'lw-sw-offset-zero':
+        if (instruction.kind === 'sw' && entry.memoryWrite) {
+          // A zero-extended negative offset addresses 0x10000 bytes too high.
+          entry.memoryWrite = {...entry.memoryWrite, address: (entry.memoryWrite.address + 0x10000) >>> 0};
+        } else if (instruction.kind === 'lw' && entry.registerWrite) {
+          // lw's wrong address is only visible through the loaded value.
+          entry.registerWrite = {...entry.registerWrite, value: (entry.registerWrite.value ^ 0x00010000) >>> 0};
+        }
+        break;
+      case 'beq-negative-offset':
+        if (instruction.kind === 'beq' && instruction.offset < 0 && entry.pcAfter !== ((entry.pcBefore + 4) >>> 0)) {
+          entry.pcAfter = (entry.pcBefore + 4 + ((instruction.offset & 0xffff) << 2)) >>> 0;
+        }
+        break;
+      case 'ori-sign-extend':
+        if (instruction.kind === 'ori' && (instruction.immediate & 0x8000) !== 0 && entry.registerWrite) {
+          const signExtended = (instruction.immediate | 0xffff0000) >>> 0;
+          entry.registerWrite = {...entry.registerWrite, value: signExtended};
+        }
+        break;
+      case 'lui-high':
+        if (instruction.kind === 'lui' && entry.registerWrite) {
+          entry.registerWrite = {...entry.registerWrite, value: entry.registerWrite.value & 0xffff};
+        }
+        break;
+      case 'add-sub-msb':
+        if ((instruction.kind === 'add' || instruction.kind === 'sub') && entry.registerWrite) {
+          entry.registerWrite = {...entry.registerWrite, value: (entry.registerWrite.value ^ 0x80000000) >>> 0};
+        }
+        break;
+    }
+  }
 }
 
 function validateRunConfig(config: CpuConfig, options: RunnerOptions, input: TestInput): void {
@@ -919,6 +1025,186 @@ function classifyBridgeCode(code: string, fallback: TestErrorType): TestErrorTyp
   }
   if (code === 'NOT_LOADED') return 'init';
   return fallback;
+}
+
+function staticInstructionIndex(pc: number | undefined, origin: number): number | undefined {
+  if (pc === undefined) return undefined;
+  const delta = (pc >>> 0) - (origin >>> 0);
+  if (delta < 0 || delta % 4 !== 0) return undefined;
+  return delta / 4;
+}
+
+function computeCoverage(staticInstructions: number, trace: TraceEntry[]): CoverageSummary {
+  const instructions: Record<string, number> = {};
+  const writes = new Set<number>();
+  const reads = new Set<number>();
+  const shamt = new Set<number>();
+  let beqTaken = 0;
+  let beqNotTaken = 0;
+  let branchForward = 0;
+  let branchBackward = 0;
+  let nonControlExecuted = 0;
+  let nonControlPcPlus4 = 0;
+  let nonControlPcBad = 0;
+  let negativeResults = 0;
+  let highBitResults = 0;
+  let zeroResults = 0;
+  let lwCount = 0;
+  let swCount = 0;
+  let zeroOffset = 0;
+  let positiveOffset = 0;
+  let negativeOffset = 0;
+  let nonzeroBase = 0;
+  for (const entry of trace) {
+    const instruction = entry.instruction;
+    if (!instruction) continue;
+    instructions[instruction.kind] = (instructions[instruction.kind] ?? 0) + 1;
+    if (entry.registerWrite && !entry.registerWrite.ignored) {
+      writes.add(entry.registerWrite.index);
+      const value = entry.registerWrite.value >>> 0;
+      if (value === 0) zeroResults++;
+      if ((value & 0x80000000) !== 0) negativeResults++;
+      if (value >= 0x80000000) highBitResults++;
+    }
+    if (['add', 'sub', 'ori', 'lw', 'sw', 'lui', 'nop', 'sll'].includes(instruction.kind)) {
+      nonControlExecuted++;
+      if ((entry.pcAfter >>> 0) === (((entry.pcBefore >>> 0) + 4) >>> 0)) nonControlPcPlus4++;
+      else nonControlPcBad++;
+    }
+    switch (instruction.kind) {
+      case 'add':
+      case 'sub':
+        reads.add(instruction.rs);
+        reads.add(instruction.rt);
+        break;
+      case 'ori':
+        reads.add(instruction.rs);
+        break;
+      case 'lw':
+        reads.add(instruction.rs);
+        lwCount++;
+        countOffset(instruction.offset);
+        if (instruction.rs !== 0) nonzeroBase++;
+        break;
+      case 'sw':
+        reads.add(instruction.rs);
+        reads.add(instruction.rt);
+        swCount++;
+        countOffset(instruction.offset);
+        if (instruction.rs !== 0) nonzeroBase++;
+        break;
+      case 'beq':
+        reads.add(instruction.rs);
+        reads.add(instruction.rt);
+        if ((entry.pcAfter >>> 0) === (((entry.pcBefore >>> 0) + 4) >>> 0)) beqNotTaken++;
+        else beqTaken++;
+        if (instruction.offset < 0) branchBackward++;
+        else if (instruction.offset > 0) branchForward++;
+        break;
+      case 'sll':
+        reads.add(instruction.rt);
+        shamt.add(instruction.shamt);
+        break;
+      case 'lui':
+      case 'j':
+      case 'nop':
+        break;
+    }
+  }
+  function countOffset(offset: number): void {
+    if (offset === 0) zeroOffset++;
+    else if (offset > 0) positiveOffset++;
+    else negativeOffset++;
+  }
+  return {
+    instructions,
+    registerWrites: [...writes].sort((a, b) => a - b),
+    registerReads: [...reads].sort((a, b) => a - b),
+    sllShamt: [...shamt].sort((a, b) => a - b),
+    beqTaken,
+    beqNotTaken,
+    branchForward,
+    branchBackward,
+    lwCount,
+    swCount,
+    zeroOffset,
+    positiveOffset,
+    negativeOffset,
+    nonzeroBase,
+    nonControlExecuted,
+    nonControlPcPlus4,
+    nonControlPcBad,
+    negativeResults,
+    highBitResults,
+    zeroResults,
+    staticInstructions,
+    dynamicInstructions: trace.length,
+    maxTestCycles: trace.length,
+  };
+}
+
+function mergeCoverage(results: TestResult[]): CoverageSummary {
+  const merged: CoverageSummary = {
+    instructions: {},
+    registerWrites: [],
+    registerReads: [],
+    sllShamt: [],
+    beqTaken: 0,
+    beqNotTaken: 0,
+    branchForward: 0,
+    branchBackward: 0,
+    lwCount: 0,
+    swCount: 0,
+    zeroOffset: 0,
+    positiveOffset: 0,
+    negativeOffset: 0,
+    nonzeroBase: 0,
+    nonControlExecuted: 0,
+    nonControlPcPlus4: 0,
+    nonControlPcBad: 0,
+    negativeResults: 0,
+    highBitResults: 0,
+    zeroResults: 0,
+    staticInstructions: 0,
+    dynamicInstructions: 0,
+    maxTestCycles: 0,
+  };
+  const writes = new Set<number>();
+  const reads = new Set<number>();
+  const shamt = new Set<number>();
+  for (const result of results) {
+    const coverage = result.coverage;
+    if (!coverage) continue;
+    for (const [kind, count] of Object.entries(coverage.instructions)) {
+      merged.instructions[kind] = (merged.instructions[kind] ?? 0) + count;
+    }
+    for (const index of coverage.registerWrites) writes.add(index);
+    for (const index of coverage.registerReads) reads.add(index);
+    for (const value of coverage.sllShamt) shamt.add(value);
+    merged.beqTaken += coverage.beqTaken;
+    merged.beqNotTaken += coverage.beqNotTaken;
+    merged.branchForward += coverage.branchForward;
+    merged.branchBackward += coverage.branchBackward;
+    merged.lwCount += coverage.lwCount;
+    merged.swCount += coverage.swCount;
+    merged.zeroOffset += coverage.zeroOffset;
+    merged.positiveOffset += coverage.positiveOffset;
+    merged.negativeOffset += coverage.negativeOffset;
+    merged.nonzeroBase += coverage.nonzeroBase;
+    merged.nonControlExecuted += coverage.nonControlExecuted;
+    merged.nonControlPcPlus4 += coverage.nonControlPcPlus4;
+    merged.nonControlPcBad += coverage.nonControlPcBad;
+    merged.negativeResults += coverage.negativeResults;
+    merged.highBitResults += coverage.highBitResults;
+    merged.zeroResults += coverage.zeroResults;
+    merged.staticInstructions += coverage.staticInstructions;
+    merged.dynamicInstructions += coverage.dynamicInstructions;
+    merged.maxTestCycles = Math.max(merged.maxTestCycles, coverage.maxTestCycles);
+  }
+  merged.registerWrites = [...writes].sort((a, b) => a - b);
+  merged.registerReads = [...reads].sort((a, b) => a - b);
+  merged.sllShamt = [...shamt].sort((a, b) => a - b);
+  return merged;
 }
 
 function defaultEnvironment(): Record<string, unknown> {

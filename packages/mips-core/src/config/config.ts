@@ -1,5 +1,10 @@
 import {ConfigError} from '../errors.js';
 import {parseIntegerLiteral, u32} from '../isa/constants.js';
+import {
+  COURSE_INSTRUCTIONS,
+  isInstructionName,
+  type InstructionName,
+} from '../isa/instruction-set.js';
 import type {AddressRegion} from '../memory/address-map.js';
 
 /** A physical instruction ROM. ROM injection is the one memory operation we keep. */
@@ -78,6 +83,8 @@ export interface CpuConfig {
   limits: LimitsSpec;
   inputs: InputSpec[];
   outputs?: OutputsSpec;
+  /** Instructions enabled for generated tests and reference execution. */
+  instructions: InstructionName[];
   notes?: string;
 }
 
@@ -98,6 +105,7 @@ export function parseCpuConfig(value: unknown): CpuConfig {
     'limits',
     'inputs',
     'outputs',
+    'instructions',
     'notes',
   ], '$');
 
@@ -117,6 +125,7 @@ export function parseCpuConfig(value: unknown): CpuConfig {
   const limits = parseLimits(root['limits']);
   const inputs = parseInputs(root['inputs']);
   const outputs = parseOutputs(root['outputs']);
+  const instructions = parseInstructionSet(root['instructions']);
   const notes = optionalString(root, 'notes', '$');
 
   if (reset.strategy === 'pin' && clock.mode === 'pin' && reset.pin === clock.pin) {
@@ -163,8 +172,30 @@ export function parseCpuConfig(value: unknown): CpuConfig {
     limits,
     inputs,
     outputs,
+    instructions,
     notes,
   };
+}
+
+export function parseInstructionSet(value: unknown): InstructionName[] {
+  if (value === undefined) return [...COURSE_INSTRUCTIONS];
+  if (!Array.isArray(value)) {
+    throw new ConfigError('CONFIG_TYPE', 'instructions must be an array', '$.instructions');
+  }
+  const result: InstructionName[] = [];
+  for (const [index, item] of value.entries()) {
+    if (typeof item !== 'string') {
+      throw new ConfigError('CONFIG_TYPE', 'instruction names must be strings', `$.instructions[${index}]`);
+    }
+    if (!isInstructionName(item)) {
+      throw new ConfigError('CONFIG_INVALID', `unknown instruction "${item}"`, `$.instructions[${index}]`);
+    }
+    if (!result.includes(item)) result.push(item);
+  }
+  if (result.length === 0) {
+    throw new ConfigError('CONFIG_INVALID', 'instructions must not be empty', '$.instructions');
+  }
+  return result;
 }
 
 export function regionOf(spec: AddressRegion): AddressRegion {

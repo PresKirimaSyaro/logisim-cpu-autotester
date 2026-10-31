@@ -5,3 +5,5 @@ java-bridge/build/
 vendor/src/
 vendor/META-INF/
 test-results/
+docs/
+release/

@@ -292,7 +292,7 @@ function toForm(state: AppState | null): FormState {
     defaultCircuit: settings?.defaultCircuit ?? '',
     defaultConfig: settings?.defaultConfig ?? '',
     bridgeTimeoutMs: settings?.bridgeTimeoutMs ?? 30000,
-    maxCycles: settings?.maxCycles ?? 10000,
+    maxCycles: settings?.maxCycles ?? 200000,
     theme: settings?.theme ?? 'light',
     circuitName: config?.circuitName ?? 'main',
     resetPin: config?.reset.strategy === 'pin' ? config.reset.pin : 'reset',

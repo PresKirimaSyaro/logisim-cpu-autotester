@@ -7,6 +7,7 @@ import {
   ConfigError,
   MipsError,
   parseCpuConfig,
+  parseInstructionSet,
   tryAssemble,
   type CpuConfig,
 } from '../../mips-core/src/index.js';
@@ -18,9 +19,12 @@ import {
   type TestInput,
 } from '../../differential-runner/src/index.js';
 import {
-  generateDirectedTests,
+  generateStressTests,
   layoutForConfig,
+  parseTestSuite,
   selectSuite,
+  testsFromSuite,
+  type StressIntensity,
 } from '../../test-generator/src/index.js';
 
 interface CliOptions {
@@ -28,6 +32,11 @@ interface CliOptions {
   config?: string;
   asm?: string;
   suite?: string;
+  intensity?: StressIntensity;
+  seedCount?: number;
+  seed?: number;
+  instructions?: string;
+  suiteFile?: string;
   steps?: number;
   stopPc?: number;
   report?: string;
@@ -43,14 +52,20 @@ interface CliOptions {
 
 const HELP = `Usage:
   npm run test:cpu -- --circuit <cpu.circ> --config <cpu.config.json> --asm <program.asm> --steps <n>
-  npm run test:cpu -- --circuit <cpu.circ> --config <cpu.config.json> --suite <basic|full|branch|memory|alu>
+  npm run test:cpu -- --circuit <cpu.circ> --config <cpu.config.json> --suite <basic|full|branch|memory|alu|stress>
 
 Required:
   --circuit <path>       Logisim .circ file containing the CPU.
   --config <path>        JSON CpuConfig (see fixtures/cpu.config.json).
   One of:
   --asm <path>           Assembly file to run.
-  --suite <name>         Run generated directed tests (basic, full, branch, memory, alu).
+  --suite <name>         Run tests (basic, full, branch, memory, alu, stress).
+  --suite-file <path>    External directed-test JSON (default: test-suites/course.json).
+  --intensity <level>    Stress intensity: quick, standard, stress (default standard).
+  --seed <n>             Base seed for stress random programs (default 0x5a17c0de).
+  --seed-count <n>       Override the number of seeded stress programs.
+  --instructions <list>  Comma-separated enabled instructions (overrides config).
+                         Default: add,sub,ori,lw,sw,beq,lui,nop; optional sll,j.
 
 Termination for --asm:
   --steps <n>            Exact number of dynamic instructions / CPU cycles.
@@ -99,6 +114,9 @@ async function main(argv: string[]): Promise<number> {
   try {
     const raw = JSON.parse(await readFile(options.config, 'utf8')) as unknown;
     config = parseCpuConfig(raw);
+    if (options.instructions) {
+      config = {...config, instructions: parseInstructionSet(options.instructions.split(',').map((item) => item.trim()))};
+    }
   } catch (error) {
     printMipsError(error, options.config);
     return 2;
@@ -106,7 +124,7 @@ async function main(argv: string[]): Promise<number> {
 
   let tests: TestInput[];
   try {
-    tests = options.suite ? testsForSuite(config, options) : [await testFromAsm(options)];
+    tests = options.suite ? await testsForSuite(config, options) : [await testFromAsm(options, config)];
   } catch (error) {
     printMipsError(error, options.asm ?? options.config);
     return 2;
@@ -167,15 +185,36 @@ async function main(argv: string[]): Promise<number> {
   return 0;
 }
 
-function testsForSuite(config: CpuConfig, options: CliOptions): TestInput[] {
+async function testsForSuite(config: CpuConfig, options: CliOptions): Promise<TestInput[]> {
   const layout = layoutForConfig(config);
-  const all = generateDirectedTests(layout);
   const suite = options.suite ?? 'basic';
-  const selected = suite === 'full' || suite === 'all' ? all : selectSuite(all, suite);
+  let all: ReturnType<typeof generateStressTests>;
+  if (suite === 'stress') {
+    all = generateStressTests(layout, {
+      intensity: options.intensity ?? 'standard',
+      seedCount: options.seedCount,
+      seed: options.seed,
+      instructions: config.instructions,
+    });
+  } else {
+    const suitePath = options.suiteFile ?? 'test-suites/course.json';
+    let raw: unknown;
+    try {
+      raw = JSON.parse(await readFile(suitePath, 'utf8'));
+    } catch (error) {
+      throw new ConfigError(
+        'CONFIG_INVALID',
+        `无法读取外部测试集 ${suitePath}: ${error instanceof Error ? error.message : String(error)}`,
+        '$.suiteFile',
+      );
+    }
+    all = testsFromSuite(parseTestSuite(raw), layout, config.instructions);
+  }
+  const selected = suite === 'full' || suite === 'all' || suite === 'stress' ? all : selectSuite(all, suite);
   if (selected.length === 0) {
     throw new ConfigError(
       'CONFIG_INVALID',
-      `Unknown or empty suite "${suite}". Available: basic, full, branch, memory, alu`,
+      `Unknown or empty suite "${suite}". Available: basic, full, branch, memory, alu, stress`,
       '$.suite',
     );
   }
@@ -191,10 +230,10 @@ function testsForSuite(config: CpuConfig, options: CliOptions): TestInput[] {
   }));
 }
 
-async function testFromAsm(options: CliOptions): Promise<TestInput> {
+async function testFromAsm(options: CliOptions, config: CpuConfig): Promise<TestInput> {
   const path = options.asm!;
   const source = await readFile(path, 'utf8');
-  const attempt = tryAssemble(source, {fileName: path});
+  const attempt = tryAssemble(source, {fileName: path, instructions: config.instructions});
   if (!attempt.ok) {
     const diagnostic = attempt.diagnostic;
     throw new MipsError(diagnostic.code, diagnostic.message, {
@@ -251,6 +290,29 @@ function parseArgs(argv: string[]): CliOptions {
       case '--suite':
         options.suite = next();
         break;
+      case '--suite-file':
+        options.suiteFile = next();
+        break;
+      case '--intensity': {
+        const value = next();
+        if (value !== 'quick' && value !== 'standard' && value !== 'stress') {
+          throw new Error('--intensity must be quick, standard or stress');
+        }
+        options.intensity = value;
+        break;
+      }
+      case '--seed-count':
+        options.seedCount = parsePositiveInt(next(), '--seed-count');
+        break;
+      case '--instructions':
+        options.instructions = next();
+        break;
+      case '--seed': {
+        const value = Number(next());
+        if (!Number.isInteger(value) || value < 0) throw new Error('--seed must be a non-negative integer');
+        options.seed = value >>> 0;
+        break;
+      }
       case '--steps':
         options.steps = parsePositiveInt(next(), '--steps');
         break;

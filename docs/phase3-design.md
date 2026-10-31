@@ -1,5 +1,7 @@
 # Phase 3 设计 — 桌面 GUI
 
+> Phase 4 将详细结果从主工作台移到独立结果窗口，并增加 Stress 套件；见 [phase4-design.md](phase4-design.md)。本文保留 Phase 3 的 GUI/服务设计记录。
+
 ## 1. 架构
 
 ```text

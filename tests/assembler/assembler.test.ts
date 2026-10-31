@@ -19,6 +19,8 @@ test('golden machine-code vectors for all seven instructions', () => {
     ['lw $t0, -4($sp)', 'lw sign-extended -4, base $sp', 0x8fa8fffc],
     ['sw $ra, 8($fp)', 'sw, base $fp, rt $ra', 0xafdf0008],
     ['sll $t2, $t0, 4', 'sll rd=10 rt=8 shamt=4', 0x00085100],
+    ['lui $t0, 0xFFFF', 'lui opcode 0x0F, rt=8, imm=0xFFFF', 0x3c08ffff],
+    ['nop', 'nop is the architectural all-zero word', 0x00000000],
   ];
   for (const [source, description, expected] of vectors) {
     const words = encode(source);
@@ -46,6 +48,24 @@ target:
   assert.equal(lw.rs, 29);
   assert.equal(lw.rt, 8);
   assert.equal(lw.immediate, 0xfffc);
+
+  const jump = assemble('start:\n j start\n', {origin: 0x3000});
+  assert.equal(jump.words[0], 0x08000c00, 'j uses (target >>> 2) & 0x03ffffff');
+  assert.equal(fieldsOf(jump.words[0]).opcode, 0x02);
+});
+
+test('instruction-set selection rejects disabled sll/j but keeps nop available', () => {
+  const courseOnly = ['add', 'sub', 'ori', 'lw', 'sw', 'beq', 'lui', 'nop'] as const;
+  assert.equal(assemble('nop', {instructions: courseOnly}).words[0], 0);
+  assert.throws(
+    () => assemble('j target\ntarget:', {instructions: courseOnly}),
+    (error: unknown) => error instanceof MipsError && error.code === 'ASM_INSTRUCTION_DISABLED',
+  );
+  assert.throws(
+    () => assemble('sll $t0, $t0, 1', {instructions: courseOnly}),
+    (error: unknown) => error instanceof MipsError && error.code === 'ASM_INSTRUCTION_DISABLED',
+  );
+  assert.equal(assemble('j target\ntarget:', {instructions: [...courseOnly, 'j']}).words.length, 1);
 });
 
 test('labels, forward/backward branches, comments, hex and signed literals', () => {
@@ -109,7 +129,7 @@ test('assembly diagnostics carry code, line, column and text', () => {
     ['sll $t0, $t1, 32', 'ASM_IMMEDIATE_RANGE', 1],
     ['add $t32, $t1, $t2', 'ASM_INVALID_REGISTER', 1],
     ['beq $t0, $t1, missing', 'ASM_UNDEFINED_LABEL', 1],
-    ['nop', 'ASM_UNKNOWN_MNEMONIC', 1],
+    ['nop 1', 'ASM_INVALID_OPERAND', 1],
     ['beq $t0, $t1, 6', 'ASM_BRANCH_ALIGNMENT', 1],
     ['foo $t0, $t1, $t2', 'ASM_UNKNOWN_MNEMONIC', 1],
     ['add $t0, $t1', 'ASM_INVALID_OPERAND', 1],

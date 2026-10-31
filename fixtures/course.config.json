@@ -19,7 +19,7 @@
     "checkEachCycle": true
   },
   "rom": {
-    "path": "main/ROM@200,5200",
+    "path": "main/ROM@4200,5200",
     "baseByteAddress": 12288,
     "addressBits": 12,
     "addressShift": 2,
@@ -31,10 +31,20 @@
     "capacityWords": 3072
   },
   "limits": {
-    "maxSteps": 10000,
-    "maxCycles": 10000
+    "maxSteps": 200000,
+    "maxCycles": 200000
   },
   "inputs": [],
+  "instructions": [
+    "add",
+    "sub",
+    "ori",
+    "lw",
+    "sw",
+    "beq",
+    "lui",
+    "nop"
+  ],
   "outputs": {
     "instruction": "Instr",
     "pc": "pc",

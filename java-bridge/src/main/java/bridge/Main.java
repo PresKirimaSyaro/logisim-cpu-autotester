@@ -86,6 +86,7 @@ public final class Main {
             case "tick": engine.tick(str(o,"port"),o.has("edge")?str(o,"edge"):"rising"); return null;
             case "clockCycle": engine.clockCycle(optInt(o,"halfCycles")); return null;
             case "readOutputs": return engine.readOutputs(portNames(o,"ports"));
+            case "parseHex": return Engine.parseHexImage(str(o,"text"));
             case "inspectComponents": return engine.inspectComponents(optBool(o,"recursive",true));
             case "readMemory": return engine.readMemory(str(o,"path"),optInt(o,"start"),optInt(o,"count"));
             case "writeMemory": {

@@ -7,8 +7,10 @@ import type {
   BridgeOperation,
 } from '../../protocol/src/index.js';
 import type {CpuConfig} from '../../mips-core/src/config/config.js';
+import type {AssembledInstruction} from '../../mips-core/src/assembler/assembler.js';
 import type {ExecutionErrorInfo} from '../../mips-core/src/errors.js';
 import type {StepResult} from '../../mips-core/src/interpreter/interpreter.js';
+import type {InstructionName} from '../../mips-core/src/isa/instruction-set.js';
 
 export type TestStatus = 'pass' | 'fail' | 'error' | 'skipped';
 
@@ -19,6 +21,7 @@ export type TestErrorType =
   | 'init'
   | 'simulation'
   | 'signal-mismatch'
+  | 'cycle-limit'
   | 'timeout'
   /** Legacy reports from the old physical-RAM implementation. */
   | 'ram-mismatch'
@@ -78,13 +81,25 @@ export interface TestInput {
   /** Optional expected final logical-DM values, used to sanity-check the reference. */
   signature?: SignatureWord[];
   seed?: number | null;
+  /** Optional per-test cycle cap; reaching it is reported as cycle-limit, not a CPU error. */
+  maxCycles?: number;
 }
+
+export type ReferenceFault =
+  | 'sw-nextpc'
+  | 'lw-sw-offset-zero'
+  | 'beq-negative-offset'
+  | 'ori-sign-extend'
+  | 'lui-high'
+  | 'add-sub-msb';
 
 export interface RunnerOptions {
   circuitPath: string;
   config: CpuConfig;
   bridge: CpuBridge;
   maxCycles?: number;
+  /** Test-only controlled mutation of the reference trace, never used by the GUI. */
+  referenceFault?: ReferenceFault;
   /** Stop at the first per-cycle PC/signal divergence. Default true. */
   stopOnPcDivergence?: boolean;
   trace?: boolean;
@@ -116,6 +131,7 @@ export interface PcCheckpoint {
   expected: string;
   actual: string;
   match: boolean;
+  staticIndex?: number;
 }
 
 export interface PcResult {
@@ -132,7 +148,10 @@ export interface SignalCheckpoint {
   signal: string;
   expected: string;
   actual: string;
+  actualStatus?: 'known' | 'unknown' | 'error';
   match: boolean;
+  /** Index into the static assembled instruction list (PC-origin)/4. */
+  staticIndex?: number;
 }
 
 export interface SignalMismatch {
@@ -140,6 +159,34 @@ export interface SignalMismatch {
   signal: string;
   expected: string;
   actual: string;
+}
+
+export interface CoverageSummary {
+  /** Dynamic instruction execution counts, keyed by mnemonic. */
+  instructions: Record<string, number>;
+  registerWrites: number[];
+  registerReads: number[];
+  sllShamt: number[];
+  beqTaken: number;
+  beqNotTaken: number;
+  branchForward: number;
+  branchBackward: number;
+  lwCount: number;
+  swCount: number;
+  zeroOffset: number;
+  positiveOffset: number;
+  negativeOffset: number;
+  nonzeroBase: number;
+  nonControlExecuted: number;
+  nonControlPcPlus4: number;
+  nonControlPcBad: number;
+  negativeResults: number;
+  highBitResults: number;
+  zeroResults: number;
+  staticInstructions: number;
+  dynamicInstructions: number;
+  /** Longest individual test executed in this report. */
+  maxTestCycles: number;
 }
 
 export interface ReferenceInfo {
@@ -165,6 +212,10 @@ export interface TestResult {
   origin: number;
   machineCode: string[];
   machineCodeWords: number;
+  /** Assembled static instructions with source text, address and machine word. */
+  instructions?: AssembledInstruction[];
+  /** ROM word index of the first instruction (PC = origin maps to this index). */
+  romStartIndex?: number;
   seed: number | null;
   stepsRequested: number;
   stepsExecuted: number;
@@ -175,6 +226,7 @@ export interface TestResult {
   firstSignalMismatch?: SignalMismatch;
   pc?: PcResult;
   reference?: ReferenceInfo;
+  coverage?: CoverageSummary;
   /** Legacy field from the ROM read-back era. New runs do not read memory. */
   romReadbackVerified?: boolean;
   bridgeErrors: string[];
@@ -218,6 +270,9 @@ export interface RunSummary {
   circuitName: string;
   environment: Record<string, unknown>;
   results: TestResult[];
+  /** Instruction set used to generate and execute this report. */
+  instructions?: readonly InstructionName[];
+  coverage?: CoverageSummary;
   totals: {
     total: number;
     passed: number;

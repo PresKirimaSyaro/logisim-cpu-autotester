@@ -13,5 +13,11 @@ export default defineConfig({
     outDir: resolve(root, '../../dist/renderer'),
     emptyOutDir: true,
     target: 'chrome120',
+    rollupOptions: {
+      input: {
+        main: resolve(root, 'index.html'),
+        result: resolve(root, 'result.html'),
+      },
+    },
   },
 });

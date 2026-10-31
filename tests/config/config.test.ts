@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {
   ConfigError,
+  MipsError,
   initialRamMap,
   parseCpuConfig,
   regionOf,
@@ -38,6 +39,7 @@ test('generated CPU config validates and exposes the expected regions', async ()
   assert.equal(regionOf(config.ram).capacityWords, 256);
   assert.equal(initialRamMap(config.ram).size, 0);
   assert.equal(config.outputs?.instruction, 'Instr');
+  assert.deepEqual(config.instructions, ['add', 'sub', 'ori', 'lw', 'sw', 'beq', 'sll', 'nop']);
 });
 
 test('course profile config uses internal clock, 0x3000 ROM and logical 3072-word RAM', async () => {
@@ -51,6 +53,16 @@ test('course profile config uses internal clock, 0x3000 ROM and logical 3072-wor
   assert.equal(config.ram.addressBits, 12);
   assert.equal(config.ram.capacityWords, 3072);
   assert.equal(config.outputs?.instruction, 'Instr');
+  assert.equal(config.instructions.includes('lui'), true);
+  assert.equal(config.instructions.includes('sll'), false);
+  assert.equal(config.instructions.includes('j'), false);
+
+  const optional = parseCpuConfig({...config, instructions: ['add', 'sub', 'ori', 'lw', 'sw', 'beq', 'lui', 'nop', 'sll', 'j']});
+  assert.deepEqual(optional.instructions.slice(-2), ['sll', 'j']);
+  assert.throws(
+    () => parseCpuConfig({...config, instructions: ['add', 'bogus']}),
+    (error: unknown) => error instanceof MipsError && error.code === 'CONFIG_INVALID',
+  );
 });
 
 test('already-parsed configs can be revalidated', async () => {

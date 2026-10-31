@@ -70,6 +70,7 @@ export class LogisimBridge {
   clockCycle(halfCycles:1|2=2) { return this.request<void>({op:'clockCycle',halfCycles}); }
   readOutputs(ports:string[]) { return this.request<Record<string,LogicValue>>({op:'readOutputs',ports}); }
   inspectComponents(recursive=true) { return this.request<ComponentInventory>({op:'inspectComponents',recursive}); }
+  parseHex(text:string) { return this.request<string[]>({op:'parseHex',text}); }
   readMemory(path:string,start?:number,count?:number) { return this.request<MemoryImage>({op:'readMemory',path,start,count}); }
   writeMemory(path:string,start:number,words:string[]) { return this.request<void>({op:'writeMemory',path,start,words}); }
   loadRom(path:string,start:number,words:string[]) { return this.request<void>({op:'loadRom',path,start,words}); }

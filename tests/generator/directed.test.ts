@@ -3,16 +3,18 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {
   ConfigError,
+  COURSE_INSTRUCTIONS,
   ReferenceInterpreter,
   assemble,
   decode,
   parseCpuConfig,
 } from '../../packages/mips-core/src/index.js';
 import {
-  generateDirectedTests,
   layoutForConfig,
+  programInstructions,
   selectSuite,
 } from '../../packages/test-generator/src/index.js';
+import {generateDirectedTests} from '../../packages/test-generator/src/builtin-directed.js';
 
 async function config() {
   return parseCpuConfig(JSON.parse(await readFile('fixtures/cpu.config.json', 'utf8')));
@@ -21,9 +23,9 @@ async function config() {
 test('directed suite has all categories, non-zero signatures and exact step counts', async () => {
   const layout = layoutForConfig(await config());
   const tests = generateDirectedTests(layout);
-  assert.equal(tests.length, 49);
+  assert.ok(tests.length >= 60);
   const categories = new Set<string>(tests.map((test) => test.category));
-  for (const category of ['add-sub', 'ori', 'sll', 'lw-sw', 'beq', 'mixed']) {
+  for (const category of ['add-sub', 'ori', 'sll', 'lui', 'j', 'nextpc', 'lw-sw', 'beq', 'mixed']) {
     assert.ok(categories.has(category), `missing category ${category}`);
   }
   const ids = new Set<string>();
@@ -64,6 +66,21 @@ test('directed suite has all categories, non-zero signatures and exact step coun
       );
     }
   }
+});
+
+test('the default instruction set never leaks sll or j into generated tests', async () => {
+  const layout = layoutForConfig(await config());
+  const tests = generateDirectedTests(layout, COURSE_INSTRUCTIONS);
+  assert.ok(tests.some((entry) => entry.id === 'lui-ffff'));
+  assert.ok(tests.every((entry) => !entry.assembly.match(/\b(sll|j)\b/)));
+  for (const entry of tests) {
+    for (const name of programInstructions(entry.assembly)) {
+      assert.ok(COURSE_INSTRUCTIONS.includes(name as never), `${entry.id} uses ${name}`);
+    }
+  }
+  const all = generateDirectedTests(layout);
+  assert.ok(all.some((entry) => entry.id.startsWith('j-')));
+  assert.ok(all.some((entry) => entry.id.startsWith('sll-')));
 });
 
 test('seeded cases are deterministic and expose their seed', async () => {

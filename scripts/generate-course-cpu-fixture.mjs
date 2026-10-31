@@ -274,7 +274,9 @@ ground('GND');
 constant('K4', 32, 4);
 constant('K3000', 32, 0x3000);
 constant('K2_5', 5, 2);
+constant('K16_5', 5, 16);
 constant('K0_5', 5, 0);
+constant('K_HIGH32', 32, 0xf0000000);
 
 // Delay the PC/register-file clock slightly so the data RAM sees the stable
 // pre-edge write event before PC changes the instruction/control signals.
@@ -282,6 +284,8 @@ wired(1, 'NOT Gate', [['CLK1', 1], ['CLK', 1]], [['width', '1']]);
 wired(1, 'NOT Gate', [['CLKCPU', 1], ['CLK1', 1]], [['width', '1']]);
 
 constant('K_OP_R', 6, 0x00);
+constant('K_OP_J', 6, 0x02);
+constant('K_OP_LUI', 6, 0x0f);
 constant('K_OP_ORI', 6, 0x0d);
 constant('K_OP_LW', 6, 0x23);
 constant('K_OP_SW', 6, 0x2b);
@@ -359,6 +363,25 @@ wired(0, 'Splitter', [
   null,
 ], splitterAttrs(2, 32, Array.from({length: 32}, (_, bit) => (bit < 16 ? 0 : 1))), splitterPorts(2));
 
+// J target index = INSTR[25:0]. It is zero-extended and shifted left by 2.
+{
+  const ports = splitterPorts(2);
+  wired(0, 'Splitter', [
+    ['INSTR', 32],
+    ['JINDEX', 26],
+    null,
+  ], splitterAttrs(2, 32, Array.from({length: 32}, (_, bit) => (bit < 26 ? 0 : 1))), ports);
+}
+wired(0, 'Bit Extender', [['JINDEX32', 32], ['JINDEX', 26]], [
+  ['in_width', '26'],
+  ['out_width', '32'],
+  ['type', 'zero'],
+]);
+wired(3, 'Shifter', [['JINDEX32', 32], ['K2_5', 5], ['JSHIFTED', 32]], [
+  ['width', '32'],
+  ['shift', 'll'],
+]);
+
 // ------------------------------------------------------------------ regfile
 // 32 real Logisim Registers. A write decoder selects one register; two 32:1
 // multiplexers provide independent rs/rt read ports. This avoids the
@@ -421,6 +444,8 @@ for (let i = 0; i < 32; i++) {
 // --------------------------------------------------------------- control
 const opcodeChecks = [
   ['IS_R', 'K_OP_R'],
+  ['IS_J', 'K_OP_J'],
+  ['IS_LUI', 'K_OP_LUI'],
   ['IS_ORI', 'K_OP_ORI'],
   ['IS_LW', 'K_OP_LW'],
   ['IS_SW', 'K_OP_SW'],
@@ -454,7 +479,8 @@ wired(1, 'OR Gate', [
   ['IS_SLL', 1],
   ['IS_ORI', 1],
   ['IS_LW', 1],
-], [['width', '1'], ['inputs', '5']], gatePorts(5));
+  ['IS_LUI', 1],
+], [['width', '1'], ['inputs', '6']], gatePorts(6));
 wired(1, 'OR Gate', [['ALUOP0', 1], ['IS_SUB', 1], ['IS_SLL', 1]], [['width', '1'], ['inputs', '2']]);
 wired(1, 'OR Gate', [['ALUOP1', 1], ['IS_ORI', 1], ['IS_SLL', 1]], [['width', '1'], ['inputs', '2']]);
 wired(1, 'OR Gate', [['ALUSRC', 1], ['IS_ORI', 1], ['IS_LW', 1], ['IS_SW', 1]], [
@@ -484,6 +510,12 @@ wired(4, 'Multiplexer', [
   ['IS_ORI', 1],
   ['IMMEXT', 32],
 ], [['width', '32'], ['select', '1'], ['enable', 'false']]);
+
+// LUI writes imm16 << 16, with imm16 treated as an unsigned bit pattern.
+wired(3, 'Shifter', [['ZEROIMM', 32], ['K16_5', 5], ['LUI_VALUE', 32]], [
+  ['width', '32'],
+  ['shift', 'll'],
+]);
 
 // --------------------------------------------------------------- ALU
 wired(4, 'Multiplexer', [
@@ -549,6 +581,12 @@ wired(4, 'Multiplexer', [
   ['ALUOUT', 32],
   ['LOADDATA', 32],
   ['IS_LW', 1],
+  ['REGRESULT_BASE', 32],
+], [['width', '32'], ['select', '1'], ['enable', 'false']]);
+wired(4, 'Multiplexer', [
+  ['REGRESULT_BASE', 32],
+  ['LUI_VALUE', 32],
+  ['IS_LUI', 1],
   ['REGRESULT', 32],
 ], [['width', '32'], ['select', '1'], ['enable', 'false']]);
 
@@ -559,10 +597,24 @@ wired(3, 'Shifter', [['SIGNIMM', 32], ['K2_5', 5], ['SHIFTEDOFFSET', 32]], [
 wired(3, 'Adder', [['PC4', 32], ['SHIFTEDOFFSET', 32], ['BRANCHTARGET', 32], ['GND', 1], null], [
   ['width', '32'],
 ]);
-wired(4, 'Multiplexer', [
+wired(1, 'AND Gate', [['PC_HIGH', 32], ['PC4', 32], ['K_HIGH32', 32]], [
+  ['width', '32'],
+  ['inputs', '2'],
+]);
+wired(1, 'OR Gate', [['JTARGET', 32], ['PC_HIGH', 32], ['JSHIFTED', 32]], [
+  ['width', '32'],
+  ['inputs', '2'],
+]);
+const pcBranchLoc = wired(4, 'Multiplexer', [
   ['PC4', 32],
   ['BRANCHTARGET', 32],
   ['TAKEN', 1],
+  ['PCBRANCH', 32],
+], [['width', '32'], ['select', '1'], ['enable', 'false']]);
+wired(4, 'Multiplexer', [
+  ['PCBRANCH', 32],
+  ['JTARGET', 32],
+  ['IS_J', 1],
   ['NEXTPC', 32],
 ], [['width', '32'], ['select', '1'], ['enable', 'false']]);
 
@@ -609,6 +661,41 @@ function emitCircuit(list, path) {
 }
 mkdirSync('fixtures', {recursive: true});
 emitCircuit(components, 'fixtures/course-cpu.circ');
+
+// Controlled fault for the NextPC regression: sw selects the branch target.
+if (process.env.COURSE_CPU_FAULT === 'sw-nextpc') {
+  const faulty = structuredClone(components);
+  // Add SWBRANCH = TAKEN || IS_SW and retarget the PC branch select tunnel.
+  const cellCol = 40;
+  const cellRow = 60;
+  faulty.push({
+    lib: 1,
+    name: 'OR Gate',
+    x: 200 + cellCol * 1000,
+    y: 200 + cellRow * 1000,
+    attrs: [['width', '1'], ['inputs', '2']],
+  });
+  for (const [dx, dy, label] of [[0, 0, 'SWBRANCH'], [-50, -20, 'TAKEN'], [-50, 20, 'IS_SW']]) {
+    faulty.push({
+      lib: 0,
+      name: 'Tunnel',
+      x: 200 + cellCol * 1000 + dx,
+      y: 200 + cellRow * 1000 + dy,
+      attrs: [['label', label]],
+    });
+  }
+  const selectTunnel = faulty.find(
+    (component) =>
+      component.name === 'Tunnel' &&
+      component.x === pcBranchLoc.x - 20 &&
+      component.y === pcBranchLoc.y + 20,
+  );
+  if (!selectTunnel) throw new Error('Could not locate PC branch select tunnel for fault fixture');
+  selectTunnel.attrs = selectTunnel.attrs.map(([name, value]) =>
+    name === 'label' ? ['label', 'SWBRANCH'] : [name, value],
+  );
+  emitCircuit(faulty, 'fixtures/course-cpu-fault-sw-nextpc.circ');
+}
 
 // Controlled fault for GUI failure-detail validation: sll always shifts by 0.
 {
@@ -670,8 +757,9 @@ const config = {
     baseByteAddress: 0,
     capacityWords: 3072,
   },
-  limits: {maxSteps: 10000, maxCycles: 10000},
+  limits: {maxSteps: 200000, maxCycles: 200000},
   inputs: [],
+  instructions: ['add', 'sub', 'ori', 'lw', 'sw', 'beq', 'lui', 'nop'],
   outputs: {
     instruction: 'Instr',
     pc: 'pc',

@@ -114,6 +114,32 @@ test('CLI returns 1 for a differential failure and reports the first signal', {t
   assert.equal(summary.results[0].firstSignalMismatch.expected, '0x12340000');
 });
 
+test('CLI runs the stress intensity with coverage', {timeout: 120000}, async () => {
+  const result = await runCli([
+    '--circuit',
+    'fixtures/course-cpu.circ',
+    '--config',
+    'fixtures/course.config.json',
+    '--suite',
+    'stress',
+    '--intensity',
+    'quick',
+    '--report',
+    'test-results/cli-stress.json',
+    '--json',
+  ]);
+  assert.equal(result.code, 0, result.stderr);
+  const summary = JSON.parse(result.stdout) as {
+    totals: Record<string, number>;
+    coverage?: {dynamicInstructions: number; staticInstructions: number; sllShamt: number[]};
+    results: {cyclesCompleted: number; instructions?: unknown[]}[];
+  };
+  assert.equal(summary.totals.failed, 0);
+  assert.equal(summary.totals.errors, 0);
+  assert.ok((summary.coverage?.dynamicInstructions ?? 0) > (summary.coverage?.staticInstructions ?? 0));
+  assert.ok(summary.results.some((entry) => entry.cyclesCompleted > (entry.instructions?.length ?? 0)));
+});
+
 test('CLI returns 2 for assembly and configuration errors', {timeout: 60000}, async () => {
   await mkdir('test-results', {recursive: true});
   await writeFile('test-results/empty.asm', '# no instructions\n');

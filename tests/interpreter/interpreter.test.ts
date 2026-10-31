@@ -44,7 +44,7 @@ function run(source: string, steps: number, initialRam?: Map<number, number>) {
   return {cpu, result};
 }
 
-test('decoder accepts exactly the seven instructions and rejects others', () => {
+test('decoder accepts the ten supported instructions and rejects others', () => {
   const accepted = [
     [0x012a4020, 'add'],
     [0x01ee8022, 'sub'],
@@ -53,6 +53,9 @@ test('decoder accepts exactly the seven instructions and rejects others', () => 
     [0xafdf0008, 'sw'],
     [0x11090001, 'beq'],
     [0x00085100, 'sll'],
+    [0x3c08ffff, 'lui'],
+    [0x08000c00, 'j'],
+    [0x00000000, 'nop'],
   ] as const;
   for (const [word, kind] of accepted) {
     const decoded = decode(word);
@@ -75,6 +78,39 @@ test('decoder accepts exactly the seven instructions and rejects others', () => 
     funct: 0x3c,
     immediate: 0xfffc,
   });
+});
+
+test('LUI, NOP and J have the required architectural semantics', () => {
+  const lui = run('lui $t0, 0xFFFF\nori $t0, $t0, 0x8000\nsw $t0, 0($zero)\n', 3);
+  assert.equal(lui.result.status, 'completed');
+  assert.equal(lui.cpu.register(8), 0xffff8000);
+  assert.equal(lui.cpu.trace[0].registerWrite?.value, 0xffff0000);
+
+  const nop = run('nop\nori $t0, $zero, 7\n', 2);
+  assert.equal(nop.cpu.register(8), 7);
+  assert.equal(nop.cpu.trace[0].pcAfter, 4);
+  assert.equal(nop.cpu.trace[0].registerWrite, undefined);
+  assert.equal(nop.cpu.trace[0].memoryWrite, undefined);
+
+  const jump = run('ori $t0, $zero, 1\nj target\nori $t0, $zero, 0xbad\ntarget:\nsw $t0, 0($zero)\n', 3);
+  assert.equal(jump.result.status, 'completed');
+  assert.equal(jump.cpu.register(8), 1);
+  assert.equal(jump.cpu.trace[1].pcAfter, 12);
+});
+
+test('the configured instruction set is enforced by the reference interpreter', () => {
+  const program = assemble('lui $t0, 1\nsll $t0, $t0, 1\n');
+  const cpu = new ReferenceInterpreter({
+    romWords: program.words,
+    rom: ROM,
+    ram: RAM,
+    initialPc: 0,
+    instructions: ['add', 'sub', 'ori', 'lw', 'sw', 'beq', 'lui', 'nop'],
+  });
+  const result = cpu.runSteps(2);
+  assert.equal(result.status, 'error');
+  assert.equal(result.error?.code, 'INSTRUCTION_DISABLED');
+  assert.equal(cpu.register(8), 0x10000);
 });
 
 test('PC advances by 4 and a taken beq uses PC+4+offset<<2', () => {

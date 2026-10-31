@@ -688,8 +688,9 @@ const config = {
     baseByteAddress: 0,
     capacityWords: 256,
   },
-  limits: {maxSteps: 10000, maxCycles: 10000},
+  limits: {maxSteps: 200000, maxCycles: 200000},
   inputs: [],
+  instructions: ['add', 'sub', 'ori', 'lw', 'sw', 'beq', 'sll', 'nop'],
   outputs: {
     instruction: 'Instr',
     pc: 'pc',

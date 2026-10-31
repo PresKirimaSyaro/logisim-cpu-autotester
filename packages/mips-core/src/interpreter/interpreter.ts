@@ -1,6 +1,7 @@
 import {ConfigError, ExecutionError, type ExecutionErrorInfo, type MipsErrorCode} from '../errors.js';
 import {signExtend16, u32} from '../isa/constants.js';
 import {decode, formatInstruction, type Instruction, type DecodeFailure} from '../isa/decode.js';
+import {ALL_INSTRUCTIONS, type InstructionName} from '../isa/instruction-set.js';
 import {AddressMap, type AddressRegion} from '../memory/address-map.js';
 
 /**
@@ -22,6 +23,8 @@ export interface ReferenceImage {
   initialPc: number;
   /** Initial RAM contents keyed by MIPS byte address. Missing addresses are zero. */
   initialRam?: ReadonlyMap<number, number>;
+  /** Instruction set enabled for this image. Defaults to all supported instructions. */
+  instructions?: readonly InstructionName[];
 }
 
 export interface InterpreterOptions {
@@ -81,10 +84,12 @@ export class ReferenceInterpreter {
   readonly trace: TraceEntry[] = [];
   private readonly traceEnabled: boolean;
   private readonly maxSteps: number;
+  private readonly enabledInstructions: ReadonlySet<InstructionName>;
 
   constructor(readonly image: ReferenceImage, options: InterpreterOptions = {}) {
     this.rom = new AddressMap(image.rom, 'ROM');
     this.ram = new AddressMap(image.ram, 'RAM');
+    this.enabledInstructions = new Set(image.instructions ?? ALL_INSTRUCTIONS);
     this.traceEnabled = options.trace ?? false;
     this.maxSteps = clampMaxSteps(options.maxSteps ?? MAX_STEPS_HARD_LIMIT);
     if (image.romWords.length > this.rom.capacityWords) {
@@ -192,8 +197,32 @@ export class ReferenceInterpreter {
         throw this.decodeFailure(decoded, pcBefore);
       }
       instruction = decoded.instruction;
+      if (!this.enabledInstructions.has(instruction.kind)) {
+        throw new ExecutionError(
+          'INSTRUCTION_DISABLED',
+          `Instruction ${instruction.kind} is not enabled for this CPU`,
+          pcBefore,
+        );
+      }
       const registers = this.state.registers;
       switch (instruction.kind) {
+        case 'nop': {
+          pcAfter = u32(pcBefore + 4);
+          break;
+        }
+        case 'lui': {
+          const value = u32(instruction.immediate << 16);
+          registerWrite = this.writeRegister(instruction.rt, value);
+          pcAfter = u32(pcBefore + 4);
+          break;
+        }
+        case 'j': {
+          pcAfter = u32(((pcBefore + 4) & 0xf0000000) | ((instruction.index << 2) >>> 0));
+          if (pcAfter % 4 !== 0) {
+            throw new ExecutionError('PC_MISALIGNED', `Jump target 0x${pcAfter.toString(16)} is not word aligned`, pcBefore);
+          }
+          break;
+        }
         case 'add': {
           const value = u32((registers[instruction.rs] >>> 0) + (registers[instruction.rt] >>> 0));
           registerWrite = this.writeRegister(instruction.rd, value);

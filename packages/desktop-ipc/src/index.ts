@@ -1,7 +1,8 @@
 import type {ComponentInfo, PortInfo} from '../../protocol/src/index.js';
 import type {CpuConfig} from '../../mips-core/src/config/config.js';
+import type {InstructionName} from '../../mips-core/src/isa/instruction-set.js';
 import type {Diagnostic} from '../../mips-core/src/errors.js';
-import type {RunSummary, TestResult, TestInput} from '../../differential-runner/src/types.js';
+import type {CoverageSummary, RunSummary, TestResult, TestInput} from '../../differential-runner/src/types.js';
 
 export const IPC = {
   stateGet: 'state:get',
@@ -13,6 +14,7 @@ export const IPC = {
   configSave: 'config:save',
   asmChoose: 'asm:choose',
   asmSave: 'asm:save',
+  instructionsSet: 'instructions:set',
   reportChoosePath: 'report:choosePath',
   reportExport: 'report:export',
   runStart: 'run:start',
@@ -20,13 +22,19 @@ export const IPC = {
   historyList: 'history:list',
   historyGet: 'history:get',
   historyRerun: 'history:rerun',
+  resultOpen: 'result:open',
+  reportMeta: 'report:meta',
+  reportTest: 'report:test',
+  reportTrace: 'report:trace',
+  hexExport: 'hex:export',
   assemble: 'assemble',
   logsGet: 'logs:get',
   runUpdate: 'run:update',
   stateUpdate: 'state:update',
 } as const;
 
-export type SuiteName = 'basic' | 'full' | 'branch' | 'memory' | 'alu';
+export type SuiteName = 'basic' | 'full' | 'branch' | 'memory' | 'alu' | 'stress';
+export type StressIntensity = 'quick' | 'standard' | 'stress';
 
 export interface TesterSettings {
   /** Empty means java / $JAVA. */
@@ -36,6 +44,8 @@ export interface TesterSettings {
   bridgeTimeoutMs: number;
   maxCycles: number;
   theme: 'light' | 'dark';
+  /** Last selected instruction set, persisted across circuit loads. */
+  instructions: InstructionName[];
 }
 
 export interface CircuitProfile {
@@ -78,6 +88,66 @@ export interface HistoryRecord {
   request: RunRequest;
 }
 
+export interface ReportTestSummary {
+  id: string;
+  name: string;
+  category: string;
+  status: TestResult['status'];
+  errorType?: string;
+  message?: string;
+  staticInstructions: number;
+  cyclesRequested: number;
+  cyclesCompleted: number;
+  firstDifferenceCycle?: number;
+  firstDifferenceSignal?: string;
+  seed: number | null;
+}
+
+export interface ReportMeta {
+  id: string;
+  createdAt: string;
+  circuitPath: string;
+  circuitName: string;
+  configName: string;
+  suite: string;
+  totals: RunSummary['totals'];
+  durationMs: number;
+  complete: boolean;
+  tests: ReportTestSummary[];
+  instructions?: InstructionName[];
+  coverage?: CoverageSummary;
+}
+
+export interface TraceValue {
+  expected?: string;
+  actual?: string;
+  actualStatus?: 'known' | 'unsampled' | 'unknown' | 'error';
+}
+
+export interface TraceRow {
+  cycle: number;
+  staticIndex?: number;
+  staticAddress?: number;
+  pc: TraceValue;
+  instruction: TraceValue;
+  regWrite: TraceValue;
+  regAddr: TraceValue;
+  regData: TraceValue;
+  memWrite: TraceValue;
+  memAddr: TraceValue;
+  memData: TraceValue;
+}
+
+export interface TracePage {
+  total: number;
+  offset: number;
+  limit: number;
+  rows: TraceRow[];
+  firstMismatchCycle?: number;
+  firstMismatchSignal?: string;
+  firstPcCycle?: number;
+}
+
 export interface RunRequest {
   kind: 'suite' | 'assembly' | 'history';
   suite?: SuiteName;
@@ -86,6 +156,10 @@ export interface RunRequest {
   stopPc?: number;
   historyId?: string;
   onlyFailed?: boolean;
+  intensity?: StressIntensity;
+  seedCount?: number;
+  seed?: number;
+  maxCycles?: number;
 }
 
 export interface AssembleResult {
@@ -104,6 +178,9 @@ export interface AppState {
   bridgeStatus: 'stopped' | 'starting' | 'running' | 'stopping' | 'error';
   running: boolean;
   lastSummary: RunSummary | null;
+  lastReportId: string | null;
+  /** External directed-test suite used by the next generated run. */
+  suiteFile: string;
   lastError: string | null;
   logs: string[];
 }
@@ -155,12 +232,18 @@ export interface DesktopApi {
   saveConfig(config: CpuConfig, path?: string): Promise<{saved: boolean; path?: string; error?: string}>;
   chooseAsm(): Promise<FileText | null>;
   saveAsm(source: string, suggestedPath?: string): Promise<{saved: boolean; path?: string}>;
+  setInstructions(instructions: InstructionName[]): Promise<{ok: boolean; config?: CpuConfig; error?: string}>;
   chooseReportPath(suggestedName: string): Promise<string | null>;
   exportReport(historyId: string, path?: string): Promise<{saved: boolean; path?: string; error?: string}>;
   run(request: RunRequest): Promise<RunStartResult>;
   stop(): Promise<void>;
   listHistory(): Promise<HistoryMeta[]>;
   getHistory(id: string): Promise<HistoryRecord | null>;
+  openResult(reportId: string): Promise<boolean>;
+  getReportMeta(reportId: string): Promise<ReportMeta | null>;
+  getReportTest(reportId: string, testId: string): Promise<TestResult | null>;
+  getReportTrace(reportId: string, testId: string, offset: number, limit: number): Promise<TracePage | null>;
+  exportHex(reportId: string, testId: string): Promise<{saved: boolean; path?: string}>;
   rerun(historyId: string, onlyFailed: boolean): Promise<RunStartResult>;
   assemble(source: string): Promise<AssembleResult>;
   getLogs(): Promise<string[]>;

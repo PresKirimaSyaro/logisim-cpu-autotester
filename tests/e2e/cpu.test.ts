@@ -3,10 +3,13 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
 import {LogisimBridge} from '../../packages/bridge-client/src/index.js';
-import {parseCpuConfig} from '../../packages/mips-core/src/index.js';
+import type {BridgeOperation} from '../../packages/protocol/src/index.js';
+import {ALL_INSTRUCTIONS, parseCpuConfig} from '../../packages/mips-core/src/index.js';
 import {
-  generateDirectedTests,
+  generateStressTests,
   layoutForConfig,
+  parseTestSuite,
+  testsFromSuite,
   type DirectedTest,
 } from '../../packages/test-generator/src/index.js';
 import {
@@ -22,6 +25,14 @@ async function loadConfig() {
 
 async function loadCourseConfig() {
   return parseCpuConfig(JSON.parse(await readFile('fixtures/course.config.json', 'utf8')));
+}
+
+async function loadExternalTests(
+  layout: ReturnType<typeof layoutForConfig>,
+  instructions: readonly import('../../packages/mips-core/src/isa/instruction-set.js').InstructionName[],
+): Promise<DirectedTest[]> {
+  const raw = JSON.parse(await readFile('test-suites/course.json', 'utf8'));
+  return testsFromSuite(parseTestSuite(raw), layout, instructions);
 }
 
 function toInput(test: DirectedTest): TestInput {
@@ -53,11 +64,12 @@ async function runSuite(circuit: string, tests: TestInput[], configOverride?: Aw
   }
 }
 
-test('course profile (main, internal Clock, standard outputs) passes all 49 black-box tests', {timeout: 120000}, async () => {
+test('course profile passes every test generated for its configured instruction set', {timeout: 120000}, async () => {
   const config = await loadCourseConfig();
-  const tests = generateDirectedTests(layoutForConfig(config)).map(toInput);
+  const tests = (await loadExternalTests(layoutForConfig(config), config.instructions)).map(toInput);
   const summary = await runSuite('fixtures/course-cpu.circ', tests, config);
-  assert.deepEqual(summary.totals, {total: 49, passed: 49, failed: 0, errors: 0, skipped: 0});
+  assert.deepEqual(summary.totals, {total: tests.length, passed: tests.length, failed: 0, errors: 0, skipped: 0});
+  assert.equal(summary.instructions?.join(','), config.instructions.join(','));
   for (const result of summary.results) {
     assert.equal(result.status, 'pass', result.message);
     assert.equal(result.firstSignalMismatch, undefined);
@@ -69,14 +81,25 @@ test('course profile (main, internal Clock, standard outputs) passes all 49 blac
   }
 });
 
-test('real external-clock CPU passes all 49 black-box tests through its top-level outputs', {timeout: 120000}, async () => {
+test('course CPU passes optional sll and j tests when enabled', {timeout: 120000}, async () => {
+  const base = await loadCourseConfig();
+  const config = {...base, instructions: [...ALL_INSTRUCTIONS]};
+  const tests = (await loadExternalTests(layoutForConfig(config), config.instructions)).map(toInput);
+  assert.ok(tests.some((entry) => entry.id === 'j-backward-loop'));
+  assert.ok(tests.some((entry) => entry.id === 'sll-15'));
+  const summary = await runSuite('fixtures/course-cpu.circ', tests, config);
+  assert.deepEqual(summary.totals, {total: tests.length, passed: tests.length, failed: 0, errors: 0, skipped: 0});
+});
+
+test('real external-clock CPU passes every test generated for its configured instruction set', {timeout: 120000}, async () => {
   const config = await loadConfig();
-  const tests = generateDirectedTests(layoutForConfig(config)).map(toInput);
-  assert.equal(tests.length, 49);
-  const summary = await runSuite('fixtures/cpu.circ', tests);
+  const tests = (await loadExternalTests(layoutForConfig(config), config.instructions)).map(toInput);
+  assert.ok(tests.length > 30);
+  assert.ok(tests.every((entry) => !/^\s*(lui|\bj\b)\b/m.test(entry.assembly)));
+  const summary = await runSuite('fixtures/cpu.circ', tests, config);
   assert.deepEqual(
     summary.totals,
-    {total: 49, passed: 49, failed: 0, errors: 0, skipped: 0},
+    {total: tests.length, passed: tests.length, failed: 0, errors: 0, skipped: 0},
     JSON.stringify(summary.results.filter((result) => result.status !== 'pass'), null, 2),
   );
   for (const result of summary.results) {
@@ -92,7 +115,7 @@ test('real external-clock CPU passes all 49 black-box tests through its top-leve
 
 test('runner performs no readMemory call at all in black-box mode', {timeout: 60000}, async () => {
   const config = await loadCourseConfig();
-  const test = generateDirectedTests(layoutForConfig(config)).find((entry) => entry.id === 'add-basic');
+  const test = (await loadExternalTests(layoutForConfig(config), config.instructions)).find((entry) => entry.id === 'add-basic');
   assert.ok(test);
   const bridge = new LogisimBridge({timeoutMs: 30000});
   const memoryReads: string[] = [];
@@ -124,7 +147,7 @@ test('runner performs no readMemory call at all in black-box mode', {timeout: 60
 
 test('$zero writeback with RegWrite=1/RegAddr=0 is treated as a no-op, not an error', {timeout: 60000}, async () => {
   const config = await loadCourseConfig();
-  const test = generateDirectedTests(layoutForConfig(config)).find((entry) => entry.id === 'add-zero-register');
+  const test = (await loadExternalTests(layoutForConfig(config), config.instructions)).find((entry) => entry.id === 'add-zero-register');
   assert.ok(test);
   const bridge = new LogisimBridge({timeoutMs: 30000});
   let reads = 0;
@@ -184,34 +207,139 @@ test('sw/lw cross-check observes store data and the later load writeback', {time
   }
 });
 
+test('stress quick suite runs real loops and reports dynamic vs static coverage', {timeout: 120000}, async () => {
+  const config = await loadCourseConfig();
+  const tests = generateStressTests(layoutForConfig(config), {intensity: 'quick', instructions: config.instructions}).map(toInput);
+  const summary = await runSuite('fixtures/course-cpu.circ', tests, config);
+  assert.deepEqual(summary.totals, {total: tests.length, passed: tests.length, failed: 0, errors: 0, skipped: 0});
+  const loop = summary.results.find((result) => result.id.includes('loop-sum'));
+  assert.ok(loop);
+  assert.ok(loop.cyclesCompleted > (loop.instructions?.length ?? 0), 'loop must execute more cycles than static instructions');
+  assert.ok((summary.coverage?.dynamicInstructions ?? 0) > (summary.coverage?.staticInstructions ?? 0));
+  assert.ok((summary.coverage?.instructions.add ?? 0) > 0);
+  assert.ok((summary.coverage?.instructions.beq ?? 0) > 0);
+  assert.ok((summary.coverage?.nonControlPcPlus4 ?? 0) > 0);
+  assert.equal(summary.coverage?.nonControlPcBad, 0);
+  assert.ok((summary.coverage?.branchForward ?? 0) > 0);
+  assert.ok((summary.coverage?.branchBackward ?? 0) > 0);
+});
+
+test('cycle limit is reported as cycle-limit, not a false CPU failure', {timeout: 60000}, async () => {
+  const config = await loadCourseConfig();
+  const test = generateStressTests(layoutForConfig(config), {intensity: 'quick', instructions: config.instructions})
+    .find((entry) => entry.id.includes('loop-sum'));
+  assert.ok(test);
+  const bridge = new LogisimBridge({timeoutMs: 30000});
+  try {
+    const runner = new DifferentialRunner({
+      circuitPath: resolve('fixtures/course-cpu.circ'),
+      config,
+      bridge,
+      maxCycles: 100,
+    });
+    const result = await runner.runTest(toInput(test));
+    assert.equal(result.status, 'error');
+    assert.equal(result.errorType, 'cycle-limit');
+    assert.equal(result.cyclesCompleted, 100);
+    assert.match(result.message ?? '', /Cycle limit/i);
+  } finally {
+    await bridge.close();
+  }
+});
+
+test('unknown sampled values are preserved and reported, not coerced to zero', {timeout: 60000}, async () => {
+  const config = await loadCourseConfig();
+  const test = (await loadExternalTests(layoutForConfig(config), config.instructions)).find((entry) => entry.id === 'add-basic');
+  assert.ok(test);
+  const bridge = new LogisimBridge({timeoutMs: 30000});
+  let patched = false;
+  const proxy = new Proxy(bridge, {
+    get(target, property, receiver) {
+      if (property === 'batch') {
+        return async (operations: BridgeOperation[]) => {
+          const batch = await target.batch(operations);
+          if (!patched && batch.results.length >= 4) {
+            const read = batch.results[3];
+            if (read.ok) {
+              const values = read.result as Record<string, {status: string; value: string}>;
+              values[config.outputs!.instruction] = {
+                ...values[config.outputs!.instruction],
+                status: 'unknown',
+                value: '0x00000000',
+              };
+              patched = true;
+            }
+          }
+          return batch;
+        };
+      }
+      const value = Reflect.get(target, property, receiver);
+      return typeof value === 'function' ? value.bind(target) : value;
+    },
+  }) as unknown as CpuBridge;
+  try {
+    const runner = new DifferentialRunner({
+      circuitPath: resolve('fixtures/course-cpu.circ'),
+      config,
+      bridge: proxy,
+    });
+    const result = await runner.runTest(toInput(test));
+    assert.equal(result.status, 'fail');
+    assert.equal(result.errorType, 'signal-mismatch');
+    assert.equal(result.firstSignalMismatch?.signal, 'instruction');
+    assert.equal(result.firstSignalMismatch?.actual, 'unknown');
+    assert.ok(result.signalCheckpoints?.some((entry) => entry.cycle === 2 && entry.signal === 'instruction' && entry.actualStatus === 'unknown'));
+  } finally {
+    await proxy.close();
+  }
+});
+
+test('sw NextPC fault is detected at the first post-clock PC divergence', {timeout: 60000}, async () => {
+  const config = await loadCourseConfig();
+  const test = (await loadExternalTests(layoutForConfig(config), config.instructions))
+    .find((entry) => entry.id === 'nextpc-sw-offset');
+  assert.ok(test);
+  const summary = await runSuite('fixtures/course-cpu-fault-sw-nextpc.circ', [toInput(test)], config);
+  assert.equal(summary.totals.failed, 1);
+  const result = summary.results[0];
+  assert.equal(result.status, 'fail');
+  assert.ok(result.pc?.firstDivergence);
+  assert.ok(result.firstSignalMismatch || result.pc?.firstDivergence);
+  assert.match(result.message ?? '', /PC diverged/);
+});
+
 test('physical RAM count does not affect acceptance: extra RAM components are ignored', {timeout: 120000}, async () => {
   const config = await loadCourseConfig();
-  const tests = generateDirectedTests(layoutForConfig(config)).map(toInput);
+  const tests = (await loadExternalTests(layoutForConfig(config), config.instructions)).map(toInput);
   const summary = await runSuite('fixtures/course-multi-ram.circ', tests, config);
-  assert.deepEqual(summary.totals, {total: 49, passed: 49, failed: 0, errors: 0, skipped: 0});
+  assert.deepEqual(summary.totals, {total: tests.length, passed: tests.length, failed: 0, errors: 0, skipped: 0});
   for (const result of summary.results) assert.equal(result.status, 'pass', result.message);
 });
 
 test('controlled faulty CPU is detected at the first signal mismatch', {timeout: 60000}, async () => {
-  const config = await loadConfig();
-  const test = generateDirectedTests(layoutForConfig(config)).find((entry) => entry.id === 'sll-15');
+  const base = await loadCourseConfig();
+  const config = {
+    ...base,
+    instructions: ['add', 'sub', 'ori', 'lw', 'sw', 'beq', 'lui', 'sll', 'nop'] as import('../../packages/mips-core/src/isa/instruction-set.js').InstructionName[],
+  };
+  const test = (await loadExternalTests(layoutForConfig(config), config.instructions)).find((entry) => entry.id === 'sll-15');
   assert.ok(test);
-  const summary = await runSuite('fixtures/cpu-faulty.circ', [toInput(test)]);
+  const summary = await runSuite('fixtures/course-faulty.circ', [toInput(test)], config);
   assert.equal(summary.totals.failed, 1);
   const result = summary.results[0];
   assert.equal(result.status, 'fail');
   assert.equal(result.errorType, 'signal-mismatch');
   assert.ok(result.firstSignalMismatch);
   assert.equal(result.firstSignalMismatch?.signal, 'RegData');
-  assert.equal(result.firstSignalMismatch?.cycle, 2);
-  assert.equal(result.firstSignalMismatch?.expected, '0x12340000');
+  assert.equal(result.firstSignalMismatch?.cycle, 3);
+  assert.equal(result.firstSignalMismatch?.expected, '0x2B3C0000');
   assert.notEqual(result.firstSignalMismatch?.actual, result.firstSignalMismatch?.expected);
   assert.equal(result.actualRam, undefined);
 });
 
 test('dead CPU fails at the first post-clock PC divergence, not PASS', {timeout: 60000}, async () => {
   const config = await loadConfig();
-  const test = generateDirectedTests(layoutForConfig(config)).find((entry) => entry.id === 'add-basic');
+  const test = (await loadExternalTests(layoutForConfig(config), config.instructions)).find((entry) => entry.id === 'add-basic');
   assert.ok(test);
   const summary = await runSuite('fixtures/cpu-dead.circ', [toInput(test)]);
   assert.equal(summary.totals.failed, 1);
@@ -227,7 +355,7 @@ test('dead CPU fails at the first post-clock PC divergence, not PASS', {timeout:
 test('config without top-level outputs is rejected instead of falling back to RAM', {timeout: 60000}, async () => {
   const config = await loadConfig();
   const noOutputs = {...config, outputs: undefined};
-  const test = generateDirectedTests(layoutForConfig(config)).find((entry) => entry.id === 'add-basic');
+  const test = (await loadExternalTests(layoutForConfig(config), config.instructions)).find((entry) => entry.id === 'add-basic');
   assert.ok(test);
   const summary = await runSuite('fixtures/cpu.circ', [toInput(test)], noOutputs);
   const result = summary.results[0];
@@ -243,7 +371,7 @@ test('state reset and PC pin observation remain supported', {timeout: 60000}, as
     reset: {strategy: 'state' as const},
     pc: {mode: 'pin' as const, port: 'pc', initial: 0, checkEachCycle: true},
   };
-  const test = generateDirectedTests(layoutForConfig(config)).find((entry) => entry.id === 'add-basic');
+  const test = (await loadExternalTests(layoutForConfig(config), config.instructions)).find((entry) => entry.id === 'add-basic');
   assert.ok(test);
   const summary = await runSuite('fixtures/cpu.circ', [toInput(test)], alternate);
   assert.equal(summary.results[0].status, 'pass', summary.results[0].message);
@@ -314,3 +442,4 @@ test('empty and unobservable programs are rejected rather than marked pass', {ti
     await bridge.close();
   }
 });
+
